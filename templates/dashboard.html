@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h3>Account Overview</h3>
+    <p><b>Tier:</b> {{ profile.subscription_tier }}</p>
+    <p><b>Credits:</b> {{ profile.credits_balance }}</p>
+    <p><b>Total Tokens Used:</b> {{ profile.total_tokens_used }}</p>
+</div>
+
+<div class="card">
+    <h3>Quick Actions</h3>
+    <a href="{% url 'create_notebook' %}" class="btn">Create Notebook</a>
+</div>
+
+{% endblock %}

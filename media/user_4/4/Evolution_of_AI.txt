@@ -1,0 +1,9 @@
+Artificial Intelligence (AI) refers to the development of computer systems that can perform tasks typically requiring human intelligence. These tasks include problem-solving, language understanding, visual perception, and decision-making. The foundations of AI were laid in the 1950s, when researchers began exploring symbolic reasoning and rule-based systems.
+
+During the 1980s and 1990s, AI research shifted toward machine learning. Instead of programming explicit rules, systems were designed to learn patterns from data. This approach allowed computers to improve performance through experience. Algorithms such as decision trees and support vector machines became widely adopted in practical applications.
+
+A major breakthrough occurred in the 2010s with the rise of deep learning. Neural networks with multiple layers demonstrated remarkable success in tasks like image recognition and speech processing. The availability of large datasets and powerful GPUs accelerated this transformation. Companies began integrating AI into products such as voice assistants, recommendation systems, and autonomous vehicles.
+
+In recent years, generative AI has emerged as a dominant paradigm. Large language models can generate human-like text, summarize documents, translate languages, and even write code. These models are trained on massive datasets and rely on transformer architectures. While generative AI offers enormous potential, it also raises ethical concerns regarding misinformation, bias, and job displacement.
+
+The future of AI will likely involve hybrid systems combining symbolic reasoning with deep learning. Researchers are also focusing on improving explainability, fairness, and energy efficiency. Governments worldwide are developing regulatory frameworks to ensure responsible AI deployment.

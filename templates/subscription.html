@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Subscription Plans</h2>
+
+{% for tier, data in plans.items %}
+<div class="card">
+    <h3>{{ tier|capfirst }}</h3>
+    <p>Price: ₹{{ data.price }}</p>
+    <p>Max Documents: {{ data.max_documents }}</p>
+    <p>Max Tokens / Query: {{ data.max_tokens_per_query }}</p>
+
+    {% if profile.subscription_tier == tier %}
+        <p><b>Current Plan</b></p>
+    {% else %}
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="tier" value="{{ tier }}">
+            <button class="btn">Switch Plan</button>
+        </form>
+    {% endif %}
+</div>
+{% endfor %}
+
+{% endblock %}

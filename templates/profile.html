@@ -1,0 +1,1856 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Profile — {{ profile.user.get_full_name|default:profile.user.username }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #f7f5f0;
+  --surface:  #ffffff;
+  --surface2: #f2f0ea;
+  --border:   #e5e0d5;
+  --border2:  #d4cfc4;
+  --text:     #1a1714;
+  --muted:    #8c8478;
+  --accent:   #2d6a4f;
+  --accent2:  #40916c;
+  --accent3:  #52b788;
+  --accent4:  #b7e4c7;
+  --ink:      #1a1714;
+
+  --ca-color:   #b45309;
+  --clat-color: #1d4ed8;
+
+  --heat0: #e9ede8;
+  --heat1: #a8d5b5;
+  --heat2: #52b788;
+  --heat3: #2d6a4f;
+  --heat4: #1b4332;
+
+  --font-serif: 'Fraunces', serif;
+  --font-mono:  'DM Mono', monospace;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow:    0 4px 16px rgba(0,0,0,0.08);
+  --radius:    12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Page layout ── */
+.page { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+/* ── Hero card ── */
+.hero {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px 40px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 32px;
+  align-items: center;
+  box-shadow: var(--shadow);
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent3), var(--accent4));
+}
+
+.avatar-wrap { position: relative; }
+.avatar {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  object-fit: cover;
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  font-family: var(--font-serif);
+  color: var(--accent);
+  overflow: hidden;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-online {
+  position: absolute;
+  bottom: 4px; right: 4px;
+  width: 14px; height: 14px;
+  background: var(--accent3);
+  border: 2.5px solid var(--surface);
+  border-radius: 50%;
+}
+
+.hero-info {}
+.hero-name {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+.hero-email { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+.hero-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+.badge-ca    { background: #fef3c7; color: var(--ca-color);   border: 1px solid #fde68a; }
+.badge-clat  { background: #dbeafe; color: var(--clat-color); border: 1px solid #bfdbfe; }
+.badge-free  { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+.badge-pro   { background: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff; }
+.badge-ent   { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+
+.hero-stats { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+.hero-stat-item { text-align: right; }
+.hero-stat-val {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+.hero-stat-lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* ── Two column layout ── */
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ── Card ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.card-head {
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-title {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.card-body { padding: 20px 22px; }
+
+/* ── Background / Designation card ── */
+.bg-section { display: flex; flex-direction: column; gap: 14px; }
+
+.desig-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.desig-option {
+  position: relative;
+  cursor: pointer;
+}
+.desig-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0; height: 0;
+}
+.desig-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: center;
+}
+.desig-label:hover { border-color: var(--accent3); background: #f0faf4; }
+.desig-option input:checked + .desig-label {
+  border-color: var(--accent);
+  background: #edf7f2;
+  box-shadow: 0 0 0 3px rgba(52,183,120,0.12);
+}
+.desig-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+.desig-title {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.3;
+}
+.desig-sub {
+  font-size: 9.5px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.desig-check {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px;
+  color: transparent;
+  transition: all 0.15s;
+  margin-top: 2px;
+}
+.desig-option input:checked + .desig-label .desig-check {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Firm / College row */
+.info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.info-field { display: flex; flex-direction: column; gap: 5px; }
+.info-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.info-val-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface2);
+  min-height: 38px;
+}
+.info-icon { font-size: 14px; flex-shrink: 0; }
+.info-val-text {
+  font-size: 12.5px;
+  color: var(--text);
+  flex: 1;
+}
+.info-val-text.empty { color: var(--muted); font-style: italic; }
+.info-edit-btn {
+  font-size: 10px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.info-edit-btn:hover { color: var(--accent); border-color: var(--accent3); background: #f0faf4; }
+
+/* ── Skills ── */
+.skills-wrap { display: flex; flex-direction: column; gap: 12px; }
+.skills-tags { display: flex; flex-wrap: wrap; gap: 7px; min-height: 32px; }
+.skill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text);
+  transition: all 0.15s;
+  animation: skillIn 0.2s ease;
+}
+@keyframes skillIn { from { opacity:0; transform:scale(0.85); } to { opacity:1; transform:scale(1); } }
+.skill-tag:hover { border-color: var(--border2); }
+.skill-remove {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--border2);
+  border: none;
+  cursor: pointer;
+  font-size: 9px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+  padding: 0;
+  transition: all 0.15s;
+  line-height: 1;
+}
+.skill-remove:hover { background: #fca5a5; color: #dc2626; }
+.skill-add-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.skill-input {
+  flex: 1;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+  background: var(--surface2);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.skill-input:focus { border-color: var(--accent3); background: #fff; }
+.skill-add-btn {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.skill-add-btn:hover { background: var(--accent2); }
+
+/* Skill level dots */
+.skill-level {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+.skill-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--border2);
+  transition: background 0.15s;
+}
+.skill-dot.filled { background: var(--accent3); }
+
+/* ── Recent Chats ── */
+.chat-list { display: flex; flex-direction: column; gap: 8px; }
+.chat-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  color: inherit;
+}
+.chat-item:hover { border-color: var(--border2); background: var(--surface); box-shadow: var(--shadow-sm); }
+.chat-icon-wrap {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+}
+.chat-icon-wrap.research  { background: #eff6ff; border-color: #bfdbfe; }
+.chat-icon-wrap.drafting  { background: #f5f3ff; border-color: #ddd6fe; }
+.chat-icon-wrap.revision  { background: #fdf4ff; border-color: #f0abfc; }
+.chat-icon-wrap.general   { background: #fffbeb; border-color: #fde68a; }
+
+.chat-meta { flex: 1; min-width: 0; }
+.chat-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+.chat-title-text {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+.chat-time { font-size: 10px; color: var(--muted); flex-shrink: 0; }
+.chat-preview {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-type-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 8px;
+  font-size: 9.5px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+.pill-research  { background: #dbeafe; color: #1d4ed8; }
+.pill-drafting  { background: #ede9fe; color: #5b21b6; }
+.pill-revision  { background: #fce7f3; color: #9d174d; }
+.pill-general   { background: #fef3c7; color: #92400e; }
+.pill-study     { background: #d1fae5; color: #065f46; }
+
+.chat-empty {
+  text-align: center;
+  padding: 32px 20px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.chat-empty-icon { font-size: 28px; opacity: 0.3; margin-bottom: 8px; }
+
+/* ── Heatmap ── */
+.heatmap-outer { overflow-x: auto; padding-bottom: 6px; }
+.heatmap-grid { display: flex; gap: 3.5px; width: max-content; }
+.heatmap-col  { display: flex; flex-direction: column; gap: 3.5px; }
+.heatmap-cell {
+  width: 12px; height: 12px;
+  border-radius: 2.5px;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.heatmap-cell:hover {
+  transform: scale(1.5);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 10;
+  position: relative;
+}
+.heatmap-months {
+  display: flex;
+  gap: 0;
+  font-size: 9px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  padding-left: 2px;
+  overflow: hidden;
+}
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.legend-cell { width: 11px; height: 11px; border-radius: 2px; }
+
+/* Tooltip */
+.tooltip {
+  position: fixed;
+  background: var(--ink);
+  color: #fff;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 5px 10px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 9999;
+  white-space: nowrap;
+  display: none;
+  box-shadow: var(--shadow);
+}
+.tooltip::after {
+  content:'';
+  position: absolute;
+  bottom: -4px; left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--ink);
+  border-bottom: none;
+}
+
+/* ── Stats bar ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.stat-tile-val {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-tile-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+/* ── Type breakdown bars ── */
+.type-list { display: flex; flex-direction: column; gap: 10px; }
+.type-row { display: flex; align-items: center; gap: 10px; }
+.type-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.type-name { width: 80px; font-size: 12px; color: var(--text); }
+.type-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.type-bar-fill { height: 100%; border-radius: 6px; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+.type-cnt { font-size: 11px; color: var(--muted); min-width: 28px; text-align: right; }
+
+/* ── Case logs ── */
+.log-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.log-add-btn:hover  { background: var(--accent2); }
+.log-add-btn:active { transform: scale(0.96); }
+
+.log-list { display: flex; flex-direction: column; gap: 12px; }
+
+.log-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  background: var(--bg);
+  transition: box-shadow 0.15s, border-color 0.15s;
+  position: relative;
+}
+.log-item:hover { box-shadow: var(--shadow); border-color: var(--border2); }
+.log-item.pinned {
+  border-color: var(--accent3);
+  background: #f0faf4;
+}
+.log-item.pinned::before {
+  content: '📌';
+  position: absolute;
+  top: 14px; right: 14px;
+  font-size: 13px;
+}
+
+.log-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.log-title {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  flex: 1;
+  line-height: 1.3;
+}
+.log-desc  { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; line-height: 1.6; }
+.log-footer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.log-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+}
+.log-date { font-size: 10px; color: var(--muted); margin-left: auto; }
+
+.cat-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+.cat-study      { background: #dbeafe; color: #1d4ed8; }
+.cat-case_note  { background: #fef3c7; color: #92400e; }
+.cat-revision   { background: #fce7f3; color: #9d174d; }
+.cat-mock_test  { background: #d1fae5; color: #065f46; }
+.cat-research   { background: #ede9fe; color: #5b21b6; }
+.cat-other      { background: #f1f5f9; color: #475569; }
+
+.log-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.log-action-btn {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  transition: all 0.15s;
+}
+.log-action-btn:hover { border-color: var(--border2); color: var(--text); }
+.log-action-btn.pin-btn.active { color: var(--accent); border-color: var(--accent3); }
+.log-action-btn.del-btn:hover  { color: #dc2626; border-color: #fca5a5; }
+
+/* ── Edit info modal ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(26,23,20,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.15);
+  width: 520px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(12px) scale(0.98);
+  transition: transform 0.25s cubic-bezier(.34,1.56,.64,1);
+}
+.modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+.modal-head {
+  padding: 24px 28px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-title {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.modal-close {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+  transition: all 0.15s;
+}
+.modal-close:hover { background: var(--surface2); color: var(--text); }
+
+.modal-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; }
+
+.field-group { display: flex; flex-direction: column; gap: 6px; }
+.field-label { font-size: 11px; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
+
+.field-input, .field-select, .field-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+  border-color: var(--accent3);
+  background: #fff;
+}
+.field-textarea { resize: vertical; min-height: 100px; }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.modal-foot {
+  padding: 16px 28px 24px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.btn-cancel {
+  padding: 9px 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-cancel:hover { background: var(--surface2); color: var(--text); }
+.btn-save {
+  padding: 9px 24px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-save:hover  { background: var(--accent2); }
+.btn-save:active { transform: scale(0.96); }
+
+/* ── Empty state ── */
+.empty-logs {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--muted);
+}
+.empty-logs-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+.empty-logs-title {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  color: var(--text);
+  opacity: 0.5;
+  margin-bottom: 6px;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 5px; }
+
+/* ── Skill map card ── */
+.skillmap-stripe {
+  height: 4px;
+  background: linear-gradient(90deg, #FF9933 33.3%, #ffffff 33.3%, #ffffff 66.6%, #138808 66.6%);
+}
+.skillmap-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 14px 8px 8px;
+}
+.skillmap-radar-col {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.skillmap-legend-col {
+  width: 148px;
+  padding: 6px 14px 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.sm-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.sm-leg-swatch {
+  width: 22px;
+  height: 6px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.sm-score-val {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: #138808;
+  line-height: 1;
+}
+.sm-level-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+.skillmap-sliders {
+  padding: 4px 18px 16px;
+}
+.sm-sl-title {
+  font-size: 9px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.sm-sl-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 20px;
+}
+.sm-sl-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+.sm-sl-row label { width: 105px; flex-shrink: 0; line-height: 1.3; }
+.sm-sl-row input[type=range] { flex: 1; accent-color: #FF9933; }
+.sm-sl-row .sm-v { width: 28px; text-align: right; font-weight: 500; color: #138808; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero { grid-template-columns: auto 1fr; }
+  .hero-stats { display: none; }
+  .grid2 { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .desig-grid { grid-template-columns: 1fr 1fr; }
+  .info-row { grid-template-columns: 1fr; }
+  .sm-sl-grid { grid-template-columns: 1fr; }
+  .skillmap-body { flex-direction: column; }
+  .skillmap-legend-col { width: 100%; flex-direction: row; flex-wrap: wrap; padding: 0 8px 8px; gap: 10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ══ HERO ══ -->
+  <div class="hero">
+    <div class="avatar-wrap">
+      <div class="avatar">
+        {% if profile.profile_picture %}
+          <img src="{{ profile.profile_picture.url }}" alt="avatar"/>
+        {% else %}
+          {{ profile.user.username|first|upper }}
+        {% endif %}
+      </div>
+      <div class="avatar-online"></div>
+    </div>
+
+    <div class="hero-info">
+      <div class="hero-name">{{ profile.user.get_full_name|default:profile.user.username }}</div>
+      <div class="hero-email">{{ profile.email }}</div>
+      <div class="hero-tags">
+        {% if profile.stream == 'CA' %}
+          <span class="badge badge-ca">⚖ CA Aspirant</span>
+        {% elif profile.stream == 'CLAT' %}
+          <span class="badge badge-clat">📚 CLAT Aspirant</span>
+        {% endif %}
+        {% if profile.subscription_tier == 'free' %}
+          <span class="badge badge-free">Free Plan</span>
+        {% elif profile.subscription_tier == 'pro' %}
+          <span class="badge badge-pro">✦ Pro</span>
+        {% else %}
+          <span class="badge badge-ent">◈ Enterprise</span>
+        {% endif %}
+        <span class="badge" style="background:#f0fdf4;color:var(--accent);border:1px solid var(--accent4);">
+          Joined {{ profile.user.date_joined|date:"M Y" }}
+        </span>
+        <!-- Designation badge in hero (dynamic) -->
+        <span id="hero-desig-badge" class="badge" style="display:none;background:#fef3c7;color:#92400e;border:1px solid #fde68a;"></span>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat-item">
+        <div class="hero-stat-val">{{ profile.credits_balance|floatformat:0 }}</div>
+        <div class="hero-stat-lbl">Credits</div>
+      </div>
+      <div class="hero-stat-item">
+        <div class="hero-stat-val">{{ profile.total_tokens_used|floatformat:0 }}</div>
+        <div class="hero-stat-lbl">Tokens Used</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STATS TILES ══ -->
+  <div class="stats-row">
+    <div class="stat-tile">
+      <div class="stat-tile-val" id="stat-streak">—</div>
+      <div class="stat-tile-lbl">🔥 Day Streak</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-val" id="stat-total">—</div>
+      <div class="stat-tile-lbl">⚡ Total Activities</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-val" id="stat-days">—</div>
+      <div class="stat-tile-lbl">📅 Active Days</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-val">{{ logs|length }}</div>
+      <div class="stat-tile-lbl">📝 Case Logs</div>
+    </div>
+  </div>
+
+  <!-- ══ TWO COL ══ -->
+  <div class="grid2">
+
+    <!-- LEFT — Background + Heatmap + logs -->
+    <div>
+
+      <!-- ══ BACKGROUND / DESIGNATION ══ -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Background</div>
+          <button class="info-edit-btn" onclick="saveBackground()" id="bg-save-btn" style="display:none;padding:4px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:var(--font-mono);font-size:11px;">Save</button>
+        </div>
+        <div class="card-body">
+          <div class="bg-section">
+
+            <!-- Designation selector -->
+            <div>
+              <div class="info-label" style="margin-bottom:8px;">Designation</div>
+              <div class="desig-grid">
+
+                <label class="desig-option">
+                  <input type="radio" name="designation" value="foundation"
+                    {% if profile.designation == 'foundation' %}checked{% endif %}
+                    onchange="onDesigChange(this)"/>
+                  <div class="desig-label">
+                    <div class="desig-icon">🌱</div>
+                    <div class="desig-title">Foundation Student</div>
+                    <div class="desig-sub">CA Foundation level</div>
+                    <div class="desig-check">✓</div>
+                  </div>
+                </label>
+
+                <label class="desig-option">
+                  <input type="radio" name="designation" value="intermediate"
+                    {% if profile.designation == 'intermediate' %}checked{% endif %}
+                    onchange="onDesigChange(this)"/>
+                  <div class="desig-label">
+                    <div class="desig-icon">📘</div>
+                    <div class="desig-title">Intermediate Student</div>
+                    <div class="desig-sub">CA Inter level</div>
+                    <div class="desig-check">✓</div>
+                  </div>
+                </label>
+
+                <label class="desig-option">
+                  <input type="radio" name="designation" value="articleship"
+                    {% if profile.designation == 'articleship' %}checked{% endif %}
+                    onchange="onDesigChange(this)"/>
+                  <div class="desig-label">
+                    <div class="desig-icon">🏛️</div>
+                    <div class="desig-title">In Articleship</div>
+                    <div class="desig-sub">Exam completed, in practice</div>
+                    <div class="desig-check">✓</div>
+                  </div>
+                </label>
+
+              </div>
+            </div>
+
+            <!-- Firm & College -->
+            <div class="info-row">
+              <div class="info-field">
+                <div class="info-label">Firm / Office</div>
+                <div class="info-val-wrap" id="firm-display" onclick="editInfoField('firm')">
+                  <span class="info-icon">🏢</span>
+                  <span class="info-val-text {% if not profile.firm %}empty{% endif %}" id="firm-text">
+                    {{ profile.firm|default:"Add firm name…" }}
+                  </span>
+                  <button class="info-edit-btn" onclick="event.stopPropagation();editInfoField('firm')">✎ Edit</button>
+                </div>
+                <input class="field-input" id="firm-input" style="display:none;margin-top:4px;"
+                  placeholder="e.g. Deloitte India, M/s Shah & Co."
+                  value="{{ profile.firm|default:'' }}"
+                  onblur="saveInfoField('firm')"
+                  onkeydown="if(event.key==='Enter')saveInfoField('firm')"/>
+              </div>
+
+              <div class="info-field">
+                <div class="info-label">College / Institute</div>
+                <div class="info-val-wrap" id="college-display" onclick="editInfoField('college')">
+                  <span class="info-icon">🎓</span>
+                  <span class="info-val-text {% if not profile.college %}empty{% endif %}" id="college-text">
+                    {{ profile.college|default:"Add college name…" }}
+                  </span>
+                  <button class="info-edit-btn" onclick="event.stopPropagation();editInfoField('college')">✎ Edit</button>
+                </div>
+                <input class="field-input" id="college-input" style="display:none;margin-top:4px;"
+                  placeholder="e.g. SRCC, St. Xavier's, ICAI Bhawan"
+                  value="{{ profile.college|default:'' }}"
+                  onblur="saveInfoField('college')"
+                  onkeydown="if(event.key==='Enter')saveInfoField('college')"/>
+              </div>
+            </div>
+
+            <!-- Skills -->
+            <div>
+              <div class="info-label" style="margin-bottom:8px;">Skills &amp; Subjects</div>
+              <div class="skills-wrap">
+                <div class="skills-tags" id="skills-container">
+                  {% for skill in profile.skills_list %}
+                  <span class="skill-tag" data-skill="{{ skill }}">
+                    {{ skill }}
+                    <button class="skill-remove" onclick="removeSkill('{{ skill|escapejs }}')">✕</button>
+                  </span>
+                  {% empty %}
+                  <span id="skills-empty" style="font-size:11px;color:var(--muted);padding:4px 0;">No skills added yet.</span>
+                  {% endfor %}
+                </div>
+                <div class="skill-add-row">
+                  <input class="skill-input" id="skill-input"
+                    placeholder="e.g. GST, Audit, Tally, Income Tax, IFRS…"
+                    onkeydown="if(event.key==='Enter')addSkill()"/>
+                  <button class="skill-add-btn" onclick="addSkill()">+ Add</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Heatmap card -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Activity Heatmap</div>
+          <span style="font-size:11px;color:var(--muted);">Last 365 days</span>
+        </div>
+        <div class="card-body">
+          <div class="heatmap-months" id="heatmap-months"></div>
+          <div class="heatmap-outer">
+            <div class="heatmap-grid" id="heatmap-grid"></div>
+          </div>
+          <div class="heatmap-legend">
+            <span>Less</span>
+            <div class="legend-cell" style="background:var(--heat0)"></div>
+            <div class="legend-cell" style="background:var(--heat1)"></div>
+            <div class="legend-cell" style="background:var(--heat2)"></div>
+            <div class="legend-cell" style="background:var(--heat3)"></div>
+            <div class="legend-cell" style="background:var(--heat4)"></div>
+            <span>More</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Case logs card -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Case Activity Log</div>
+          <button class="log-add-btn" onclick="openModal()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Entry
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="log-list" id="log-list">
+            {% for log in logs %}
+            <div class="log-item {% if log.is_pinned %}pinned{% endif %}" id="log-{{ log.id }}">
+              <div class="log-header">
+                <span class="cat-badge cat-{{ log.category }}">{{ log.get_category_display }}</span>
+                <div class="log-title">{{ log.title }}</div>
+              </div>
+              {% if log.description %}
+              <div class="log-desc">{{ log.description }}</div>
+              {% endif %}
+              <div class="log-footer">
+                {% for tag in log.tags_list %}
+                <span class="log-tag">#{{ tag }}</span>
+                {% endfor %}
+                <span class="log-date">{{ log.date|date:"d M Y" }}</span>
+              </div>
+              <div class="log-actions">
+                <button class="log-action-btn pin-btn {% if log.is_pinned %}active{% endif %}"
+                        onclick="pinLog({{ log.id }}, this)">
+                  {% if log.is_pinned %}📌 Pinned{% else %}📌 Pin{% endif %}
+                </button>
+                <button class="log-action-btn"
+                        onclick="openModal({{ log.id }}, '{{ log.title|escapejs }}', '{{ log.description|escapejs }}', '{{ log.category }}', '{{ log.tags|escapejs }}', '{{ log.date|date:"Y-m-d" }}')">
+                  ✎ Edit
+                </button>
+                <button class="log-action-btn del-btn" onclick="deleteLog({{ log.id }})">✕ Delete</button>
+              </div>
+            </div>
+            {% empty %}
+            <div class="empty-logs" id="empty-logs">
+              <div class="empty-logs-icon">◈</div>
+              <div class="empty-logs-title">No entries yet</div>
+              <div style="font-size:12px;">Start logging your study sessions, case notes, and progress.</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT — breakdown + calendar + recent chats -->
+    <div>
+
+      Chat breakdown
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Chat Breakdown</div>
+          <span style="font-size:11px;color:var(--muted);">30 days</span>
+        </div>
+        <div class="card-body">
+          <div class="type-list">
+            <div class="type-row">
+              <div class="type-dot" style="background:#3b82f6"></div>
+              <div class="type-name">Research</div>
+              <div class="type-bar-bg"><div class="type-bar-fill" id="bar-research" style="background:#3b82f6;width:0%"></div></div>
+              <div class="type-cnt" id="cnt-research">0</div>
+            </div>
+            <div class="type-row">
+              <div class="type-dot" style="background:#8b5cf6"></div>
+              <div class="type-name">Drafting</div>
+              <div class="type-bar-bg"><div class="type-bar-fill" id="bar-drafting" style="background:#8b5cf6;width:0%"></div></div>
+              <div class="type-cnt" id="cnt-drafting">0</div>
+            </div>
+            <div class="type-row">
+              <div class="type-dot" style="background:var(--accent2)"></div>
+              <div class="type-name">Translation</div>
+              <div class="type-bar-bg"><div class="type-bar-fill" id="bar-translation" style="background:var(--accent2);width:0%"></div></div>
+              <div class="type-cnt" id="cnt-translation">0</div>
+            </div>
+            <div class="type-row">
+              <div class="type-dot" style="background:#f59e0b"></div>
+              <div class="type-name">General</div>
+              <div class="type-bar-bg"><div class="type-bar-fill" id="bar-general" style="background:#f59e0b;width:0%"></div></div>
+              <div class="type-cnt" id="cnt-general">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly calendar mini -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">This Month</div>
+          <span id="cal-month-label" style="font-size:11px;color:var(--muted);"></span>
+        </div>
+        <div class="card-body">
+          <div id="mini-calendar" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;"></div>
+          <div style="display:flex;gap:6px;margin-top:12px;font-size:10px;color:var(--muted);align-items:center;">
+            <div style="width:10px;height:10px;border-radius:2px;background:var(--heat0);border:1px solid var(--border);"></div> No activity
+            <div style="width:10px;height:10px;border-radius:2px;background:var(--heat2);"></div> Active
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ CA SKILL MAP ══ -->
+      <div class="card" style="overflow:hidden;">
+        <div class="skillmap-stripe"></div>
+        <div class="card-head" style="border-bottom:1px solid var(--border);">
+          <div class="card-title">CA Skill Radar</div>
+          <span style="font-size:10px;color:var(--muted);">Drag sliders to self-assess</span>
+        </div>
+
+        <div class="skillmap-body">
+          <div class="skillmap-radar-col">
+            <div style="position:relative;">
+              <canvas id="sm-radar" width="230" height="230" style="display:block;"></canvas>
+              <!-- Ashoka Chakra watermark -->
+              <svg style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;"
+                   width="28" height="28" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="16" fill="none" stroke="#000080" stroke-width="1.2" opacity="0.18"/>
+                <circle cx="18" cy="18" r="2.8" fill="#000080" opacity="0.18"/>
+                <g id="sm-chakra-spokes" stroke="#000080" stroke-width="0.7" opacity="0.18"></g>
+              </svg>
+            </div>
+          </div>
+
+          <div class="skillmap-legend-col">
+            <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px;">Legend</div>
+            <div class="sm-leg-item">
+              <div class="sm-leg-swatch" style="background:rgba(19,136,8,0.8);"></div>Your level
+            </div>
+            <div class="sm-leg-item">
+              <div class="sm-leg-swatch" style="background:rgba(0,0,128,0.35);"></div>Peer avg
+            </div>
+            <div class="sm-leg-item">
+              <div class="sm-leg-swatch" style="background:rgba(255,153,51,0); border-top:2px dashed #FF9933;border-radius:0;"></div>Target
+            </div>
+
+            <div style="margin-top:12px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Avg score</div>
+            <div class="sm-score-val" id="sm-score">—</div>
+
+            <div style="margin-top:6px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Level</div>
+            <div class="sm-level-badge" id="sm-level-badge" style="background:#eaf7ea;color:#138808;border:1px solid #b7e4c7;">—</div>
+          </div>
+        </div>
+
+        <div class="skillmap-sliders">
+          <div class="sm-sl-title">Adjust your skill levels</div>
+          <div class="sm-sl-grid" id="sm-sl-grid"></div>
+        </div>
+        <div class="skillmap-stripe"></div>
+      </div>
+
+      <!-- ══ RECENT CHATS ══ -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Recent Chats</div>
+          <a href="/chats/" style="font-size:11px;color:var(--accent);text-decoration:none;transition:opacity 0.15s;" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">View all →</a>
+        </div>
+        <div class="card-body" style="padding:14px 16px;">
+          <div class="chat-list" id="recent-chats-list">
+            <!-- Populated by JS from API -->
+            <div class="chat-empty">
+              <div class="chat-empty-icon">💬</div>
+              <div>Loading recent chats…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOOLTIP ══ -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- ══ MODAL (Case Log) ══ -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">New Case Log</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="log-id" value=""/>
+      <div class="field-group">
+        <label class="field-label">Title *</label>
+        <input class="field-input" id="log-title-input" placeholder="e.g. Revised GST Chapter 4, Mock Test 12…"/>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Category</label>
+          <select class="field-select" id="log-category">
+            <option value="study">Study Session</option>
+            <option value="case_note">Case Note</option>
+            <option value="revision">Revision</option>
+            <option value="mock_test">Mock Test</option>
+            <option value="research">Research</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Date</label>
+          <input class="field-input" id="log-date" type="date"/>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Description</label>
+        <textarea class="field-textarea" id="log-description"
+                  placeholder="What did you work on? Key takeaways, progress notes…"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Tags <span style="color:var(--muted);font-size:10px;">(comma separated)</span></label>
+        <input class="field-input" id="log-tags" placeholder="e.g. GST, Chapter 4, Important"/>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveLog()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const CSRF        = "{{ csrf_token }}";
+const TYPE_TOTALS = {{ type_totals|safe }};
+
+// ─── Designation badge map ─────────────────────────────────
+const DESIG_MAP = {
+  foundation:   { label: "🌱 Foundation", bg:"#f0fdf4", color:"#2d6a4f", border:"#b7e4c7" },
+  intermediate: { label: "📘 Intermediate", bg:"#eff6ff", color:"#1d4ed8", border:"#bfdbfe" },
+  articleship:  { label: "🏛️ Articleship", bg:"#fff7ed", color:"#c2410c", border:"#fed7aa" },
+};
+
+function updateHeroBadge(val) {
+  const badge = document.getElementById("hero-desig-badge");
+  if (val && DESIG_MAP[val]) {
+    const d = DESIG_MAP[val];
+    badge.textContent = d.label;
+    badge.style.background = d.bg;
+    badge.style.color = d.color;
+    badge.style.border = `1px solid ${d.border}`;
+    badge.style.display = "inline-flex";
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+function onDesigChange(radio) {
+  updateHeroBadge(radio.value);
+  // auto-save designation
+  fetch("/api/profile/update/", {
+    method: "POST", credentials: "include",
+    headers: { "Content-Type":"application/json", "X-CSRFToken": CSRF },
+    body: JSON.stringify({ designation: radio.value }),
+  });
+}
+
+// init hero badge from checked radio
+(function() {
+  const checked = document.querySelector('input[name="designation"]:checked');
+  if (checked) updateHeroBadge(checked.value);
+})();
+
+// ─── Firm / College inline edit ────────────────────────────
+function editInfoField(field) {
+  document.getElementById(`${field}-display`).style.display = "none";
+  const inp = document.getElementById(`${field}-input`);
+  inp.style.display = "block";
+  inp.focus();
+  inp.select();
+}
+
+function saveInfoField(field) {
+  const inp  = document.getElementById(`${field}-input`);
+  const val  = inp.value.trim();
+  const span = document.getElementById(`${field}-text`);
+  span.textContent = val || `Add ${field} name…`;
+  span.className   = `info-val-text${val ? "" : " empty"}`;
+  document.getElementById(`${field}-display`).style.display = "flex";
+  inp.style.display = "none";
+  fetch("/api/profile/update/", {
+    method: "POST", credentials: "include",
+    headers: { "Content-Type":"application/json", "X-CSRFToken": CSRF },
+    body: JSON.stringify({ [field]: val }),
+  });
+}
+
+// ─── Skills ────────────────────────────────────────────────
+let currentSkills = [
+  {% for skill in profile.skills_list %}"{{ skill|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %}
+];
+
+function addSkill() {
+  const inp = document.getElementById("skill-input");
+  const val = inp.value.trim();
+  if (!val || currentSkills.includes(val)) { inp.value = ""; return; }
+  currentSkills.push(val);
+  renderSkills();
+  inp.value = "";
+  persistSkills();
+}
+
+function removeSkill(skill) {
+  currentSkills = currentSkills.filter(s => s !== skill);
+  renderSkills();
+  persistSkills();
+}
+
+function renderSkills() {
+  const container = document.getElementById("skills-container");
+  if (currentSkills.length === 0) {
+    container.innerHTML = `<span id="skills-empty" style="font-size:11px;color:var(--muted);padding:4px 0;">No skills added yet.</span>`;
+    return;
+  }
+  container.innerHTML = currentSkills.map(s => `
+    <span class="skill-tag" data-skill="${escHtml(s)}">
+      ${escHtml(s)}
+      <button class="skill-remove" onclick="removeSkill('${escJs(s)}')">✕</button>
+    </span>
+  `).join("");
+}
+
+function persistSkills() {
+  fetch("/api/profile/update/", {
+    method: "POST", credentials: "include",
+    headers: { "Content-Type":"application/json", "X-CSRFToken": CSRF },
+    body: JSON.stringify({ skills: currentSkills.join(",") }),
+  });
+}
+
+// ─── Recent Chats ──────────────────────────────────────────
+const CHAT_ICONS = {
+  research:    { icon:"🔍", cls:"research",  pill:"pill-research"  },
+  drafting:    { icon:"✍️", cls:"drafting",  pill:"pill-drafting"  },
+  revision:    { icon:"📖", cls:"revision",  pill:"pill-revision"  },
+  mock_test:   { icon:"📝", cls:"general",   pill:"pill-study"     },
+  general:     { icon:"💬", cls:"general",   pill:"pill-general"   },
+  study:       { icon:"📚", cls:"research",  pill:"pill-study"     },
+};
+
+function timeAgo(isoStr) {
+  const diff = (Date.now() - new Date(isoStr)) / 1000;
+  if (diff < 60)     return "just now";
+  if (diff < 3600)   return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400)  return `${Math.floor(diff/3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff/86400)}d ago`;
+  return new Date(isoStr).toLocaleDateString("en-IN",{day:"numeric",month:"short"});
+}
+
+function buildChatItem(chat) {
+  const meta = CHAT_ICONS[chat.type] || CHAT_ICONS.general;
+  const pillLabel = (chat.type||"general").replace("_"," ");
+  return `
+  <a class="chat-item" href="/chat/${chat.id}/">
+    <div class="chat-icon-wrap ${meta.cls}">${meta.icon}</div>
+    <div class="chat-meta">
+      <div class="chat-title-row">
+        <span class="chat-title-text">${escHtml(chat.title || "Untitled chat")}</span>
+        <span class="chat-time">${timeAgo(chat.updated_at || chat.created_at)}</span>
+      </div>
+      <div class="chat-preview">${escHtml(chat.last_message || "No messages yet")}</div>
+      <span class="chat-type-pill ${meta.pill}">${pillLabel}</span>
+    </div>
+  </a>`;
+}
+
+fetch("/api/chats/recent/?limit=6", { credentials: "include" })
+  .then(r => r.json())
+  .then(data => {
+    const list = document.getElementById("recent-chats-list");
+    const chats = data.chats || data;
+    if (!chats || chats.length === 0) {
+      list.innerHTML = `
+        <div class="chat-empty">
+          <div class="chat-empty-icon">💬</div>
+          <div>No chats yet. Start a conversation!</div>
+        </div>`;
+      return;
+    }
+    list.innerHTML = chats.map(buildChatItem).join("");
+  })
+  .catch(() => {
+    // fallback: show placeholder chats
+    const placeholders = [
+      { id:"1", title:"GST Input Tax Credit — Sec 16 analysis", type:"research",  updated_at: new Date(Date.now()-1800000).toISOString(), last_message:"What are the conditions for claiming ITC under GST?" },
+      { id:"2", title:"Partnership deed drafting help",          type:"drafting",  updated_at: new Date(Date.now()-7200000).toISOString(), last_message:"Draft a partnership deed for a 3-partner CA firm" },
+      { id:"3", title:"Ind AS 115 Revenue Recognition",          type:"study",     updated_at: new Date(Date.now()-86400000).toISOString(), last_message:"Explain the 5-step model under Ind AS 115" },
+      { id:"4", title:"Income Tax Mock Test Review",             type:"mock_test", updated_at: new Date(Date.now()-172800000).toISOString(), last_message:"Check my answers for the section 80C questions" },
+    ];
+    document.getElementById("recent-chats-list").innerHTML = placeholders.map(buildChatItem).join("");
+  });
+
+// ─── Heat colour ───────────────────────────────────────────
+function heatColor(n) {
+  if (n === 0) return "var(--heat0)";
+  if (n <= 2)  return "var(--heat1)";
+  if (n <= 5)  return "var(--heat2)";
+  if (n <= 10) return "var(--heat3)";
+  return "var(--heat4)";
+}
+
+// ─── Build heatmap ─────────────────────────────────────────
+function buildHeatmap(days) {
+  const grid    = document.getElementById("heatmap-grid");
+  const tooltip = document.getElementById("tooltip");
+  grid.innerHTML = "";
+
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const monthsEl = document.getElementById("heatmap-months");
+  let lastMonth = -1, monthHtml = "";
+
+  const weeks = [];
+  for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i + 7));
+
+  weeks.forEach((week, wi) => {
+    const col = document.createElement("div");
+    col.className = "heatmap-col";
+
+    const firstDate = new Date(week[0].date);
+    if (firstDate.getMonth() !== lastMonth) {
+      lastMonth = firstDate.getMonth();
+      monthHtml += `<span style="min-width:${wi===0?0:1}px;flex:1;font-size:9px;">${MONTHS[lastMonth]}</span>`;
+    }
+
+    week.forEach(day => {
+      const cell = document.createElement("div");
+      cell.className = "heatmap-cell";
+      cell.style.background = heatColor(day.count);
+      cell.addEventListener("mouseenter", e => {
+        tooltip.style.display = "block";
+        const d = new Date(day.date);
+        const label = d.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
+        tooltip.textContent = `${label}  ·  ${day.count} activit${day.count!==1?"ies":"y"}`;
+      });
+      cell.addEventListener("mousemove", e => {
+        tooltip.style.left = (e.clientX - tooltip.offsetWidth/2) + "px";
+        tooltip.style.top  = (e.clientY - 38) + "px";
+      });
+      cell.addEventListener("mouseleave", () => { tooltip.style.display = "none"; });
+      col.appendChild(cell);
+    });
+    grid.appendChild(col);
+  });
+
+  monthsEl.innerHTML = monthHtml;
+}
+
+// ─── Mini calendar ─────────────────────────────────────────
+function buildCalendar(heatmapDays) {
+  const cal   = document.getElementById("mini-calendar");
+  const today = new Date();
+  const y     = today.getFullYear();
+  const m     = today.getMonth();
+
+  document.getElementById("cal-month-label").textContent =
+    today.toLocaleDateString("en-IN", { month:"long", year:"numeric" });
+
+  const dataMap = {};
+  heatmapDays.forEach(d => { dataMap[d.date] = d.count; });
+
+  const days  = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+  let html = days.map(d =>
+    `<div style="font-size:9px;color:var(--muted);padding:2px 0;">${d}</div>`
+  ).join("");
+
+  const first = new Date(y, m, 1).getDay();
+  for (let i = 0; i < first; i++) html += `<div></div>`;
+
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const iso   = `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const count = dataMap[iso] || 0;
+    const isToday = d === today.getDate();
+    html += `<div style="
+      width:100%;aspect-ratio:1;border-radius:4px;
+      background:${count>0 ? "var(--heat2)" : "var(--heat0)"};
+      border:${isToday ? "2px solid var(--accent)" : "1px solid transparent"};
+      display:flex;align-items:center;justify-content:center;
+      font-size:9px;color:${count>0?"#fff":"var(--muted)"};
+      cursor:default;
+    ">${d}</div>`;
+  }
+  cal.innerHTML = html;
+}
+
+// ─── Load heatmap data ─────────────────────────────────────
+fetch("/api/activity/heatmap/", { credentials:"include" })
+  .then(r => r.json())
+  .then(data => {
+    buildHeatmap(data.heatmap);
+    buildCalendar(data.heatmap);
+    document.getElementById("stat-streak").textContent  = data.current_streak;
+    document.getElementById("stat-total").textContent   = data.total_activities;
+    document.getElementById("stat-days").textContent    = data.active_days;
+  })
+  .catch(() => {
+    const days = [];
+    const today = new Date();
+    for (let i = 364; i >= 0; i--) {
+      const d = new Date(today); d.setDate(d.getDate()-i);
+      days.push({ date: d.toISOString().slice(0,10), count: 0 });
+    }
+    buildHeatmap(days);
+    buildCalendar(days);
+    ["stat-streak","stat-total","stat-days"].forEach(id =>
+      document.getElementById(id).textContent = "0"
+    );
+  });
+
+// type bars
+(function() {
+  const max = Math.max(...Object.values(TYPE_TOTALS), 1);
+  ["research","drafting","translation","general"].forEach(k => {
+    const v = TYPE_TOTALS[k] || 0;
+    document.getElementById(`cnt-${k}`).textContent = v;
+    document.getElementById(`bar-${k}`).style.width = (v/max*100)+"%";
+  });
+})();
+
+// ─── Modal (Case Log) ──────────────────────────────────────
+function openModal(id, title, desc, cat, tags, date) {
+  document.getElementById("log-id").value          = id    || "";
+  document.getElementById("log-title-input").value = title || "";
+  document.getElementById("log-description").value = desc  || "";
+  document.getElementById("log-category").value    = cat   || "study";
+  document.getElementById("log-tags").value         = tags  || "";
+  document.getElementById("log-date").value         = date  || new Date().toISOString().slice(0,10);
+  document.getElementById("modal-title").textContent = id ? "Edit Entry" : "New Case Log";
+  document.getElementById("modal-overlay").classList.add("open");
+}
+function closeModal() {
+  document.getElementById("modal-overlay").classList.remove("open");
+}
+function closeModalOutside(e) {
+  if (e.target === document.getElementById("modal-overlay")) closeModal();
+}
+
+// ─── Save log ──────────────────────────────────────────────
+function saveLog() {
+  const id    = document.getElementById("log-id").value;
+  const title = document.getElementById("log-title-input").value.trim();
+  if (!title) { alert("Please enter a title."); return; }
+
+  const payload = {
+    id:          id || null,
+    title,
+    description: document.getElementById("log-description").value.trim(),
+    category:    document.getElementById("log-category").value,
+    tags:        document.getElementById("log-tags").value.trim(),
+    date:        document.getElementById("log-date").value,
+  };
+
+  fetch("/api/case-log/save/", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type":"application/json", "X-CSRFToken": CSRF },
+    body: JSON.stringify(payload),
+  })
+  .then(r => r.json())
+  .then(data => {
+    closeModal();
+    if (id) {
+      const el = document.getElementById(`log-${id}`);
+      if (el) el.outerHTML = buildLogHTML(data);
+    } else {
+      const empty = document.getElementById("empty-logs");
+      if (empty) empty.remove();
+      const list = document.getElementById("log-list");
+      list.insertAdjacentHTML("afterbegin", buildLogHTML(data));
+    }
+    const tile = document.querySelector('.stat-tile:last-child .stat-tile-val');
+    if (tile) tile.textContent = parseInt(tile.textContent||0) + (id ? 0 : 1);
+  });
+}
+
+function buildLogHTML(log) {
+  const tagsHTML = (log.tags||[]).map(t => `<span class="log-tag">#${t}</span>`).join("");
+  const dateStr  = new Date(log.date).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
+  const catMap   = {study:"Study Session",case_note:"Case Note",revision:"Revision",mock_test:"Mock Test",research:"Research",other:"Other"};
+  return `
+  <div class="log-item ${log.is_pinned?"pinned":""}" id="log-${log.id}">
+    <div class="log-header">
+      <span class="cat-badge cat-${log.category}">${catMap[log.category]||log.category}</span>
+      <div class="log-title">${escHtml(log.title)}</div>
+      ${log.is_pinned?"<span>📌</span>":""}
+    </div>
+    ${log.description?`<div class="log-desc">${escHtml(log.description)}</div>`:""}
+    <div class="log-footer">
+      ${tagsHTML}
+      <span class="log-date">${dateStr}</span>
+    </div>
+    <div class="log-actions">
+      <button class="log-action-btn pin-btn ${log.is_pinned?"active":""}"
+              onclick="pinLog(${log.id},this)">
+        📌 ${log.is_pinned?"Pinned":"Pin"}
+      </button>
+      <button class="log-action-btn"
+              onclick="openModal(${log.id},'${escJs(log.title)}','${escJs(log.description||"")}','${log.category}','${escJs((log.tags||[]).join(","))}','${log.date}')">
+        ✎ Edit
+      </button>
+      <button class="log-action-btn del-btn" onclick="deleteLog(${log.id})">✕ Delete</button>
+    </div>
+  </div>`;
+}
+
+// ─── Pin ───────────────────────────────────────────────────
+function pinLog(id, btn) {
+  fetch(`/api/case-log/${id}/pin/`, {
+    method:"POST", credentials:"include",
+    headers:{"X-CSRFToken":CSRF},
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    const el = document.getElementById(`log-${id}`);
+    if (data.is_pinned) {
+      el.classList.add("pinned");
+      btn.classList.add("active");
+      btn.textContent = "📌 Pinned";
+    } else {
+      el.classList.remove("pinned");
+      btn.classList.remove("active");
+      btn.textContent = "📌 Pin";
+    }
+  });
+}
+
+// ─── Delete ────────────────────────────────────────────────
+function deleteLog(id) {
+  if (!confirm("Delete this entry?")) return;
+  fetch(`/api/case-log/${id}/delete/`, {
+    method:"POST", credentials:"include",
+    headers:{"X-CSRFToken":CSRF},
+  })
+  .then(r=>r.json())
+  .then(()=>{
+    const el = document.getElementById(`log-${id}`);
+    if (el) { el.style.opacity="0"; el.style.transform="scale(0.97)"; el.style.transition="all 0.2s"; setTimeout(()=>el.remove(),200); }
+    const tile = document.querySelector('.stat-tile:last-child .stat-tile-val');
+    if (tile) tile.textContent = Math.max(0, parseInt(tile.textContent||0)-1);
+  });
+}
+
+// ─── Utils ─────────────────────────────────────────────────
+function escHtml(s) {
+  if (!s) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function escJs(s) {
+  if (!s) return "";
+  return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\n/g,"\\n");
+}
+
+// ─── CA Skill Map ──────────────────────────────────────────
+(function() {
+  const SM_SKILLS = [
+    { label: "Financial\nReporting", you: 75, peer: 65, target: 90 },
+    { label: "Direct\nTaxation",     you: 80, peer: 70, target: 92 },
+    { label: "GST &\nIndirect Tax",  you: 70, peer: 68, target: 88 },
+    { label: "Audit &\nAssurance",   you: 65, peer: 60, target: 85 },
+    { label: "Corporate\nLaw",       you: 60, peer: 55, target: 80 },
+    { label: "Cost\nAccounting",     you: 55, peer: 58, target: 82 },
+    { label: "Financial\nMgmt",      you: 72, peer: 62, target: 88 },
+    { label: "Ethics &\nProf.",      you: 85, peer: 75, target: 95 },
+  ];
+
+  // Ashoka spokes
+  const spG = document.getElementById('sm-chakra-spokes');
+  if (spG) {
+    for (let i = 0; i < 24; i++) {
+      const a = (i / 24) * 2 * Math.PI;
+      const ln = document.createElementNS('http://www.w3.org/2000/svg','line');
+      ln.setAttribute('x1','18'); ln.setAttribute('y1','18');
+      ln.setAttribute('x2', (18 + 14 * Math.cos(a)).toFixed(2));
+      ln.setAttribute('y2', (18 + 14 * Math.sin(a)).toFixed(2));
+      spG.appendChild(ln);
+    }
+  }
+
+  function smUpdateScore(data) {
+    const avg = Math.round(data.reduce((a,b)=>a+b,0) / data.length);
+    document.getElementById('sm-score').textContent = avg + '%';
+    let lbl='Beginner', bg='#fff3e0', col='#e65100', bdr='#ffcc80';
+    if (avg >= 85)      { lbl='Expert';     bg='#e8f5e9'; col='#1b5e20'; bdr='#a5d6a7'; }
+    else if (avg >= 70) { lbl='Proficient'; bg='#e3f2fd'; col='#0d47a1'; bdr='#90caf9'; }
+    else if (avg >= 55) { lbl='Developing'; bg='#fff8e1'; col='#f57f17'; bdr='#ffe082'; }
+    const b = document.getElementById('sm-level-badge');
+    b.textContent = lbl;
+    b.style.cssText = `background:${bg};color:${col};border:1px solid ${bdr};display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-family:var(--font-mono);font-weight:500;`;
+  }
+
+  function initSkillMap() {
+    if (!window.Chart) { setTimeout(initSkillMap, 100); return; }
+    const canvas = document.getElementById('sm-radar');
+    if (!canvas) return;
+    const youVals  = SM_SKILLS.map(s=>s.you);
+    const peerVals = SM_SKILLS.map(s=>s.peer);
+    const targVals = SM_SKILLS.map(s=>s.target);
+
+    const smChart = new Chart(canvas.getContext('2d'), {
+      type: 'radar',
+      data: {
+        labels: SM_SKILLS.map(s => s.label.split('\n')),
+        datasets: [
+          { label:'Target', data: targVals,
+            backgroundColor:'rgba(255,153,51,0.06)', borderColor:'rgba(255,153,51,0.8)',
+            borderWidth:1.5, borderDash:[4,3],
+            pointBackgroundColor:'rgba(255,153,51,0.65)', pointRadius:2.5 },
+          { label:'Peer Avg', data: peerVals,
+            backgroundColor:'rgba(0,0,128,0.08)', borderColor:'rgba(0,0,128,0.4)',
+            borderWidth:1.4,
+            pointBackgroundColor:'rgba(0,0,128,0.45)', pointRadius:2.5 },
+          { label:'You', data: youVals,
+            backgroundColor:'rgba(19,136,8,0.16)', borderColor:'rgba(19,136,8,0.9)',
+            borderWidth:2,
+            pointBackgroundColor:'#138808', pointRadius:3.5, pointHoverRadius:6 },
+        ]
+      },
+      options: {
+        responsive: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.raw}%` } }
+        },
+        scales: {
+          r: {
+            min:0, max:100,
+            ticks: {
+              stepSize:25, font:{size:8, family:"'DM Mono',monospace"},
+              color:'#aaa', backdropColor:'transparent', callback: v => v+'%'
+            },
+            grid: {
+              color: ctx => {
+                const i = ctx.index;
+                if (i===1) return 'rgba(255,153,51,0.2)';
+                if (i===2) return 'rgba(255,255,255,0.5)';
+                if (i===3) return 'rgba(19,136,8,0.15)';
+                return 'rgba(0,0,128,0.08)';
+              }, lineWidth: 0.8
+            },
+            angleLines: { color:'rgba(0,0,128,0.1)', lineWidth:0.7 },
+            pointLabels: {
+              font: { size:9.5, family:"'Fraunces','Georgia',serif", weight:'500' },
+              color: '#1a1714', padding:6
+            }
+          }
+        }
+      }
+    });
+
+    // Build sliders
+    const grid = document.getElementById('sm-sl-grid');
+    SM_SKILLS.forEach((s, i) => {
+      const row = document.createElement('div');
+      row.className = 'sm-sl-row';
+      row.innerHTML = `<label>${s.label.replace('\n',' ')}</label>
+        <input type="range" min="0" max="100" step="1" value="${s.you}" data-si="${i}"/>
+        <span class="sm-v" id="smv${i}">${s.you}%</span>`;
+      grid.appendChild(row);
+      row.querySelector('input').addEventListener('input', function() {
+        const v = +this.value;
+        smChart.data.datasets[2].data[+this.dataset.si] = v;
+        document.getElementById('smv'+this.dataset.si).textContent = v+'%';
+        smChart.update('active');
+        smUpdateScore(smChart.data.datasets[2].data);
+      });
+    });
+
+    smUpdateScore(youVals);
+  }
+
+  initSkillMap();
+})();
+</script>
+</body>
+</html>

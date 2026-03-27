@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card" style="max-width:500px;">
+    <h2>Upload Document</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" required>
+        <button class="btn">Upload</button>
+    </form>
+</div>
+
+{% endblock %}

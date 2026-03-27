@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+    <h1>{{ notebook.name }}</h1>
+    <p>Manage documents and chat sessions for this notebook</p>
+</div>
+
+<!-- Notebook Actions -->
+<div class="card action-card">
+    <div class="action-card-inner">
+        <div>
+            <div class="action-label">Add to Notebook</div>
+            <div class="action-desc">Upload a new document to analyze</div>
+        </div>
+        <a href="{% url 'upload_document' notebook.id %}" class="btn">
+            <span>↑</span> Upload Document
+        </a>
+    </div>
+</div>
+
+<!-- Start Chat Form -->
+<div class="card">
+    <div class="card-title-row">
+        <h3>New Chat Session</h3>
+        <span class="badge">{{ documents|length }} docs</span>
+    </div>
+    <p class="card-subtitle">Select documents to include in the chat context</p>
+
+    <form method="POST" action="{% url 'create_chat_session' notebook.id %}">
+        {% csrf_token %}
+        <div class="doc-checklist">
+            {% for doc in documents %}
+            <label class="doc-check-item">
+                <input type="checkbox" name="documents" value="{{ doc.id }}">
+                <span class="checkmark"></span>
+                <span class="doc-check-name">{{ doc.file.name }}</span>
+            </label>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary start-btn">
+            <span>💬</span> Start Chat
+        </button>
+    </form>
+</div>
+
+<!-- Chat Sessions -->
+<div class="section-header">
+    <h3>Chat Sessions</h3>
+</div>
+
+{% for session in chat_sessions %}
+<div class="card session-card">
+    <div class="session-row">
+        <div class="session-info">
+            <div class="session-title">Session #{{ session.id }}</div>
+            <div class="session-meta">Started {{ session.created_at }}</div>
+        </div>
+        <a href="{% url 'chat_page' session.id %}" class="btn btn-secondary">
+            View Chat →
+        </a>
+    </div>
+</div>
+{% empty %}
+<div class="card empty-card">
+    <div class="empty-icon">💬</div>
+    <p class="empty-title">No chat sessions yet</p>
+    <p class="empty-sub">Select documents above and start a new session</p>
+</div>
+{% endfor %}
+
+<!-- Documents -->
+<div class="section-header">
+    <h3>Documents</h3>
+</div>
+
+{% for doc in documents %}
+<div class="card doc-card">
+    <div class="doc-header">
+        <div class="doc-icon">📄</div>
+        <div>
+            <h4 class="doc-title">{{ doc.title }}</h4>
+        </div>
+    </div>
+    {% if doc.summary %}
+    <div class="doc-summary-label">Summary</div>
+    <p class="doc-summary">{{ doc.summary|truncatechars:300 }}</p>
+    {% endif %}
+</div>
+{% empty %}
+<div class="card empty-card">
+    <div class="empty-icon">📄</div>
+    <p class="empty-title">No documents uploaded</p>
+    <p class="empty-sub">Upload a document to get started</p>
+</div>
+{% endfor %}
+
+<style>
+    /* Action Card */
+    .action-card { background: linear-gradient(135deg, #161b22, #1c2330); border-color: rgba(88,166,255,0.2); }
+    .action-card-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .action-label { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 3px; }
+    .action-desc { font-size: 0.8rem; color: var(--text-secondary); }
+
+    /* Card title row */
+    .card-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .card-title-row h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 500; }
+    .card-subtitle { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 18px; }
+
+    .badge {
+        font-size: 0.7rem; font-weight: 600; letter-spacing: 0.03em;
+        background: var(--accent-glow); color: var(--accent);
+        padding: 3px 9px; border-radius: 20px; border: 1px solid rgba(88,166,255,0.2);
+    }
+
+    /* Document checklist */
+    .doc-checklist { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+
+    .doc-check-item {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 14px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: border-color 0.18s, background 0.18s;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .doc-check-item:hover { border-color: var(--accent); color: var(--text-primary); }
+
+    .doc-check-item input[type="checkbox"] {
+        width: 16px; height: 16px; margin: 0;
+        accent-color: var(--accent);
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .doc-check-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .start-btn { margin-top: 4px; }
+
+    /* Section header */
+    .section-header { margin: 30px 0 12px; }
+    .section-header h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.1rem; font-weight: 500;
+        color: var(--text-primary);
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    /* Session card */
+    .session-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .session-title { font-weight: 500; font-size: 0.9rem; color: var(--text-primary); margin-bottom: 4px; }
+    .session-meta { font-size: 0.78rem; color: var(--text-muted); }
+
+    /* Doc card */
+    .doc-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+    .doc-icon { font-size: 1.4rem; margin-top: 2px; flex-shrink: 0; }
+    .doc-title { font-size: 0.95rem; font-weight: 500; color: var(--text-primary); }
+    .doc-summary-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .doc-summary { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.65; }
+
+    /* Empty states */
+    .empty-card { text-align: center; padding: 40px 28px; }
+    .empty-icon { font-size: 2rem; margin-bottom: 12px; opacity: 0.5; }
+    .empty-title { font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
+    .empty-sub { font-size: 0.82rem; color: var(--text-muted); }
+</style>
+
+{% endblock %}

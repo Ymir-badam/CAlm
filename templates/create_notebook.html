@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card" style="max-width:500px;">
+    <h2>Create Notebook</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="name" placeholder="Notebook Name" required>
+        <button class="btn">Create</button>
+    </form>
+</div>
+
+{% endblock %}

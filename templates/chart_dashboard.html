@@ -1,0 +1,727 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+*{box-sizing:border-box}
+.content{padding:0!important}
+
+.db-root{
+    display:flex;flex-direction:column;
+    min-height:100vh;background:var(--bg);
+}
+
+/* ── top bar ── */
+.db-topbar{
+    height:52px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 28px;border-bottom:1px solid var(--border);
+    background:var(--surface);flex-shrink:0;gap:12px;
+}
+.db-topbar-left{display:flex;align-items:center;gap:10px;min-width:0}
+.db-back{
+    display:flex;align-items:center;gap:6px;font-size:0.8rem;
+    color:var(--text-secondary);text-decoration:none;
+    padding:5px 10px;border-radius:7px;border:1px solid var(--border);
+    background:var(--surface-2);transition:background .13s;
+}
+.db-back:hover{background:var(--surface-hover)}
+.db-title{font-size:0.9rem;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.db-topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.db-doc-pill{
+    font-size:0.75rem;color:var(--text-secondary);
+    padding:4px 10px;border-radius:99px;
+    border:1px solid var(--border);background:var(--surface-2);
+}
+.db-export-btn{
+    font-size:0.78rem;font-weight:500;
+    padding:6px 14px;border-radius:7px;
+    border:1px solid var(--border);background:var(--surface-2);
+    color:var(--text-secondary);cursor:pointer;
+    transition:background .13s;font-family:'Geist',sans-serif;
+}
+.db-export-btn:hover{background:var(--surface-hover);color:var(--text-primary)}
+
+/* ── body layout ── */
+.db-body{flex:1;overflow-y:auto;padding:24px 28px 40px}
+
+/* ── chart type tabs ── */
+.chart-tabs{display:flex;gap:6px;margin-bottom:22px;flex-wrap:wrap}
+.chart-tab{
+    font-size:0.78rem;font-weight:500;padding:6px 14px;border-radius:7px;
+    border:1px solid var(--border);background:var(--surface-2);
+    color:var(--text-secondary);cursor:pointer;transition:all .13s;
+    font-family:'Geist',sans-serif;
+}
+.chart-tab:hover{background:var(--surface-hover);color:var(--text-primary)}
+.chart-tab.active{
+    background:var(--accent);color:#fff;border-color:var(--accent);
+}
+
+/* ── KPI row ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:22px}
+.kpi-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;
+}
+.kpi-label{font-size:0.72rem;color:var(--text-secondary);margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.kpi-value{font-size:1.4rem;font-weight:500;color:var(--text-primary);line-height:1.15}
+.kpi-sub{font-size:0.72rem;margin-top:4px}
+.kpi-pos{color:#0F6E56}.kpi-neg{color:#A32D2D}.kpi-neutral{color:var(--text-muted)}
+
+/* ── chart grid ── */
+.charts-grid-2{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:16px;margin-bottom:16px}
+.charts-grid-full{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px}
+.charts-grid-half{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:16px}
+
+/* ── chart card ── */
+.chart-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:18px;
+}
+.chart-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:12px}
+.chart-card-titles{}
+.chart-card-title{font-size:0.85rem;font-weight:500;color:var(--text-primary)}
+.chart-card-sub{font-size:0.72rem;color:var(--text-muted);margin-top:3px}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text-secondary)}
+.leg-swatch{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+/* ── canvas wrappers ── */
+.canvas-wrap-lg{position:relative;width:100%;height:260px}
+.canvas-wrap-md{position:relative;width:100%;height:220px}
+.canvas-wrap-sm{position:relative;width:100%;height:180px}
+.canvas-wrap-donut{position:relative;width:100%;height:200px}
+
+/* ── variance badge row ── */
+.var-badges{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.var-badge{
+    font-size:0.72rem;font-weight:500;padding:4px 12px;border-radius:99px;
+}
+.var-badge-fav{background:#E1F5EE;color:#085041}
+.var-badge-adv{background:#FCEBEB;color:#791F1F}
+.var-badge-net{background:var(--surface-2);color:var(--text-secondary);border:1px solid var(--border)}
+
+/* ── loading state ── */
+.db-loading{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-height:400px;gap:14px;
+}
+.db-spinner{
+    width:32px;height:32px;border:2.5px solid var(--border);
+    border-top-color:var(--accent);border-radius:50%;
+    animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.db-loading-text{font-size:0.85rem;color:var(--text-secondary)}
+
+/* ── error state ── */
+.db-error{
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    min-height:300px;gap:10px;text-align:center;
+}
+.db-error-icon{font-size:2rem;opacity:.4}
+.db-error-msg{font-size:0.85rem;color:var(--text-secondary);max-width:320px}
+
+/* ── empty ── */
+.db-empty{display:none}
+
+/* ── insight strip ── */
+.insight-strip{
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    padding:14px 18px;margin-bottom:16px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.insight-text{font-size:0.8rem;color:var(--text-secondary);flex:1;min-width:0}
+.insight-text strong{color:var(--text-primary);font-weight:500}
+.insight-ask-btn{
+    font-size:0.78rem;font-weight:500;white-space:nowrap;
+    padding:6px 14px;border-radius:7px;
+    border:1px solid var(--border);background:var(--surface-2);
+    color:var(--text-secondary);cursor:pointer;transition:all .13s;
+    font-family:'Geist',sans-serif;
+}
+.insight-ask-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+
+/* ── doc selector ── */
+.doc-selector-wrap{margin-bottom:20px}
+.doc-selector{
+    font-size:0.82rem;padding:8px 12px;border-radius:8px;
+    border:1px solid var(--border);background:var(--surface);
+    color:var(--text-primary);outline:none;font-family:'Geist',sans-serif;
+    cursor:pointer;max-width:380px;width:100%;
+}
+.doc-selector:focus{border-color:rgba(44,95,138,.35);box-shadow:0 0 0 3px rgba(44,95,138,.06)}
+
+/* responsive */
+@media(max-width:720px){
+    .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .charts-grid-2,.charts-grid-half{grid-template-columns:1fr}
+    .db-body{padding:16px 14px 32px}
+}
+</style>
+
+<div class="db-root">
+
+    <!-- Top bar -->
+    <div class="db-topbar">
+        <div class="db-topbar-left">
+            <a href="javascript:history.back()" class="db-back">← Back</a>
+            <span class="db-title">Financial Chart Dashboard</span>
+        </div>
+        <div class="db-topbar-right">
+            <span class="db-doc-pill" id="active-doc-pill">No document selected</span>
+            <button class="db-export-btn" onclick="exportChart()">↓ Export PNG</button>
+        </div>
+    </div>
+
+    <!-- Body -->
+    <div class="db-body">
+
+        <!-- Document selector -->
+        <div class="doc-selector-wrap">
+            <select class="doc-selector" id="doc-select" onchange="loadChart(this.value, this.options[this.selectedIndex].text)">
+                <option value="">— Select a CSV source to chart —</option>
+                {% for doc in csv_documents %}
+                <option value="{{ doc.id }}">{{ doc.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Chart type tabs -->
+        <div class="chart-tabs" id="chart-tabs" style="display:none">
+            <button class="chart-tab active" data-type="auto"    onclick="switchType('auto',this)">Auto-detect</button>
+            <button class="chart-tab"        data-type="bar"     onclick="switchType('bar',this)">Bar</button>
+            <button class="chart-tab"        data-type="line"    onclick="switchType('line',this)">Line</button>
+            <button class="chart-tab"        data-type="doughnut"onclick="switchType('doughnut',this)">Donut</button>
+            <button class="chart-tab"        data-type="variance"onclick="switchType('variance',this)">Variance</button>
+            <button class="chart-tab"        data-type="waterfall"onclick="switchType('waterfall',this)">Waterfall</button>
+        </div>
+
+        <!-- Loading -->
+        <div class="db-loading" id="db-loading" style="display:none">
+            <div class="db-spinner"></div>
+            <span class="db-loading-text">Analysing your data…</span>
+        </div>
+
+        <!-- Error -->
+        <div class="db-error" id="db-error">
+            <div class="db-error-icon">⚠</div>
+            <div class="db-error-msg" id="db-error-msg">Something went wrong.</div>
+        </div>
+
+        <!-- Dashboard content (hidden until data loads) -->
+        <div id="db-content" style="display:none">
+
+            <!-- KPI cards -->
+            <div class="kpi-grid" id="kpi-grid"></div>
+
+            <!-- Insight strip -->
+            <div class="insight-strip" id="insight-strip">
+                <span class="insight-text" id="insight-text">—</span>
+                <button class="insight-ask-btn" id="insight-btn" onclick="askInsight()">Ask Claude ↗</button>
+            </div>
+
+            <!-- Main chart -->
+            <div class="charts-grid-2" id="main-chart-row">
+                <div class="chart-card">
+                    <div class="chart-card-head">
+                        <div class="chart-card-titles">
+                            <div class="chart-card-title" id="main-chart-title">—</div>
+                            <div class="chart-card-sub"   id="main-chart-sub">—</div>
+                        </div>
+                        <div class="chart-legend" id="main-legend"></div>
+                    </div>
+                    <div class="canvas-wrap-lg"><canvas id="mainChart"></canvas></div>
+                </div>
+
+                <!-- Breakdown donut (right col) -->
+                <div class="chart-card" id="donut-card">
+                    <div class="chart-card-head">
+                        <div class="chart-card-titles">
+                            <div class="chart-card-title">Column breakdown</div>
+                            <div class="chart-card-sub">Share of total by column</div>
+                        </div>
+                    </div>
+                    <div class="canvas-wrap-donut"><canvas id="donutChart"></canvas></div>
+                    <div class="chart-legend" id="donut-legend" style="margin-top:10px;justify-content:center"></div>
+                </div>
+            </div>
+
+            <!-- Variance chart (full width, shown when relevant) -->
+            <div class="charts-grid-full" id="var-row" style="display:none">
+                <div class="chart-card">
+                    <div class="chart-card-head">
+                        <div class="chart-card-titles">
+                            <div class="chart-card-title">Variance — actual vs budget</div>
+                            <div class="chart-card-sub">Green = favourable · Red = adverse</div>
+                        </div>
+                        <div class="var-badges" id="var-badges"></div>
+                    </div>
+                    <div class="canvas-wrap-md"><canvas id="varChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Bottom row: trend line + stats -->
+            <div class="charts-grid-half" id="bottom-row">
+                <div class="chart-card">
+                    <div class="chart-card-head">
+                        <div class="chart-card-titles">
+                            <div class="chart-card-title">Trend</div>
+                            <div class="chart-card-sub" id="trend-sub">—</div>
+                        </div>
+                    </div>
+                    <div class="canvas-wrap-sm"><canvas id="trendChart"></canvas></div>
+                </div>
+                <div class="chart-card" id="stats-card">
+                    <div class="chart-card-head">
+                        <div class="chart-card-titles">
+                            <div class="chart-card-title">Summary statistics</div>
+                            <div class="chart-card-sub">Per column</div>
+                        </div>
+                    </div>
+                    <div id="stats-table" style="overflow-x:auto"></div>
+                </div>
+            </div>
+
+        </div><!-- /db-content -->
+    </div><!-- /db-body -->
+</div><!-- /db-root -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ═══════════════════════════════════════════
+   State
+═══════════════════════════════════════════ */
+let _chartData    = null;
+let _activeType   = 'auto';
+let _activeDocId  = null;
+let _activeDocName= '';
+const _charts     = {};
+
+const CA_COLORS = [
+    {bg:'rgba(24,95,165,0.85)',  border:'#185FA5'},
+    {bg:'rgba(15,110,86,0.82)',  border:'#0F6E56'},
+    {bg:'rgba(186,117,23,0.80)', border:'#BA7517'},
+    {bg:'rgba(162,45,45,0.80)',  border:'#A32D2D'},
+    {bg:'rgba(136,135,128,0.75)',border:'#888780'},
+];
+
+const GRID_COLOR = 'rgba(128,128,128,0.08)';
+const GRID_W     = 0.5;
+
+/* ═══════════════════════════════════════════
+   Formatters
+═══════════════════════════════════════════ */
+function fmtCcy(v) {
+    const abs = Math.abs(Math.round(v));
+    const sign = v < 0 ? '-' : '';
+    if (abs >= 1000000) return sign + '£' + (abs/1000000).toFixed(2) + 'M';
+    if (abs >= 1000)    return sign + '£' + (abs/1000).toFixed(1) + 'k';
+    return sign + '£' + abs.toLocaleString();
+}
+function fmtTooltip(ctx) {
+    return ctx.dataset.label + ': ' + fmtCcy(ctx.parsed.y ?? ctx.parsed);
+}
+function fmtVariance(ctx) {
+    const v = ctx.parsed.y;
+    return (v >= 0 ? '+' : '') + fmtCcy(v);
+}
+
+/* ═══════════════════════════════════════════
+   Destroy helpers
+═══════════════════════════════════════════ */
+function destroyChart(key) {
+    if (_charts[key]) { _charts[key].destroy(); delete _charts[key]; }
+}
+function destroyAll() {
+    ['mainChart','donutChart','varChart','trendChart'].forEach(destroyChart);
+}
+
+/* ═══════════════════════════════════════════
+   Load chart from API
+═══════════════════════════════════════════ */
+async function loadChart(docId, docName) {
+    if (!docId) return;
+    _activeDocId   = docId;
+    _activeDocName = docName;
+    _activeType    = 'auto';
+
+    document.querySelectorAll('.chart-tab').forEach(t => t.classList.toggle('active', t.dataset.type === 'auto'));
+
+    show('db-loading');
+    hide('db-content');
+    hide('db-error');
+    show('chart-tabs');
+
+    document.getElementById('active-doc-pill').textContent = docName;
+
+    try {
+        const res  = await fetch(`/documents/${docId}/chart/`);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        _chartData = data;
+        renderDashboard(data, 'auto');
+    } catch(e) {
+        show('db-error', 'flex');
+        document.getElementById('db-error-msg').textContent = e.message || 'Failed to load chart data.';
+        hide('db-loading');
+    }
+}
+
+/* ═══════════════════════════════════════════
+   Switch chart type
+═══════════════════════════════════════════ */
+function switchType(type, btn) {
+    document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    _activeType = type;
+    if (_chartData) renderDashboard(_chartData, type);
+}
+
+/* ═══════════════════════════════════════════
+   Main render
+═══════════════════════════════════════════ */
+function renderDashboard(data, typeOverride) {
+    hide('db-loading');
+    hide('db-error');
+    show('db-content');
+
+    const type = typeOverride === 'auto' ? data.chart_type : typeOverride;
+
+    renderKPIs(data);
+    renderInsight(data);
+    renderMainChart(data, type);
+    renderDonut(data);
+    renderVarianceRow(data, type);
+    renderTrend(data);
+    renderStatsTable(data);
+}
+
+/* ── KPI cards ── */
+function renderKPIs(data) {
+    const grid = document.getElementById('kpi-grid');
+    grid.innerHTML = '';
+    const cols = data.value_cols.slice(0, 4);
+    cols.forEach(col => {
+        const s = data.summary[col];
+        if (!s) return;
+        const changeClass = s.total >= 0 ? 'kpi-pos' : 'kpi-neg';
+        grid.innerHTML += `
+            <div class="kpi-card">
+                <div class="kpi-label">${col}</div>
+                <div class="kpi-value">${fmtCcy(s.total)}</div>
+                <div class="kpi-sub ${changeClass}">Avg ${fmtCcy(s.average)} · ${s.count} rows</div>
+            </div>`;
+    });
+}
+
+/* ── Insight strip ── */
+function renderInsight(data) {
+    const cols = data.value_cols;
+    if (!cols.length) return;
+    const col = cols[0];
+    const s   = data.summary[col];
+    if (!s) return;
+    const range = fmtCcy(s.max - s.min);
+    const txt = document.getElementById('insight-text');
+    txt.innerHTML = `<strong>${col}</strong>: total ${fmtCcy(s.total)}, avg ${fmtCcy(s.average)}, range ${range} (${fmtCcy(s.min)} – ${fmtCcy(s.max)})`;
+    document.getElementById('insight-btn').dataset.query =
+        `Analyse this financial data from "${_activeDocName}" in detail. Key stats: ${col} totals ${fmtCcy(s.total)}, avg ${fmtCcy(s.average)}. Identify trends, risks, and opportunities.`;
+}
+
+function askInsight() {
+    const q = document.getElementById('insight-btn').dataset.query || 'Analyse this financial CSV data.';
+    if (typeof sendPrompt === 'function') sendPrompt(q);
+}
+
+/* ── Main chart ── */
+function renderMainChart(data, type) {
+    destroyChart('mainChart');
+    const ctx = document.getElementById('mainChart').getContext('2d');
+
+    let cfg;
+    if (type === 'variance') {
+        cfg = buildVarianceConfig(data);
+    } else if (type === 'waterfall') {
+        cfg = buildWaterfallConfig(data);
+    } else {
+        cfg = buildStandardConfig(data, type);
+    }
+
+    _charts['mainChart'] = new Chart(ctx, cfg);
+
+    const titleMap = {
+        bar:'Bar chart', line:'Trend line', doughnut:'Distribution',
+        variance:'Variance analysis', waterfall:'P&L bridge', horizontal_bar:'Horizontal bar',
+    };
+    document.getElementById('main-chart-title').textContent = titleMap[type] || 'Chart';
+    document.getElementById('main-chart-sub').textContent   = `${data.label_col} · ${data.raw_labels.length} rows`;
+
+    buildLegend('main-legend', data.value_cols);
+}
+
+function buildStandardConfig(data, type) {
+    const isHoriz  = type === 'horizontal_bar';
+    const isDonut  = type === 'doughnut';
+    const isLine   = type === 'line';
+    const chartType = isHoriz ? 'bar' : (type || 'bar');
+
+    const datasets = data.value_cols.map((col, i) => {
+        const vals = data.raw_datasets.find(d => d.col === col)?.data || [];
+        const c    = CA_COLORS[i % CA_COLORS.length];
+        const ds   = {
+            label: col, data: vals,
+            backgroundColor: isDonut
+                ? CA_COLORS.map(c => c.bg)
+                : c.bg,
+            borderColor: c.border,
+            borderWidth: isDonut ? 0 : 1.5,
+            borderRadius: isDonut ? 0 : 3,
+        };
+        if (isLine) Object.assign(ds, {fill:false, tension:0.35, pointRadius:3, pointHoverRadius:5});
+        return ds;
+    });
+
+    const xScale = {
+        grid:{display:false},
+        ticks:{font:{size:11}, autoSkip:false, maxRotation:data.raw_labels.length > 8 ? 40 : 0},
+    };
+    const yScale = {
+        beginAtZero:true,
+        grid:{color:GRID_COLOR, lineWidth:GRID_W},
+        ticks:{font:{size:11}, callback:fmtCcy},
+    };
+
+    const opts = {
+        responsive:true, maintainAspectRatio:false,
+        indexAxis: isHoriz ? 'y' : 'x',
+        plugins:{
+            legend:{display:false},
+            tooltip:{callbacks:{label: isDonut
+                ? ctx => ctx.label+': '+fmtCcy(ctx.parsed)
+                : fmtTooltip
+            }},
+        },
+    };
+
+    if (!isDonut) opts.scales = isHoriz ? {x:yScale, y:xScale} : {x:xScale, y:yScale};
+    else opts.cutout = '65%';
+
+    return {type:chartType, data:{labels:data.raw_labels, datasets}, options:opts};
+}
+
+function buildVarianceConfig(data) {
+    const d1 = data.raw_datasets[0]?.data || [];
+    const d2 = data.raw_datasets[1]?.data || d1.map(() => 0);
+    const vars = d1.map((a, i) => Math.round((a - d2[i]) * 100) / 100);
+    const colors = vars.map(v => v >= 0 ? 'rgba(15,110,86,0.85)' : 'rgba(162,45,45,0.80)');
+    return {
+        type:'bar',
+        data:{labels:data.raw_labels, datasets:[{
+            label:'Variance', data:vars,
+            backgroundColor:colors, borderColor:colors, borderWidth:1, borderRadius:3,
+        }]},
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            plugins:{legend:{display:false}, tooltip:{callbacks:{label:fmtVariance}}},
+            scales:{
+                x:{grid:{display:false}, ticks:{font:{size:11}, autoSkip:false, maxRotation:40}},
+                y:{grid:{color:GRID_COLOR,lineWidth:GRID_W}, ticks:{font:{size:11}, callback:fmtCcy}},
+            },
+        },
+    };
+}
+
+function buildWaterfallConfig(data) {
+    const vals   = data.raw_datasets[0]?.data || [];
+    const colors = vals.map(v => v >= 0 ? 'rgba(15,110,86,0.80)' : 'rgba(162,45,45,0.80)');
+    return {
+        type:'bar',
+        data:{labels:data.raw_labels, datasets:[{
+            label:'Value', data:vals,
+            backgroundColor:colors, borderColor:colors, borderWidth:0, borderRadius:3,
+        }]},
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>'£'+Math.round(Math.abs(ctx.parsed.y)).toLocaleString()+'k'}}},
+            scales:{
+                x:{grid:{display:false}, ticks:{font:{size:10}, autoSkip:false, maxRotation:30}},
+                y:{grid:{color:GRID_COLOR,lineWidth:GRID_W}, ticks:{font:{size:11}, callback:fmtCcy}},
+            },
+        },
+    };
+}
+
+/* ── Donut (column breakdown by total) ── */
+function renderDonut(data) {
+    destroyChart('donutChart');
+    if (data.value_cols.length < 2) {
+        hide('donut-card');
+        document.getElementById('main-chart-row').style.gridTemplateColumns = '1fr';
+        return;
+    }
+    show('donut-card');
+    document.getElementById('main-chart-row').style.gridTemplateColumns = '';
+
+    const labels = data.value_cols;
+    const values = labels.map(col => Math.abs(data.summary[col]?.total || 0));
+    const total  = values.reduce((a, b) => a + b, 0);
+
+    const ctx = document.getElementById('donutChart').getContext('2d');
+    _charts['donutChart'] = new Chart(ctx, {
+        type:'doughnut',
+        data:{labels, datasets:[{
+            data:values,
+            backgroundColor:CA_COLORS.map(c => c.bg),
+            borderWidth:0, hoverOffset:4,
+        }]},
+        options:{
+            responsive:true, maintainAspectRatio:false, cutout:'66%',
+            plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>{
+                const pct = total > 0 ? Math.round(ctx.parsed / total * 100) : 0;
+                return ctx.label+': '+fmtCcy(ctx.parsed)+' ('+pct+'%)';
+            }}}},
+        },
+    });
+
+    const leg = document.getElementById('donut-legend');
+    leg.innerHTML = labels.map((l, i) => {
+        const pct = total > 0 ? Math.round(values[i] / total * 100) : 0;
+        return `<span class="leg-item"><span class="leg-swatch" style="background:${CA_COLORS[i % CA_COLORS.length].border}"></span>${l} ${pct}%</span>`;
+    }).join('');
+}
+
+/* ── Variance row ── */
+function renderVarianceRow(data, type) {
+    const row = document.getElementById('var-row');
+    if (data.value_cols.length < 2 || type === 'doughnut' || type === 'waterfall') {
+        row.style.display = 'none';
+        destroyChart('varChart');
+        return;
+    }
+    row.style.display = '';
+    destroyChart('varChart');
+
+    const d1  = data.raw_datasets[0]?.data || [];
+    const d2  = data.raw_datasets[1]?.data || d1.map(() => 0);
+    const vars = d1.map((a, i) => Math.round((a - d2[i]) * 100) / 100);
+    const fav  = vars.filter(v => v >= 0).length;
+    const adv  = vars.filter(v => v < 0).length;
+    const net  = Math.round(vars.reduce((a, b) => a + b, 0) * 100) / 100;
+
+    const badges = document.getElementById('var-badges');
+    badges.innerHTML = `
+        <span class="var-badge var-badge-fav">${fav} favourable</span>
+        <span class="var-badge var-badge-adv">${adv} adverse</span>
+        <span class="var-badge var-badge-net">Net ${fmtCcy(net)}</span>`;
+
+    const colors = vars.map(v => v >= 0 ? 'rgba(15,110,86,0.85)' : 'rgba(162,45,45,0.80)');
+    const ctx = document.getElementById('varChart').getContext('2d');
+    _charts['varChart'] = new Chart(ctx, {
+        type:'bar',
+        data:{labels:data.raw_labels, datasets:[{
+            label:'Variance', data:vars,
+            backgroundColor:colors, borderColor:colors, borderWidth:1, borderRadius:3,
+        }]},
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            plugins:{legend:{display:false}, tooltip:{callbacks:{label:fmtVariance}}},
+            scales:{
+                x:{grid:{display:false}, ticks:{font:{size:11}, autoSkip:false, maxRotation:40}},
+                y:{grid:{color:GRID_COLOR,lineWidth:GRID_W}, ticks:{font:{size:11}, callback:fmtCcy}},
+            },
+        },
+    });
+}
+
+/* ── Trend line ── */
+function renderTrend(data) {
+    destroyChart('trendChart');
+    const col  = data.value_cols[0];
+    const vals = data.raw_datasets[0]?.data || [];
+    document.getElementById('trend-sub').textContent = col + ' · moving trend';
+
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    _charts['trendChart'] = new Chart(ctx, {
+        type:'line',
+        data:{labels:data.raw_labels, datasets:[{
+            label:col, data:vals,
+            borderColor:'#185FA5', backgroundColor:'rgba(24,95,165,0.07)',
+            fill:true, tension:0.4, pointRadius:2, pointHoverRadius:5, borderWidth:2,
+        }]},
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            plugins:{legend:{display:false}, tooltip:{callbacks:{label:fmtTooltip}}},
+            scales:{
+                x:{grid:{display:false}, ticks:{font:{size:11}, autoSkip:true, maxTicksLimit:8}},
+                y:{grid:{color:GRID_COLOR,lineWidth:GRID_W}, ticks:{font:{size:11}, callback:fmtCcy}},
+            },
+        },
+    });
+}
+
+/* ── Stats table ── */
+function renderStatsTable(data) {
+    const wrap = document.getElementById('stats-table');
+    const rows = data.value_cols.map(col => {
+        const s = data.summary[col];
+        if (!s) return '';
+        return `<tr>
+            <td style="font-size:0.78rem;color:var(--text-secondary);padding:6px 0;border-bottom:1px solid var(--border)">${col}</td>
+            <td style="font-size:0.78rem;color:var(--text-primary);padding:6px 8px;border-bottom:1px solid var(--border);text-align:right">${fmtCcy(s.total)}</td>
+            <td style="font-size:0.78rem;color:var(--text-secondary);padding:6px 0;border-bottom:1px solid var(--border);text-align:right">${fmtCcy(s.average)}</td>
+            <td style="font-size:0.78rem;color:#0F6E56;padding:6px 0 6px 8px;border-bottom:1px solid var(--border);text-align:right">${fmtCcy(s.max)}</td>
+        </tr>`;
+    }).join('');
+    wrap.innerHTML = `
+        <table style="width:100%;border-collapse:collapse">
+            <thead><tr>
+                <th style="font-size:0.68rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding-bottom:6px;text-align:left">Column</th>
+                <th style="font-size:0.68rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding-bottom:6px;text-align:right">Total</th>
+                <th style="font-size:0.68rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding-bottom:6px;text-align:right">Avg</th>
+                <th style="font-size:0.68rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding-bottom:6px;text-align:right">Max</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+}
+
+/* ── Legend builder ── */
+function buildLegend(elId, cols) {
+    const el = document.getElementById(elId);
+    el.innerHTML = cols.slice(0, 4).map((col, i) =>
+        `<span class="leg-item"><span class="leg-swatch" style="background:${CA_COLORS[i % CA_COLORS.length].border}"></span>${col}</span>`
+    ).join('');
+}
+
+/* ── Export ── */
+function exportChart() {
+    const canvas = document.getElementById('mainChart');
+    if (!canvas) return;
+    const a = document.createElement('a');
+    a.download = (_activeDocName || 'chart') + '.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+}
+
+/* ── DOM helpers ── */
+function show(id, display='block') { const el = document.getElementById(id); if(el) el.style.display = display; }
+function hide(id) { const el = document.getElementById(id); if(el) el.style.display = 'none'; }
+
+/* ── Auto-load if only one CSV ── */
+window.addEventListener('DOMContentLoaded', () => {
+    const preselect = "{{ preselect_doc }}";
+    const sel = document.getElementById('doc-select');
+    if (preselect && sel) {
+        sel.value = preselect;
+        if (sel.value === preselect) {
+            const opt = sel.options[sel.selectedIndex];
+            loadChart(preselect, opt.text);
+            return;
+        }
+    }
+    // fallback: auto-load if only one CSV exists
+    if (sel && sel.options.length === 2) {
+        sel.selectedIndex = 1;
+        sel.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+{% endblock %}
