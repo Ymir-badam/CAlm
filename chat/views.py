@@ -49,7 +49,10 @@ def create_chat_session(request, notebook_id):
 # Chat Streaming Endpoint
 # ===============================
 import json
+from users.models import DailyActivitySummary
 from concurrent.futures import ThreadPoolExecutor
+from django.db.models import F
+from django.utils import timezone
 @login_required
 def chat_stream(request, session_id):
 
@@ -93,11 +96,22 @@ Provide only the category name as the answer.
 """
     # model = genai.GenerativeModel("gemini-2.0-flash-lite")
     # response_valid=model.generate_content(prompt_validation)
-    category="RAG"
+    if len(list_of_titles)>0:
+        category ="RAG"
+    else:
+        category="Non RAG"
     print("Query Category:", category)
     if category == "Non RAG":
         input_tokens = count_tokens(query)
         llm = get_llm("gemini-2.5-flash")
+        user_msg=query
+        query+="Format your response using Markdown: use ## for section headings, **bold** for key terms, bullet lists for enumerated points, and | tables | for structured comparisons or data. give me output not more than 1000 tokens"
+        query+="\n\nAlso, if the question is related to CA exams, provide exam-focused insights, tips, and examples relevant to the Indian context."
+        query+="\n\nFor numerical problems, show complete step-by-step working with journal entries or calculations as appropriate."
+        query+="\n\nHighlight exam-critical points with '⚠ Exam tip:' — e.g., common MCQ traps, mark-heavy topics, or examiner-favoured phrasings."
+        query+="\n\nUse ₹ for all monetary amounts and give India-specific examples where helpful."
+        query+="\n\nIf the question spans multiple CA levels or topics, clarify which level the answer applies to."
+        query+="\n\nKeep your tone clear, concise, and encouraging — students may be stressed. and output should not more than 1000 tokens."
         llm_response = llm.generate(query)
         output_tokens = count_tokens(llm_response)
         cost = calculate_cost(
@@ -105,11 +119,22 @@ Provide only the category name as the answer.
                         input_tokens,
                         output_tokens
                     )
+        obj, created = DailyActivitySummary.objects.get_or_create(
+        user=request.user,
+        date=timezone.now().date(),
+        defaults={'total_count': 1}  # starts at 1 on first activity
+        )
+
+        if not created:
+            DailyActivitySummary.objects.filter(pk=obj.pk).update(
+                total_count=F('total_count') + 1
+            )
+
 
         Message.objects.create(
                             session=session,
                             role="user",
-                            content=query,
+                            content=user_msg,
                             input_tokens=input_tokens,
                             output_tokens=0,
                             credits_used=0
@@ -119,7 +144,7 @@ Provide only the category name as the answer.
                             session=session,
                             role="assistant",
                             content=llm_response,
-                            sources = ["General Internet"] , # save list of docs
+                            sources = ["General CA syllabus"] ,
                             input_tokens=input_tokens,
                             output_tokens=output_tokens,
                             credits_used=cost
@@ -185,13 +210,19 @@ Provide only the category name as the answer.
             {query}
 
             INSTRUCTIONS:
-            - Answer based on the context provided. If the answer is not in the context, clearly state that and suggest where the student might find it.
+            - Answer based on the context provided. If the answer is not in the context, answer from your knowledge base.
             - Cite relevant sections, acts, or standards where applicable (e.g., AS, Ind AS, GST Act, Companies Act 2013, Income Tax Act).
             - Use ₹ for all monetary amounts and give India-specific examples where helpful.
             - For numerical problems, show complete step-by-step working with journal entries or calculations as appropriate.
             - Highlight exam-critical points with "⚠ Exam tip:" — e.g., common MCQ traps, mark-heavy topics, or examiner-favoured phrasings.
             - Keep your tone clear, concise, and encouraging — students may be stressed.
             - If the question spans multiple CA levels or topics, clarify which level the answer applies to.
+            - Also, if the question is related to CA exams, provide exam-focused insights, tips, and examples relevant to the Indian context."
+            - For numerical problems, show complete step-by-step working with journal entries or calculations as appropriate."
+        -Highlight exam-critical points with '⚠ Exam tip:' — e.g., common MCQ traps, mark-heavy topics, or examiner-favoured phrasings."
+        -Use ₹ for all monetary amounts and give India-specific examples where helpful."
+        -If the question spans multiple CA levels or topics, clarify which level the answer applies to."
+        -Keep your tone clear, concise, and encouraging — students may be stressed. and output should not more than 1000 tokens."
             """
 
             input_tokens = count_tokens(prompt)
@@ -227,6 +258,16 @@ Provide only the category name as the answer.
                             input_tokens + output_tokens
                         )
                         profile.save()
+                        obj, created = DailyActivitySummary.objects.get_or_create(
+                        user=request.user,
+                        date=timezone.now().date(),
+                        defaults={'total_count': 1}  # starts at 1 on first activity
+                        )
+
+                        if not created:
+                            DailyActivitySummary.objects.filter(pk=obj.pk).update(
+                                total_count=F('total_count') + 1
+                            )
 
                         Message.objects.create(
                             session=session,
@@ -299,9 +340,10 @@ Provide only the category name as the answer.
 # ===============================
 # Chat Page
 # ===============================
+import markdown as md_lib
+
 @login_required
 def chat_page(request, session_id):
-
     session = get_object_or_404(
         ChatSession,
         id=session_id,
@@ -310,11 +352,18 @@ def chat_page(request, session_id):
 
     messages = session.message_set.all().order_by("created_at")
 
+    # Pre-render markdown for assistant messages
+    for msg in messages:
+        if msg.role == "assistant":
+            msg.rendered_content = md_lib.markdown(
+                msg.content,
+                extensions=['tables', 'fenced_code', 'nl2br']
+            )
+
     return render(request, "chat.html", {
         "session": session,
         "messages": messages
     })
-
 
 # ===============================
 # Toggle Document Selection (AJAX)

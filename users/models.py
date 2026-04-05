@@ -12,6 +12,11 @@ STREAM_CHOICES = [
     ("CA", "CA (Chartered Accountancy)"),
     ("CLAT", "CLAT (Common Law Admission Test)"),
 ]
+DESIGNATION_CHOICES = [
+    ("Foundation", "Foundation"),
+    ("Intermediate", "Intermediate"),
+    ("Articleship", "Articleship"),
+]
 
 
 
@@ -37,15 +42,60 @@ class UserProfile(models.Model):
         null=True,
         blank=True
     )
+    designation=models.CharField(
+        max_length=50,
+        choices=DESIGNATION_CHOICES,
+        default="Foundation",
+        null=True,
+        blank=True
+    )
+    education=models.CharField(max_length=100,null=True,blank=True)
+
     email = models.EmailField(
         unique=True,
         null=True,
         blank=True
     )
+    financial_reporting=models.FloatField(default=0)
+    financial_reporting_count=models.IntegerField(default=0)
+
+
+    direct_taxation=models.FloatField(default=0)
+    direct_taxation_count=models.IntegerField(default=0)
+
+    gst_and_indirect_tax=models.FloatField(default=0)
+    gst_and_indirect_tax_count=models.IntegerField(default=0)
+
+    audit_and_assurance=models.FloatField(default=0)
+    audit_and_assurance_count=models.IntegerField(default=0)
+
+
+    coporate_law=models.FloatField(default=0)
+    coporate_law_count=models.IntegerField(default=0)
+
+
+    financial_management=models.FloatField(default=0)
+    financial_management_count=models.IntegerField(default=0)
+
+
+    ethics_and_prof=models.FloatField(default=0)
+    ethics_and_prof_count=models.IntegerField(default=0)
+
+
+
 
     def __str__(self):
         return self.user.username
-# models.py
+SKILL_TYPES=[
+    ("financial_reporting", "Financial Reporting"),
+    ("direct_taxation",   "Direct Taxatation"),
+    ("gst_and_indirect_tax",    "Gst and Indirect Tax"),
+    ("audit_and_assurance",      "Audit and Assurance"),
+    ("coporate_law",      "Corporate Law"),
+    ("cost_accounting",      "Cost Accounting"),
+    ("financial_management",      "Financial Management"),
+    ("ethics_and_prof",      "Ethics and Prof"),
+]
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -55,6 +105,7 @@ ACTIVITY_TYPES = [
     ("note_created",    "Note Created"),
     ("quiz_taken",      "Quiz Taken"),
 ]
+
 
 class UserActivity(models.Model):
     user          = models.ForeignKey(User, on_delete=models.CASCADE, related_name="activities")
@@ -76,7 +127,7 @@ class DailyActivitySummary(models.Model):
     """Denormalized daily rollup for fast heatmap queries."""
     user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name="daily_summaries")
     date        = models.DateField()
-    total_count = models.PositiveIntegerField(default=0)      # all activities combined
+    total_count = models.PositiveIntegerField(default=0)      
 
     class Meta:
         unique_together = ("user", "date")
@@ -106,3 +157,7 @@ class CaseActivityLog(models.Model):
 
     def tags_list(self):
         return [t.strip() for t in self.tags.split(",") if t.strip()]
+    
+
+# class SkillLog(models.Model):
+#     user= models.ForeignKey(User, on_delete=models.CASCADE, related_name="skill_logs")

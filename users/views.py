@@ -15,6 +15,15 @@ import json
 
 from .models import CaseActivityLog, UserActivity, DailyActivitySummary
 
+
+
+
+
+
+
+
+
+
 @login_required
 def profile_dashboard(request):
     user    = request.user
@@ -30,12 +39,51 @@ def profile_dashboard(request):
         .values("activity_type")
         .annotate(total=Sum("count"))
     )
+    ######skills average
+    user_data=UserProfile.objects.get(user=user)
+    financial_reporting=user_data.financial_reporting
+    financial_reporting_count=user_data.financial_reporting_count
+    financial_reporting_skill_avg=financial_reporting/financial_reporting_count if financial_reporting_count>0 else 0
+
+    direct_taxation=user_data.direct_taxation_count
+    direct_taxation_count=user_data.direct_taxation_count
+    direct_taxation_skill_avg=direct_taxation/direct_taxation_count if direct_taxation_count>0 else 0
+
+    gst_and_indirect_tax=user_data.gst_and_indirect_tax
+    gst_and_indirect_tax_count=user_data.gst_and_indirect_tax_count
+    gst_and_indirect_tax_skill_avg=gst_and_indirect_tax/gst_and_indirect_tax_count if gst_and_indirect_tax_count>0 else 0
+
+    audit_and_assurance=user_data.audit_and_assurance
+    audit_and_assurance_count=user_data.audit_and_assurance_count
+    audit_and_assurance_skill_avg=audit_and_assurance/audit_and_assurance_count if audit_and_assurance_count>0 else 0
+
+    coporate_law=user_data.coporate_law
+    coporate_law_count=user_data.coporate_law_count
+    coporate_law_skill_avg=coporate_law/coporate_law_count if coporate_law_count>0 else 0
+
+    financial_management=user_data.financial_management
+    financial_management_count=user_data.financial_management_count
+    financial_management_skill_avg=financial_management/financial_management_count if financial_management_count>0 else 0
+
+    ethics_and_prof=user_data.ethics_and_prof
+    ethics_and_prof_count=user_data.ethics_and_prof_count
+    ethics_and_prof_skill_avg=ethics_and_prof/ethics_and_prof_count if ethics_and_prof_count>0 else 0
+
     type_totals = {r["activity_type"].replace("chat_", ""): r["total"] for r in chat_counts}
 
     return render(request, "profile.html", {
         "profile":     profile,
         "logs":        logs,
         "type_totals": json.dumps(type_totals),
+        "skills_avg": {
+            "financial_reporting": financial_reporting_skill_avg,
+            "direct_taxation": direct_taxation_skill_avg,
+            "gst_and_indirect_tax": gst_and_indirect_tax_skill_avg,
+            "audit_and_assurance": audit_and_assurance_skill_avg,
+            "coporate_law": coporate_law_skill_avg,
+            "financial_management": financial_management_skill_avg,
+            "ethics_and_prof": ethics_and_prof_skill_avg,
+        }
     })
 
 

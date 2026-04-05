@@ -4,7 +4,7 @@ from .models import UserActivity, DailyActivitySummary
 
 def record_activity(user, activity_type: str, metadata: dict = None):
     """
-    Call this wherever an action happens.
+    Call this wherever an action happensa
     e.g. record_activity(request.user, "question_solved", {"topic": "Tax"})
     """
     today = timezone.localdate()
