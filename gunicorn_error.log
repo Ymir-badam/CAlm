@@ -1,0 +1,631 @@
+[2026-04-05 04:57:56 +0000] [6563] [CRITICAL] WORKER TIMEOUT (pid:6566)
+[2026-04-05 04:57:57 +0000] [6566] [ERROR] Error handling request GET /notebooks/23/upload/
+Traceback (most recent call last):
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 142, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 185, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/wsgi.py", line 134, in __call__
+    response = self.get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 140, in get_response
+    response = self._middleware_chain(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 181, in _get_response
+    callback, callback_args, callback_kwargs = self.resolve_request(request)
+                                               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 313, in resolve_request
+    resolver_match = resolver.resolve(request.path_info)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 663, in resolve
+    for pattern in self.url_patterns:
+                   ^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 715, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 708, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "/usr/lib/python3.13/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/sachinsingh14021995/demo/CAlm/notebooklm/urls.py", line 40, in <module>
+    path("", include("documents.urls")),
+             ~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/conf.py", line 38, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/usr/lib/python3.13/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/sachinsingh14021995/demo/CAlm/documents/urls.py", line 2, in <module>
+    from . import views
+  File "/home/sachinsingh14021995/demo/CAlm/documents/views.py", line 5, in <module>
+    from .services import process_document
+  File "/home/sachinsingh14021995/demo/CAlm/documents/services.py", line 8, in <module>
+    from llm.gemini import summarize_text
+  File "/home/sachinsingh14021995/demo/CAlm/llm/gemini.py", line 17, in <module>
+    import vertexai
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/vertexai/__init__.py", line 19, in <module>
+    from google.cloud.aiplatform import version as aiplatform_version
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform/__init__.py", line 24, in <module>
+    from google.cloud.aiplatform import initializer
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform/initializer.py", line 35, in <module>
+    from google.cloud.aiplatform import compat
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform/compat/__init__.py", line 18, in <module>
+    from google.cloud.aiplatform.compat import services
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform/compat/services/__init__.py", line 116, in <module>
+    from google.cloud.aiplatform_v1.services.dataset_service import (
+        client as dataset_service_client_v1,
+    )
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform_v1/__init__.py", line 21, in <module>
+    from .services.dataset_service import DatasetServiceClient
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform_v1/services/dataset_service/__init__.py", line 16, in <module>
+    from .client import DatasetServiceClient
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform_v1/services/dataset_service/client.py", line 53, in <module>
+    from google.cloud.aiplatform_v1.services.dataset_service import pagers
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform_v1/services/dataset_service/pagers.py", line 40, in <module>
+    from google.cloud.aiplatform_v1.types import annotation
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform_v1/types/__init__.py", line 589, in <module>
+    from .metadata_service import (
+    ...<49 lines>...
+    )
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform_v1/types/metadata_service.py", line 1506, in <module>
+    class QueryArtifactLineageSubgraphRequest(proto.Message):
+    ...<59 lines>...
+        )
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/proto/message.py", line 282, in __new__
+    file_info.generate_file_pb(new_class=cls, fallback_salt=full_name)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/proto/_file_info.py", line 127, in generate_file_pb
+    pb_message, MessageRule(pb_message, proto_plus_message)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/proto/marshal/rules/message.py", line 19, in __init__
+    def __init__(self, descriptor: type, wrapper: type):
+    
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/base.py", line 198, in handle_abort
+    sys.exit(1)
+    ~~~~~~~~^^^
+SystemExit: 1
+[2026-04-05 04:57:58 +0000] [6563] [ERROR] Worker (pid:6566) was sent SIGKILL! Perhaps out of memory?
+[2026-04-05 04:57:59 +0000] [6563] [CRITICAL] WORKER TIMEOUT (pid:6567)
+[2026-04-05 04:57:59 +0000] [6567] [ERROR] Error handling request GET /notebooks/23/upload/
+Traceback (most recent call last):
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 142, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 185, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/wsgi.py", line 134, in __call__
+    response = self.get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 140, in get_response
+    response = self._middleware_chain(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 181, in _get_response
+    callback, callback_args, callback_kwargs = self.resolve_request(request)
+                                               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 313, in resolve_request
+    resolver_match = resolver.resolve(request.path_info)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 663, in resolve
+    for pattern in self.url_patterns:
+                   ^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 715, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 708, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "/usr/lib/python3.13/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/sachinsingh14021995/demo/CAlm/notebooklm/urls.py", line 40, in <module>
+    path("", include("documents.urls")),
+             ~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/conf.py", line 38, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/usr/lib/python3.13/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/sachinsingh14021995/demo/CAlm/documents/urls.py", line 2, in <module>
+    from . import views
+  File "/home/sachinsingh14021995/demo/CAlm/documents/views.py", line 5, in <module>
+    from .services import process_document
+  File "/home/sachinsingh14021995/demo/CAlm/documents/services.py", line 8, in <module>
+    from llm.gemini import summarize_text
+  File "/home/sachinsingh14021995/demo/CAlm/llm/gemini.py", line 17, in <module>
+    import vertexai
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/vertexai/__init__.py", line 19, in <module>
+    from google.cloud.aiplatform import version as aiplatform_version
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform/__init__.py", line 24, in <module>
+    from google.cloud.aiplatform import initializer
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform/initializer.py", line 38, in <module>
+    from google.cloud.aiplatform.metadata import metadata
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform/metadata/metadata.py", line 29, in <module>
+    from google.cloud.aiplatform import pipeline_jobs
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform/pipeline_jobs.py", line 33, in <module>
+    from google.cloud.aiplatform.metadata import artifact
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform/metadata/artifact.py", line 26, in <module>
+    from google.cloud.aiplatform import models
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform/models.py", line 49, in <module>
+    from google.cloud.aiplatform import jobs
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform/jobs.py", line 1736, in <module>
+    class CustomJob(_RunnableJob, base.PreviewMixin):
+    ...<899 lines>...
+            )
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform/jobs.py", line 1753, in CustomJob
+    worker_pool_specs: Union[List[Dict], List[custom_job_v1.WorkerPoolSpec]],
+                             ~~~~^^^^^^
+  File "/usr/lib/python3.13/typing.py", line 429, in inner
+    return _caches[func](*args, **kwds)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/typing.py", line 1656, in __getitem__
+    return self.copy_with(params)
+           ~~~~~~~~~~~~~~^^^^^^^^
+  File "/usr/lib/python3.13/typing.py", line 1659, in copy_with
+    return _GenericAlias(self.__origin__, params,
+                         name=self._name, inst=self._inst)
+  File "/usr/lib/python3.13/typing.py", line 1423, in __init__
+    def __init__(self, origin, args, *, inst=True, name=None):
+    
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/base.py", line 198, in handle_abort
+    sys.exit(1)
+    ~~~~~~~~^^^
+SystemExit: 1
+[2026-04-05 04:58:00 +0000] [6563] [ERROR] Worker (pid:6567) was sent SIGKILL! Perhaps out of memory?
+[2026-04-05 04:58:02 +0000] [6563] [CRITICAL] WORKER TIMEOUT (pid:6565)
+[2026-04-05 04:58:02 +0000] [6565] [ERROR] Error handling request GET /notebooks/23/upload/
+Traceback (most recent call last):
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 142, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 185, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/wsgi.py", line 134, in __call__
+    response = self.get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 140, in get_response
+    response = self._middleware_chain(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 181, in _get_response
+    callback, callback_args, callback_kwargs = self.resolve_request(request)
+                                               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 313, in resolve_request
+    resolver_match = resolver.resolve(request.path_info)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 663, in resolve
+    for pattern in self.url_patterns:
+                   ^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 715, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 708, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "/usr/lib/python3.13/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/sachinsingh14021995/demo/CAlm/notebooklm/urls.py", line 41, in <module>
+    path("", include("chat.urls")),
+             ~~~~~~~^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/conf.py", line 38, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/usr/lib/python3.13/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/sachinsingh14021995/demo/CAlm/chat/urls.py", line 2, in <module>
+    from . import views
+  File "/home/sachinsingh14021995/demo/CAlm/chat/views.py", line 13, in <module>
+    from rag.reranker import rerank
+  File "/home/sachinsingh14021995/demo/CAlm/rag/reranker.py", line 3, in <module>
+    reranker_model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/sentence_transformers/cross_encoder/util.py", line 39, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/sentence_transformers/cross_encoder/CrossEncoder.py", line 196, in __init__
+    self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(
+                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model_name_or_path,
+        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **tokenizer_kwargs,
+        ^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/transformers/models/auto/tokenization_auto.py", line 793, in from_pretrained
+    return tokenizer_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/transformers/tokenization_utils_base.py", line 1721, in from_pretrained
+    return cls._from_pretrained(
+           ~~~~~~~~~~~~~~~~~~~~^
+        resolved_vocab_files,
+        ^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/transformers/tokenization_utils_base.py", line 1910, in _from_pretrained
+    tokenizer = cls(*init_inputs, **init_kwargs)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/transformers/models/bert/tokenization_bert.py", line 104, in __init__
+    self._tokenizer = Tokenizer(WordPiece(self._vocab, unk_token=str(unk_token)))
+                                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/base.py", line 198, in handle_abort
+    sys.exit(1)
+    ~~~~~~~~^^^
+SystemExit: 1
+[2026-04-05 04:58:03 +0000] [6563] [ERROR] Worker (pid:6565) was sent SIGKILL! Perhaps out of memory?
+[2026-04-06 16:37:01 +0000] [17703] [CRITICAL] WORKER TIMEOUT (pid:17704)
+[2026-04-06 16:37:02 +0000] [17704] [ERROR] Error handling request POST /chat/62/stream/
+Traceback (most recent call last):
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 142, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 185, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/wsgi.py", line 134, in __call__
+    response = self.get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 140, in get_response
+    response = self._middleware_chain(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/home/sachinsingh14021995/demo/CAlm/chat/views.py", line 115, in chat_stream
+    llm_response = llm.generate(query)
+  File "/home/sachinsingh14021995/demo/CAlm/llm/gemini.py", line 40, in generate
+    response = self.model.generate_content(prompt)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/vertexai/generative_models/_generative_models.py", line 654, in generate_content
+    return self._generate_content(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        contents=contents,
+        ^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        labels=labels,
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/vertexai/generative_models/_generative_models.py", line 779, in _generate_content
+    gapic_response = self._prediction_client.generate_content(request=request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/cloud/aiplatform_v1/services/prediction_service/client.py", line 2159, in generate_content
+    response = rpc(
+        request,
+    ...<2 lines>...
+        metadata=metadata,
+    )
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/api_core/gapic_v1/method.py", line 128, in __call__
+    return wrapped_func(*args, **kwargs)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/google/api_core/grpc_helpers.py", line 55, in error_remapped_callable
+    return callable_(*args, **kwargs)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/grpc/_channel.py", line 1156, in __call__
+    state, call = self._blocking(
+                  ~~~~~~~~~~~~~~^
+        request, timeout, metadata, credentials, wait_for_ready, compression
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/grpc/_channel.py", line 1143, in _blocking
+    event = call.next_event()
+  File "src/python/grpcio/grpc/_cython/_cygrpc/channel.pyx.pxi", line 388, in grpc._cython.cygrpc.SegregatedCall.next_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/channel.pyx.pxi", line 211, in grpc._cython.cygrpc._next_call_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/channel.pyx.pxi", line 205, in grpc._cython.cygrpc._next_call_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/completion_queue.pyx.pxi", line 97, in grpc._cython.cygrpc._latent_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/completion_queue.pyx.pxi", line 80, in grpc._cython.cygrpc._internal_latent_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/completion_queue.pyx.pxi", line 61, in grpc._cython.cygrpc._next
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/base.py", line 198, in handle_abort
+    sys.exit(1)
+    ~~~~~~~~^^^
+SystemExit: 1
+[2026-04-06 16:37:03 +0000] [17703] [ERROR] Worker (pid:17704) was sent SIGKILL! Perhaps out of memory?
+[2026-04-06 16:37:55 +0000] [17703] [CRITICAL] WORKER TIMEOUT (pid:35169)
+[2026-04-06 16:37:55 +0000] [35169] [ERROR] Error handling request POST /notebooks/30/chat/create/
+Traceback (most recent call last):
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 142, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 185, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/wsgi.py", line 134, in __call__
+    response = self.get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 140, in get_response
+    response = self._middleware_chain(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 181, in _get_response
+    callback, callback_args, callback_kwargs = self.resolve_request(request)
+                                               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 313, in resolve_request
+    resolver_match = resolver.resolve(request.path_info)
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 663, in resolve
+    for pattern in self.url_patterns:
+                   ^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 715, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 708, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "/usr/lib/python3.13/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/sachinsingh14021995/demo/CAlm/notebooklm/urls.py", line 40, in <module>
+    path("", include("documents.urls")),
+             ~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/django/urls/conf.py", line 38, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/usr/lib/python3.13/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/sachinsingh14021995/demo/CAlm/documents/urls.py", line 2, in <module>
+    from . import views
+  File "/home/sachinsingh14021995/demo/CAlm/documents/views.py", line 5, in <module>
+    from .services import process_document
+  File "/home/sachinsingh14021995/demo/CAlm/documents/services.py", line 7, in <module>
+    from rag.indexing import create_collection, upload_vectors
+  File "/home/sachinsingh14021995/demo/CAlm/rag/indexing.py", line 2, in <module>
+    from qdrant_client.models import VectorParams, Distance
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/qdrant_client/__init__.py", line 1, in <module>
+    from .async_qdrant_client import AsyncQdrantClient as AsyncQdrantClient
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/qdrant_client/async_qdrant_client.py", line 16, in <module>
+    from qdrant_client.async_client_base import AsyncQdrantBase
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/qdrant_client/async_client_base.py", line 13, in <module>
+    from qdrant_client.conversions import common_types as types
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/qdrant_client/conversions/common_types.py", line 10, in <module>
+    from qdrant_client.http import models as rest
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/qdrant_client/http/__init__.py", line 5, in <module>
+    from qdrant_client.http.api_client import (  # noqa F401
+    ...<4 lines>...
+    )
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/qdrant_client/http/api_client.py", line 12, in <module>
+    from qdrant_client.http.api.distributed_api import AsyncDistributedApi, SyncDistributedApi
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/qdrant_client/http/api/distributed_api.py", line 254, in <module>
+    class AsyncDistributedApi(_DistributedApi):
+    ...<94 lines>...
+            )
+  File "/home/sachinsingh14021995/demo/CAlm/venv/lib/python3.13/site-packages/gunicorn/workers/base.py", line 198, in handle_abort
+    sys.exit(1)
+    ~~~~~~~~^^^
+SystemExit: 1
+[2026-04-06 16:37:56 +0000] [17703] [ERROR] Worker (pid:35169) was sent SIGKILL! Perhaps out of memory?

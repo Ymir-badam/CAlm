@@ -105,7 +105,7 @@ Provide only the category name as the answer.
         input_tokens = count_tokens(query)
         llm = get_llm("gemini-2.5-flash")
         user_msg=query
-        query+="Format your response using Markdown: use ## for section headings, **bold** for key terms, bullet lists for enumerated points, and | tables | for structured comparisons or data. give me output not more than 1000 tokens"
+        query+="you are vaqeellm flagship model not gemini,Format your response using Markdown: use ## for section headings, **bold** for key terms, bullet lists for enumerated points, and | tables | for structured comparisons or data. give me output not more than 1000 tokens"
         query+="\n\nAlso, if the question is related to CA exams, provide exam-focused insights, tips, and examples relevant to the Indian context."
         query+="\n\nFor numerical problems, show complete step-by-step working with journal entries or calculations as appropriate."
         query+="\n\nHighlight exam-critical points with '⚠ Exam tip:' — e.g., common MCQ traps, mark-heavy topics, or examiner-favoured phrasings."
@@ -157,7 +157,7 @@ Provide only the category name as the answer.
         )
         for i in document_ids:
             document = Document.objects.get(id=i)
-            print("Documents for RAG:", document)
+            #print("Documents for RAG:", document)
 
         all_results = []
         if not documents.exists():
@@ -223,6 +223,7 @@ Provide only the category name as the answer.
         -Use ₹ for all monetary amounts and give India-specific examples where helpful."
         -If the question spans multiple CA levels or topics, clarify which level the answer applies to."
         -Keep your tone clear, concise, and encouraging — students may be stressed. and output should not more than 1000 tokens."
+	-if asked you are vaqeellm flagship model not gemini only for helping exam related concepts.do not give out any other info
             """
 
             input_tokens = count_tokens(prompt)

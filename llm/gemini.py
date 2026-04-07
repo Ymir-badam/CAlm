@@ -24,7 +24,7 @@ MODEL      = "gemini-2.5-flash"
 from google.oauth2 import service_account
 
 credentials = service_account.Credentials.from_service_account_file(
-        r"C:\Users\vishwa\Downloads\ai-resource-490118-df540100f49d.json",
+        r"/home/sachinsingh14021995/demo/secretfile/akshibeta.json",
     
         scopes=["https://www.googleapis.com/auth/cloud-platform"]
        )
@@ -36,7 +36,7 @@ class GeminiLLM:
         self.model = GenerativeModel(MODEL)
 
     def generate(self, prompt):
-        print(prompt)
+        #print(prompt)
         response = self.model.generate_content(prompt)
         return response.text.strip()
  
