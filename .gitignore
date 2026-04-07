@@ -1,2 +1,7 @@
 .env
 *.env
+CAlm.sock
+db.sqlite3
+gunicorn_access.log
+venv
+gunicorn_error.log
