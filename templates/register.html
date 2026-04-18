@@ -1,14 +1,615 @@
-{% extends "base.html" %}
-{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CALM — Create Account</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<div class="card" style="max-width:400px;margin:auto;">
-    <h2>Register</h2>
-    <form method="POST">
+    :root {
+      --bg:        #f7f4ef;
+      --surface:   #ffffff;
+      --gold:      #c8972a;
+      --gold-lt:   #e0b84a;
+      --gold-dim:  rgba(200,151,42,0.11);
+      --navy:      #0e1420;
+      --navy-mid:  #1a2436;
+      --text:      #1a1610;
+      --muted:     #6b6252;
+      --faint:     #9e9488;
+      --border:    rgba(0,0,0,0.08);
+      --danger:    #b83232;
+      --radius:    8px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ════════════════════════════
+       PAGE LAYOUT
+    ════════════════════════════ */
+    .page {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+    }
+
+    /* ════════════════════════════
+       LEFT — VISUAL PANEL
+    ════════════════════════════ */
+    .panel-left {
+      position: relative;
+      overflow: hidden;
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 3rem;
+    }
+
+    .panel-left img.hero {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      opacity: 0.38;
+      filter: sepia(18%) contrast(1.08);
+      transition: transform 10s ease;
+    }
+
+    .panel-left:hover img.hero { transform: scale(1.04); }
+
+    /* gradient overlay */
+    .panel-left::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(
+        165deg,
+        rgba(14,20,32,0.18) 0%,
+        rgba(14,20,32,0.08) 28%,
+        rgba(14,20,32,0.68) 72%,
+        rgba(14,20,32,0.97) 100%
+      );
+    }
+
+    /* gold glow at bottom */
+    .panel-left::after {
+      content: '';
+      position: absolute; inset: 0; z-index: 2;
+      background: radial-gradient(ellipse 90% 50% at 50% 100%, rgba(200,151,42,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .left-content {
+      position: relative; z-index: 3;
+    }
+
+    .left-eyebrow {
+      display: flex; align-items: center; gap: 0.7rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .left-eyebrow .line { width: 32px; height: 1px; background: var(--gold); }
+
+    .left-eyebrow span {
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .left-content h1 {
+      font-family: 'Libre Baskerville', serif;
+      font-size: clamp(1.8rem, 2.6vw, 2.8rem);
+      font-weight: 400;
+      color: #fff;
+      line-height: 1.22;
+      margin-bottom: 1rem;
+    }
+
+    .left-content h1 em {
+      font-style: italic;
+      color: var(--gold-lt);
+    }
+
+    .left-content p {
+      font-size: 0.84rem;
+      color: rgba(255,255,255,0.46);
+      line-height: 1.78;
+      max-width: 34ch;
+      margin-bottom: 1.8rem;
+    }
+
+    /* credential tags */
+    .tags { display: flex; gap: 0.55rem; flex-wrap: wrap; }
+
+    .tag {
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.28rem 0.7rem;
+      border: 1px solid rgba(200,151,42,0.4);
+      border-radius: 2px;
+      color: rgba(200,151,42,0.82);
+      background: rgba(200,151,42,0.07);
+    }
+
+    /* ════════════════════════════
+       RIGHT — FORM PANEL
+    ════════════════════════════ */
+    .panel-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 3.5rem;
+      background: var(--surface);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* watermark scales */
+    .panel-right::before {
+      content: '';
+      position: absolute; bottom: -60px; right: -40px;
+      width: 320px; height: 320px;
+      background: var(--gold-dim);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .form-wrap {
+      width: 100%;
+      max-width: 370px;
+      position: relative; z-index: 1;
+      animation: riseIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Brand ── */
+    .brand {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 2.8rem;
+    }
+
+    .brand-icon {
+      width: 42px; height: 42px;
+      background: var(--navy);
+      border-radius: 10px;
+      display: grid; place-items: center;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.2);
+      flex-shrink: 0;
+    }
+
+    .brand-icon svg { width: 22px; height: 22px; }
+
+    .brand-name { display: flex; flex-direction: column; line-height: 1; }
+
+    .brand-name .main {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.3rem; font-weight: 700;
+      color: var(--navy); letter-spacing: -0.01em;
+    }
+
+    .brand-name .sub {
+      font-size: 0.58rem; font-weight: 400;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold); margin-top: 3px;
+    }
+
+    /* ── Headings ── */
+    .form-wrap h2 {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.8rem; font-weight: 400;
+      color: var(--text); margin-bottom: 0.35rem;
+    }
+
+    .form-wrap .tagline {
+      font-size: 0.82rem; color: var(--muted);
+      margin-bottom: 2rem; line-height: 1.55;
+    }
+
+    /* ── Step indicator ── */
+    .step-indicator {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 1.6rem;
+    }
+
+    .step-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+    }
+
+    .step-dot.done    { background: var(--gold); }
+    .step-dot.current { background: var(--navy); }
+    .step-dot.future  { background: var(--border); border: 1px solid rgba(0,0,0,0.12); }
+
+    .step-label {
+      font-size: 0.68rem; color: var(--faint);
+      letter-spacing: 0.06em; margin-left: 0.25rem;
+    }
+
+    /* ── Fields ── */
+    .field { margin-bottom: 1.1rem; position: relative; }
+
+    .field label {
+      display: block;
+      font-size: 0.66rem; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 0.42rem;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 0.82rem 2.6rem 0.82rem 1rem;
+      border: 1.5px solid rgba(0,0,0,0.1);
+      border-radius: var(--radius);
+      background: var(--bg);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem; color: var(--text);
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+
+    .field input::placeholder { color: var(--faint); }
+
+    .field input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200,151,42,0.12);
+      background: #fff;
+    }
+
+    /* password toggle */
+    .field .pw-toggle {
+      position: absolute; right: 0.85rem; bottom: 0.82rem;
+      cursor: pointer; color: var(--faint);
+      font-size: 0.75rem; user-select: none;
+      transition: color 0.15s;
+    }
+
+    .field .pw-toggle:hover { color: var(--gold); }
+
+    /* strength bar */
+    .strength-bar-wrap {
+      margin-top: 6px;
+      display: flex; gap: 4px;
+    }
+
+    .strength-seg {
+      flex: 1; height: 3px; border-radius: 3px;
+      background: rgba(0,0,0,0.08);
+      transition: background 0.25s;
+    }
+
+    .strength-label {
+      font-size: 0.65rem; color: var(--faint);
+      margin-top: 4px;
+    }
+
+    /* field row */
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    /* ── Checkbox ── */
+    .agree-row {
+      display: flex; align-items: flex-start; gap: 0.55rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .agree-row input[type=checkbox] {
+      accent-color: var(--gold);
+      width: 15px; height: 15px;
+      flex-shrink: 0; margin-top: 1px; cursor: pointer;
+    }
+
+    .agree-row span {
+      font-size: 0.78rem; color: var(--muted); line-height: 1.5;
+    }
+
+    .agree-row a { color: var(--gold); text-decoration: none; font-weight: 500; }
+    .agree-row a:hover { text-decoration: underline; }
+
+    /* ── Submit ── */
+    .btn-submit {
+      width: 100%; padding: 0.9rem;
+      background: var(--navy); color: #fff;
+      border: none; border-radius: var(--radius);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.88rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; position: relative; overflow: hidden;
+      transition: background 0.22s, transform 0.14s, box-shadow 0.22s;
+      box-shadow: 0 4px 20px rgba(14,20,32,0.2);
+    }
+
+    .btn-submit::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(200,151,42,0.18), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s ease;
+    }
+
+    .btn-submit:hover {
+      background: #161d2e;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 28px rgba(14,20,32,0.28);
+    }
+
+    .btn-submit:hover::before { transform: translateX(100%); }
+    .btn-submit:active { transform: translateY(0); }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex; align-items: center; gap: 0.9rem;
+      margin: 1.4rem 0; font-size: 0.7rem;
+      letter-spacing: 0.08em; color: var(--faint);
+    }
+
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.08);
+    }
+
+    /* ── Social buttons ── */
+    .socials { display: flex; gap: 0.7rem; margin-bottom: 1.6rem; }
+
+    .social-btn {
+      flex: 1; padding: 0.66rem 0.5rem;
+      border: 1.5px solid rgba(0,0,0,0.1);
+      border-radius: var(--radius);
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center; gap: 0.45rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem; font-weight: 500; color: var(--text);
+      cursor: pointer; text-decoration: none;
+      transition: border-color 0.18s, background 0.18s, transform 0.14s;
+    }
+
+    .social-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .social-btn:hover { border-color: var(--gold); background: #fffdf8; transform: translateY(-1px); }
+
+    /* ── Login link ── */
+    .login-line {
+      text-align: center;
+      font-size: 0.82rem; color: var(--muted);
+    }
+
+    .login-line a {
+      color: var(--text); font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: var(--gold);
+      transition: color 0.15s;
+    }
+
+    .login-line a:hover { color: var(--gold); }
+
+    /* ── Footer note ── */
+    .footer-note {
+      margin-top: 1.6rem;
+      font-size: 0.65rem; color: var(--faint);
+      text-align: center; line-height: 1.65;
+    }
+
+    .footer-note a { color: var(--gold); text-decoration: none; }
+    .footer-note a:hover { text-decoration: underline; }
+
+    /* ══════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════ */
+    @media (max-width: 760px) {
+      .page { grid-template-columns: 1fr; }
+      .panel-left { height: 240px; padding: 1.8rem; }
+      .panel-right { padding: 2.2rem 1.6rem 3rem; }
+      .field-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ══ LEFT VISUAL ══ -->
+  <div class="panel-left">
+    <img
+      class="hero"
+      src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1000&q=85"
+      alt="Professional workspace — calculator and documents"
+    />
+    <div class="left-content">
+      <div class="left-eyebrow">
+        <div class="line"></div>
+        <span>India's Legal & Financial AI</span>
+      </div>
+      <h1>
+        Your practice,<br>powered by <em>AI</em>.
+      </h1>
+      <p>
+        Join thousands of Chartered Accountants using CALM to research case law, draft notices, analyse tax precedents, and serve clients faster.
+      </p>
+      <div class="tags">
+        <div class="tag">ICAI Members</div>
+        <div class="tag">Income Tax</div>
+        <div class="tag">GST &amp; Indirect Tax</div>
+        <div class="tag">Audit &amp; Assurance</div>
+        <div class="tag">Contract Drafting</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT FORM ══ -->
+  <div class="panel-right">
+    <div class="form-wrap">
+
+      <!-- Brand -->
+      <div class="brand">
+        <div class="brand-icon">
+          <!-- Scales of justice SVG -->
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="12" y1="3" x2="12" y2="20" stroke="#c8972a" stroke-width="1.7" stroke-linecap="round"/>
+            <line x1="4.5" y1="20" x2="19.5" y2="20" stroke="#c8972a" stroke-width="1.7" stroke-linecap="round"/>
+            <line x1="7.5" y1="6.5" x2="16.5" y2="6.5" stroke="#c8972a" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="7.5" y1="6.5" x2="5"   y2="9.5" stroke="#c8972a" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="7.5" y1="6.5" x2="10"  y2="9.5" stroke="#c8972a" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M4.5 9.5 Q7.5 13.5 10.5 9.5" stroke="#c8972a" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+            <line x1="16.5" y1="6.5" x2="14" y2="9.5" stroke="#c8972a" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="16.5" y1="6.5" x2="19" y2="9.5" stroke="#c8972a" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M13.5 9.5 Q16.5 13.5 19.5 9.5" stroke="#c8972a" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <div class="brand-name">
+          <span class="main">CALM</span>
+          <span class="sub">AI for CA professionals</span>
+        </div>
+      </div>
+
+      <h2>Create account</h2>
+      <p class="tagline">Set up your professional workspace in under a minute.</p>
+
+      <!-- Step indicator -->
+      <div class="step-indicator">
+        <div class="step-dot done"></div>
+        <div class="step-dot current"></div>
+        <div class="step-dot future"></div>
+        <span class="step-label">Account details</span>
+      </div>
+
+      <form method="POST" action="">
         {% csrf_token %}
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button class="btn">Create Account</button>
-    </form>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" name="first_name" placeholder="Arjun" autocomplete="given-name"/>
+          </div>
+          <div class="field">
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" name="last_name" placeholder="Mehta" autocomplete="family-name"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="username">Username / ICAI Membership No.</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="your_username"
+            autocomplete="username"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="email_display">Work Email <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+          <input
+            type="email"
+            id="email_display"
+            name="email"
+            placeholder="arjun@firm.co.in"
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Min. 8 characters"
+            autocomplete="new-password"
+            required
+            oninput="checkStrength(this.value)"
+          />
+          <span class="pw-toggle" onclick="togglePw('password', this)">show</span>
+          <div class="strength-bar-wrap">
+            <div class="strength-seg" id="s1"></div>
+            <div class="strength-seg" id="s2"></div>
+            <div class="strength-seg" id="s3"></div>
+            <div class="strength-seg" id="s4"></div>
+          </div>
+          <div class="strength-label" id="strength-label"></div>
+        </div>
+
+        <div class="agree-row">
+          <input type="checkbox" id="agree" name="agree" required/>
+          <span>
+            By creating an account you agree to our
+            <a href="#">Terms of Service</a> and
+            <a href="#">Privacy Policy</a>.
+            Your data is processed in accordance with Indian IT laws.
+          </span>
+        </div>
+
+        <button type="submit" class="btn-submit">Create Account</button>
+      </form>
+
+      <div class="divider">or sign up with</div>
+
+      <div class="socials">
+        <a class="social-btn" href="#" title="Google">
+          <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google
+        </a>
+        <a class="social-btn" href="#" title="Microsoft">
+          <svg viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>
+          Microsoft
+        </a>
+      </div>
+
+      <p class="login-line">
+        Already have an account? <a href="{% url 'login' %}">Sign in</a>
+      </p>
+
+      <p class="footer-note">
+        Designed for Chartered Accountants practising in India.<br>
+        <a href="#">Bar Council</a> &middot; <a href="#">ICAI</a> &middot; <a href="#">Privacy Policy</a>
+      </p>
+
+    </div>
+  </div>
+
 </div>
 
-{% endblock %}
+<script>
+  /* ── Password show/hide ── */
+  function togglePw(id, btn) {
+    var inp = document.getElementById(id);
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = 'hide'; }
+    else { inp.type = 'password'; btn.textContent = 'show'; }
+  }
+
+  /* ── Password strength meter ── */
+  function checkStrength(val) {
+    var score = 0;
+    if (val.length >= 8)  score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    var colours = ['', '#e07070', '#f59e0b', '#52b788', '#c8972a'];
+    var labels  = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+
+    for (var i = 1; i <= 4; i++) {
+      var seg = document.getElementById('s' + i);
+      seg.style.background = i <= score ? colours[score] : 'rgba(0,0,0,0.08)';
+    }
+
+    var lbl = document.getElementById('strength-label');
+    lbl.textContent = val.length ? labels[score] : '';
+    lbl.style.color = colours[score] || 'var(--faint)';
+  }
+</script>
+</body>
+</html>

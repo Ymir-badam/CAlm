@@ -16,6 +16,7 @@ from pathlib import Path
 import google.generativeai as genai
 import vertexai
 from vertexai.generative_models import GenerativeModel
+from django.conf import settings
 
 # ── Config ────────────────────────────────────────────────────────────────────
 PROJECT_ID =  "ai-resource-490118"
@@ -24,8 +25,7 @@ MODEL      = "gemini-2.5-flash"
 from google.oauth2 import service_account
 
 credentials = service_account.Credentials.from_service_account_file(
-        r"/home/sachinsingh14021995/demo/secretfile/akshibeta.json",
-    
+        settings.GOOGLE_SERVICE_ACCOUNT_JSON,
         scopes=["https://www.googleapis.com/auth/cloud-platform"]
        )
 

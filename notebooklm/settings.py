@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
+GOOGLE_SERVICE_ACCOUNT_JSON= os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -25,7 +25,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 SECRET_KEY = "django-insecure-oq#wn9dcd(%_x)#idt97d*r_)j)jdkjdst2xu3en#no5(jq9@&"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
