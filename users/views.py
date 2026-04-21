@@ -225,3 +225,9 @@ def logout_view(request):
 def subscription_view(request):
     profile = request.user.userprofile
     return render(request, "subscription.html", {"profile": profile})
+
+
+def institute_view(request):
+    return render(request, "institute_analytics.html")
+def parents_view(request):
+    return render(request, "parents.html")

@@ -14,4 +14,8 @@ urlpatterns = [
     path("api/case-log/<int:log_id>/pin/",    views.pin_case_log,     name="pin_case_log"),
 
     path("subscription/", views.subscription_view, name="subscription"),
+
+
+    path("institute/", views.institute_view, name="institute"),
+    path("parents/", views.parents_view, name="parents"),
 ]

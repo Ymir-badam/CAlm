@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Parent Progress Dashboard — CALm</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --ivory:    #faf8f4;
+  --cream:    #f3efe8;
+  --surface:  #ffffff;
+  --navy:     #0e1420;
+  --navy-mid: #1c2840;
+  --teal:     #1a6b5e;
+  --teal-lt:  #e6f3f0;
+  --teal-mid: #2a8a7a;
+  --gold:     #c8972a;
+  --gold-dim: rgba(200,151,42,0.1);
+  --coral:    #c04a2e;
+  --coral-dim:rgba(192,74,46,0.09);
+  --sage:     #4a7c5f;
+  --sage-dim: rgba(74,124,95,0.09);
+  --border:   rgba(0,0,0,0.07);
+  --border-md:rgba(0,0,0,0.1);
+  --txt:      #1a1610;
+  --txt2:     #5c5347;
+  --txt3:     #9e9488;
+  --radius:   14px;
+  --radius-sm:9px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--ivory);
+  color: var(--txt);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+h1,h2,h3,h4,h5 { font-family: 'Lora', serif; font-weight: 500; }
+
+/* ANIMATIONS */
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+.fade-up { animation: fadeUp 0.45s cubic-bezier(0.22,0.61,0.36,1) both; }
+.delay-1 { animation-delay: 0.07s; }
+.delay-2 { animation-delay: 0.13s; }
+.delay-3 { animation-delay: 0.19s; }
+.delay-4 { animation-delay: 0.25s; }
+.delay-5 { animation-delay: 0.31s; }
+
+/* HEADER */
+.site-header {
+  background: var(--navy);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  position: relative; overflow: hidden;
+}
+.site-header::before {
+  content:'';
+  position:absolute; top:0; right:0; width:420px; height:100%;
+  background: radial-gradient(ellipse 60% 100% at 100% 50%, rgba(200,151,42,0.08) 0%, transparent 70%);
+  pointer-events:none;
+}
+.header-badge {
+  font-size:0.58rem; font-weight:600; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--gold); background:rgba(200,151,42,0.1); border:1px solid rgba(200,151,42,0.2);
+  padding:3px 10px; border-radius:4px; display:inline-block; margin-bottom:6px;
+}
+.avatar-ring {
+  width:60px; height:60px; border-radius:50%;
+  background:linear-gradient(135deg,#c8972a,#e0b84a);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Lora',serif; font-size:1.35rem; font-weight:600; color:#fff;
+  border:2px solid rgba(255,255,255,0.15);
+  flex-shrink:0;
+}
+
+/* CARDS */
+.card {
+  background:var(--surface);
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  padding:22px 24px;
+  transition:border-color 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  border-color:var(--border-md);
+  box-shadow:0 4px 24px rgba(0,0,0,0.055);
+}
+
+/* KPI */
+.kpi { background:var(--surface); border-radius:var(--radius); border:1px solid var(--border); padding:20px 22px; transition:all 0.2s; }
+.kpi:hover { box-shadow:0 6px 24px rgba(0,0,0,0.07); transform:translateY(-2px); }
+.kpi-icon { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
+.kpi-num { font-family:'Lora',serif; font-size:2rem; font-weight:600; line-height:1; letter-spacing:-0.02em; color:var(--txt); }
+.kpi-label { font-size:0.68rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--txt3); margin-bottom:6px; }
+.kpi-note { font-size:0.73rem; color:var(--txt2); margin-top:6px; }
+
+/* RADIAL */
+.radial-wrap { position:relative; width:88px; height:88px; }
+.radial-wrap canvas { position:absolute; top:0; left:0; }
+.radial-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.radial-val { font-family:'Lora',serif; font-size:1.1rem; font-weight:600; line-height:1; }
+.radial-sub { font-size:0.58rem; color:var(--txt3); margin-top:2px; text-transform:uppercase; letter-spacing:0.08em; }
+
+/* BADGE */
+.badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:5px; font-size:0.62rem; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; }
+.badge-teal   { background:var(--teal-lt); color:#135048; border:1px solid rgba(26,107,94,0.18); }
+.badge-gold   { background:rgba(200,151,42,0.1); color:#8a620e; border:1px solid rgba(200,151,42,0.22); }
+.badge-coral  { background:var(--coral-dim); color:#9e3218; border:1px solid rgba(192,74,46,0.18); }
+.badge-sage   { background:var(--sage-dim); color:#2d5e3e; border:1px solid rgba(74,124,95,0.18); }
+.badge-navy   { background:rgba(14,20,32,0.06); color:#1c2840; border:1px solid rgba(14,20,32,0.1); }
+
+/* ALERTS */
+.alert-item { display:flex; align-items:flex-start; gap:12px; padding:13px 16px; border-radius:10px; border:1px solid; margin-bottom:9px; }
+.alert-item:last-child { margin-bottom:0; }
+.alert-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.alert-warn  { background:rgba(200,151,42,0.07); border-color:rgba(200,151,42,0.18); }
+.alert-danger{ background:var(--coral-dim); border-color:rgba(192,74,46,0.18); }
+.alert-good  { background:var(--sage-dim); border-color:rgba(74,124,95,0.18); }
+
+/* HEATMAP */
+.heat-cell { border-radius:4px; transition:transform 0.12s; cursor:default; }
+.heat-cell:hover { transform:scale(1.15); }
+
+/* PROGRESS BAR */
+.prog-track { height:6px; border-radius:99px; background:rgba(0,0,0,0.06); overflow:hidden; }
+.prog-fill  { height:100%; border-radius:99px; transition:width 0.8s cubic-bezier(0.22,1,0.36,1); }
+
+/* SECTION HEADING */
+.sec-head { font-family:'Lora',serif; font-size:1.05rem; font-weight:500; color:var(--txt); margin-bottom:3px; }
+.sec-sub  { font-size:0.73rem; color:var(--txt3); font-weight:300; margin-bottom:18px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(0,0,0,0.1); border-radius:10px; }
+
+/* DIVIDER */
+.divider { height:1px; background:var(--border); margin:20px 0; }
+
+/* RANK widget */
+.rank-band { border-radius:10px; padding:14px 18px; text-align:center; }
+
+/* AI card */
+.ai-section { padding:14px 0; border-bottom:1px solid var(--border); }
+.ai-section:last-child { border-bottom:none; padding-bottom:0; }
+.ai-bullet { display:flex; align-items:flex-start; gap:8px; margin-bottom:7px; font-size:0.79rem; color:var(--txt2); line-height:1.55; }
+.ai-bullet:last-child { margin-bottom:0; }
+.ai-dot { width:6px; height:6px; border-radius:50%; margin-top:6px; flex-shrink:0; }
+
+@media (max-width:768px) {
+  .grid-2 { grid-template-columns:1fr !important; }
+  .grid-4 { grid-template-columns:1fr 1fr !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     HEADER
+══════════════════════════════ -->
+<header class="site-header fade-up">
+  <div style="max-width:1140px;margin:0 auto;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+
+    <!-- Left: branding -->
+    <div style="display:flex;align-items:center;gap:14px;position:relative;z-index:1;">
+      <div style="width:40px;height:40px;background:rgba(200,151,42,0.1);border:1px solid rgba(200,151,42,0.24);border-radius:9px;display:flex;align-items:center;justify-content:center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 6.5C10.5 5.2 8.5 4.5 6 4.5v13c2.5 0 4.5 0.7 6 2 1.5-1.3 3.5-2 6-2v-13c-2.5 0-4.5 0.7-6 1z" stroke="#c8972a" stroke-width="1.5" stroke-linejoin="round"/>
+          <line x1="12" y1="6.5" x2="12" y2="19.5" stroke="#c8972a" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-family:'Lora',serif;font-size:1.15rem;font-weight:600;color:#fff;letter-spacing:-0.01em;">CALm</div>
+        <div style="font-size:0.57rem;font-weight:400;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-top:2px;">Parent Progress Dashboard</div>
+      </div>
+    </div>
+
+    <!-- Right: student profile -->
+    <div style="display:flex;align-items:center;gap:16px;position:relative;z-index:1;">
+      <div style="text-align:right;">
+        <div class="header-badge">CA Inter · Group II</div>
+        <div style="font-family:'Lora',serif;font-size:1.3rem;font-weight:600;color:#fff;line-height:1.15;">Aryan Mehta</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-top:3px;font-weight:300;">Excellence CA Institute &nbsp;·&nbsp; Batch 2024–25</div>
+      </div>
+      <div class="avatar-ring">AM</div>
+    </div>
+
+  </div>
+
+  <!-- Sub-strip -->
+  <div style="background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.05);padding:9px 28px;max-width:1140px;margin:0 auto;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+    <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);font-weight:300;">Last updated: <span style="color:rgba(255,255,255,0.6);">Today, 8:30 AM</span></span>
+    <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Exam in: <span style="color:var(--gold);font-weight:500;">47 days</span></span>
+    <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Next mock: <span style="color:rgba(255,255,255,0.6);">Saturday, May 3</span></span>
+    <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:0.7rem;color:rgba(255,255,255,0.35);">
+      <span style="width:7px;height:7px;border-radius:50%;background:#2a8a7a;animation:pulse 2s infinite;display:inline-block;"></span>
+      AI monitoring active
+    </span>
+  </div>
+</header>
+
+
+<!-- ══════════════════════════════
+     MAIN CONTENT
+══════════════════════════════ -->
+<main style="max-width:1140px;margin:0 auto;padding:28px 28px 56px;">
+
+  <!-- ── KPI CARDS ── -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:22px;" class="fade-up delay-1">
+
+    <div class="kpi">
+      <div class="kpi-icon" style="background:var(--teal-lt);">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#1a6b5e" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="1.5 12 5 7 8 9.5 11 4.5 14.5 12"/>
+        </svg>
+      </div>
+      <div class="kpi-label">Study Consistency</div>
+      <div class="kpi-num">84<span style="font-size:1rem;color:var(--txt3);">/100</span></div>
+      <div class="kpi-note" style="color:var(--teal);">↑ Strong — above batch average</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-icon" style="background:rgba(200,151,42,0.1);">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#c8972a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8" cy="8" r="6.5"/>
+          <polyline points="8 4.5 8 8 10.5 10"/>
+        </svg>
+      </div>
+      <div class="kpi-label">Exam Readiness</div>
+      <div class="kpi-num">71<span style="font-size:1rem;color:var(--txt3);">%</span></div>
+      <div class="kpi-note" style="color:var(--gold);">→ Target: 80% by exam day</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-icon" style="background:var(--teal-lt);">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#1a6b5e" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1.5" y="1.5" width="13" height="13" rx="1.5"/>
+          <polyline points="4 8.5 6.5 11 12 5"/>
+        </svg>
+      </div>
+      <div class="kpi-label">Mock Test Average</div>
+      <div class="kpi-num">63<span style="font-size:1rem;color:var(--txt3);">%</span></div>
+      <div class="kpi-note" style="color:var(--teal);">↑ Up 8pts this month</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-icon" style="background:var(--sage-dim);">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#4a7c5f" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1.5" y="2" width="13" height="12" rx="1.5"/>
+          <line x1="5" y1="2" x2="5" y2="5"/>
+          <line x1="11" y1="2" x2="11" y2="5"/>
+          <line x1="1.5" y1="7.5" x2="14.5" y2="7.5"/>
+          <circle cx="5.5" cy="10.5" r=".9" fill="currentColor"/>
+          <circle cx="8" cy="10.5" r=".9" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="kpi-label">Attendance Rate</div>
+      <div class="kpi-num">91<span style="font-size:1rem;color:var(--txt3);">%</span></div>
+      <div class="kpi-note" style="color:var(--sage);">↑ Excellent attendance</div>
+    </div>
+
+  </div>
+
+
+  <!-- ── ROW: Performance Trend + Subject Performance ── -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;" class="grid-2 fade-up delay-2">
+
+    <!-- Performance Trend -->
+    <div class="card">
+      <div class="sec-head">Performance Trend</div>
+      <div class="sec-sub">Monthly improvement across all subjects</div>
+      <div style="display:flex;gap:18px;margin-bottom:12px;">
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
+          <span style="width:20px;height:2.5px;background:#1a6b5e;display:inline-block;border-radius:2px;"></span>Overall Score
+        </span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
+          <span style="width:20px;height:2.5px;background:rgba(200,151,42,0.5);display:inline-block;border-radius:2px;border-top:2px dashed #c8972a;"></span>Batch Average
+        </span>
+      </div>
+      <div style="position:relative;height:210px;">
+        <canvas id="trendChart" role="img" aria-label="Line chart showing Aryan's monthly score improvement vs batch average from September to April">Monthly scores: Sep 48%, Oct 53%, Nov 56%, Dec 59%, Jan 61%, Feb 63%, Mar 66%, Apr 71% vs batch average.</canvas>
+      </div>
+    </div>
+
+    <!-- Subject Performance -->
+    <div class="card">
+      <div class="sec-head">Subject Performance</div>
+      <div class="sec-sub">Latest mock test scores by subject</div>
+      <div style="display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap;">
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
+          <span style="width:10px;height:10px;border-radius:2px;background:#1a6b5e;display:inline-block;"></span>Strong
+        </span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
+          <span style="width:10px;height:10px;border-radius:2px;background:#c8972a;display:inline-block;"></span>Average
+        </span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);">
+          <span style="width:10px;height:10px;border-radius:2px;background:#c04a2e;display:inline-block;"></span>Needs work
+        </span>
+      </div>
+      <div style="position:relative;height:210px;">
+        <canvas id="subjectChart" role="img" aria-label="Bar chart showing scores for Accounts 72%, Law 65%, Taxation 48%, Audit 54%, Costing 61%">Subject scores: Accounts 72, Law 65, Taxation 48, Audit 54, Costing 61.</canvas>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── ROW: Heatmap + Rank Widget ── -->
+  <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-bottom:18px;" class="grid-2 fade-up delay-3">
+
+    <!-- Weekly Study Heatmap -->
+    <div class="card">
+      <div class="sec-head">Weekly Study Activity</div>
+      <div class="sec-sub">Daily study hours over the last 5 weeks — darker = more hours</div>
+
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;gap:4px;margin-bottom:4px;">
+          <div style="width:30px;"></div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);flex:1;gap:4px;text-align:center;">
+            <div style="font-size:0.6rem;color:var(--txt3);font-weight:500;">Mon</div>
+            <div style="font-size:0.6rem;color:var(--txt3);font-weight:500;">Tue</div>
+            <div style="font-size:0.6rem;color:var(--txt3);font-weight:500;">Wed</div>
+            <div style="font-size:0.6rem;color:var(--txt3);font-weight:500;">Thu</div>
+            <div style="font-size:0.6rem;color:var(--txt3);font-weight:500;">Fri</div>
+            <div style="font-size:0.6rem;color:var(--txt3);font-weight:500;">Sat</div>
+            <div style="font-size:0.6rem;color:var(--txt3);font-weight:500;">Sun</div>
+          </div>
+        </div>
+        <div id="heatmap-rows"></div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+        <span style="font-size:0.63rem;color:var(--txt3);">0h</span>
+        <div style="display:flex;gap:3px;">
+          <div style="width:14px;height:8px;border-radius:2px;background:rgba(26,107,94,0.08);"></div>
+          <div style="width:14px;height:8px;border-radius:2px;background:rgba(26,107,94,0.22);"></div>
+          <div style="width:14px;height:8px;border-radius:2px;background:rgba(26,107,94,0.42);"></div>
+          <div style="width:14px;height:8px;border-radius:2px;background:rgba(26,107,94,0.65);"></div>
+          <div style="width:14px;height:8px;border-radius:2px;background:#1a6b5e;"></div>
+        </div>
+        <span style="font-size:0.63rem;color:var(--txt3);">6h+</span>
+        <div style="margin-left:auto;font-size:0.68rem;color:var(--txt2);">Total this month: <strong style="color:var(--teal);">148 hrs</strong></div>
+      </div>
+    </div>
+
+    <!-- Rank Prediction Widget -->
+    <div class="card" style="display:flex;flex-direction:column;gap:16px;">
+      <div>
+        <div class="sec-head">Rank Prediction</div>
+        <div class="sec-sub" style="margin-bottom:0;">AI-based forecast for upcoming exam</div>
+      </div>
+
+      <div class="rank-band" style="background:var(--teal-lt);border:1px solid rgba(26,107,94,0.15);">
+        <div style="font-size:0.62rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#1a6b5e;margin-bottom:5px;">Expected Score Range</div>
+        <div style="font-family:'Lora',serif;font-size:1.8rem;font-weight:600;color:#0e3d36;letter-spacing:-0.02em;">320 – 360</div>
+        <div style="font-size:0.72rem;color:#2a8a7a;margin-top:2px;">out of 600 total marks</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:var(--sage-dim);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(74,124,95,0.15);">
+          <div style="font-size:0.6rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#4a7c5f;margin-bottom:4px;">Passing Probability</div>
+          <div style="font-family:'Lora',serif;font-size:1.65rem;font-weight:600;color:#2d5e3e;">74%</div>
+        </div>
+        <div style="background:rgba(200,151,42,0.07);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(200,151,42,0.15);">
+          <div style="font-size:0.6rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#8a620e;margin-bottom:4px;">Improvement Needed</div>
+          <div style="font-family:'Lora',serif;font-size:1.65rem;font-weight:600;color:#6b4a0a;">12%</div>
+        </div>
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+          <span style="font-size:0.72rem;color:var(--txt2);">Progress toward pass threshold</span>
+          <span style="font-size:0.72rem;font-weight:600;color:var(--teal);">71%</span>
+        </div>
+        <div class="prog-track">
+          <div class="prog-fill" style="width:71%;background:var(--teal-mid);"></div>
+        </div>
+        <div style="font-size:0.65rem;color:var(--txt3);margin-top:5px;">Pass mark: 50% in each subject &amp; 50% aggregate</div>
+      </div>
+
+      <div style="background:var(--cream);border-radius:9px;padding:11px 14px;border:1px solid rgba(0,0,0,0.05);">
+        <div style="font-size:0.67rem;font-weight:600;color:var(--txt2);margin-bottom:4px;">Predicted AIR Range</div>
+        <div style="font-family:'Lora',serif;font-size:1.1rem;color:var(--txt);">400 – 600</div>
+        <div style="font-size:0.65rem;color:var(--txt3);margin-top:2px;">Based on current trajectory &amp; batch comparison</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── ROW: AI Report + Alerts ── -->
+  <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-bottom:18px;" class="grid-2 fade-up delay-4">
+
+    <!-- AI Progress Report -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div class="sec-head">AI Progress Report</div>
+        <span class="badge badge-teal">
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><circle cx="8" cy="8" r="2.5"/></svg>
+          AI Generated
+        </span>
+      </div>
+      <div class="sec-sub">Personalised analysis for Aryan · Updated today</div>
+
+      <div class="ai-section">
+        <div style="font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="4 8.5 6.5 11 12 5"/><circle cx="8" cy="8" r="6.5"/></svg>
+          Strengths
+        </div>
+        <div class="ai-bullet"><div class="ai-dot" style="background:var(--teal-mid);"></div>Accounts concepts are well-understood — consistently scoring 70%+ in mock tests across all chapters.</div>
+        <div class="ai-bullet"><div class="ai-dot" style="background:var(--teal-mid);"></div>Strong attendance record (91%) demonstrates commitment and regular engagement with course material.</div>
+        <div class="ai-bullet"><div class="ai-dot" style="background:var(--teal-mid);"></div>Law section has shown steady 12-point improvement over the last 6 weeks — excellent retention.</div>
+      </div>
+
+      <div class="ai-section">
+        <div style="font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--coral);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><line x1="8" y1="5" x2="8" y2="9"/><circle cx="8" cy="11.5" r=".8" fill="currentColor"/></svg>
+          Weak Areas
+        </div>
+        <div class="ai-bullet"><div class="ai-dot" style="background:var(--coral);"></div>Taxation (GST + Income Tax) is the weakest subject at 48% — below the 50% passing threshold.</div>
+        <div class="ai-bullet"><div class="ai-dot" style="background:var(--coral);"></div>Audit Standards (SA) questions are being skipped in practice — low attempt rate detected.</div>
+        <div class="ai-bullet"><div class="ai-dot" style="background:var(--coral);"></div>Time management in mock tests: last 3 papers had 6–8 unattempted questions due to time overrun.</div>
+      </div>
+
+      <div class="ai-section">
+        <div style="font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2l2.5 5h5.5l-4.5 3.5 1.5 5L8 12.5 3 15.5l1.5-5L0 7h5.5z"/></svg>
+          Recommended Focus Topics
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span class="badge badge-coral" style="font-size:0.6rem;">GST Amendments</span>
+          <span class="badge badge-coral" style="font-size:0.6rem;">TDS Provisions</span>
+          <span class="badge badge-gold" style="font-size:0.6rem;">SA 700 Series</span>
+          <span class="badge badge-gold" style="font-size:0.6rem;">Internal Control</span>
+          <span class="badge badge-navy" style="font-size:0.6rem;">Mock Test Timing</span>
+          <span class="badge badge-navy" style="font-size:0.6rem;">Costing Formulas</span>
+        </div>
+      </div>
+
+      <div class="ai-section">
+        <div style="font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:8px;">AI Feedback Summary</div>
+        <p style="font-size:0.81rem;color:var(--txt2);line-height:1.65;font-style:italic;border-left:2px solid var(--teal-mid);padding-left:12px;">
+          "Aryan has made consistent progress over the last 3 months. The overall trajectory is positive, and with 47 days remaining, a focused revision on Taxation and Audit can meaningfully improve the predicted score by 15–20 marks. Encourage daily 45-minute sessions on GST and a full mock test every Saturday to build exam stamina."
+        </p>
+      </div>
+    </div>
+
+    <!-- Parent Alerts Panel -->
+    <div class="card" style="display:flex;flex-direction:column;">
+      <div class="sec-head">Parent Alerts</div>
+      <div class="sec-sub">Important updates you should know</div>
+
+      <div class="alert-item alert-danger">
+        <div class="alert-icon" style="background:var(--coral-dim);">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#c04a2e" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="8" cy="8" r="6.5"/><line x1="8" y1="5" x2="8" y2="9"/><circle cx="8" cy="11.5" r=".7" fill="#c04a2e"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;font-weight:600;color:#9e3218;margin-bottom:3px;">Revision Required — Taxation</div>
+          <div style="font-size:0.72rem;color:var(--txt2);line-height:1.5;">Aryan scored below 50% in Taxation for 2 consecutive mocks. Immediate revision of GST chapters is recommended.</div>
+          <div style="font-size:0.64rem;color:var(--txt3);margin-top:5px;">2 days ago</div>
+        </div>
+      </div>
+
+      <div class="alert-item alert-warn">
+        <div class="alert-icon" style="background:rgba(200,151,42,0.1);">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#c8972a" stroke-width="1.5" stroke-linecap="round">
+            <rect x="1.5" y="1.5" width="13" height="13" rx="1.5"/>
+            <line x1="8" y1="5" x2="8" y2="9"/><circle cx="8" cy="11.2" r=".7" fill="#c8972a"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;font-weight:600;color:#8a620e;margin-bottom:3px;">Mock Test Missed This Week</div>
+          <div style="font-size:0.72rem;color:var(--txt2);line-height:1.5;">The scheduled Saturday mock on Apr 19 was not attempted. With 47 days to exam, consistent practice is essential.</div>
+          <div style="font-size:0.64rem;color:var(--txt3);margin-top:5px;">3 days ago</div>
+        </div>
+      </div>
+
+      <div class="alert-item alert-good">
+        <div class="alert-icon" style="background:var(--sage-dim);">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#4a7c5f" stroke-width="1.5" stroke-linecap="round">
+            <polyline points="3 8.5 6 11.5 13 4.5"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;font-weight:600;color:#2d5e3e;margin-bottom:3px;">Performance Improving Steadily</div>
+          <div style="font-size:0.72rem;color:var(--txt2);line-height:1.5;">Overall mock test scores have improved by 23 points over the last 8 weeks. Keep up the momentum!</div>
+          <div style="font-size:0.64rem;color:var(--txt3);margin-top:5px;">5 days ago</div>
+        </div>
+      </div>
+
+      <div class="alert-item alert-good">
+        <div class="alert-icon" style="background:var(--sage-dim);">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#4a7c5f" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="8" cy="5.5" r="2.5"/><path d="M3.5 14c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;font-weight:600;color:#2d5e3e;margin-bottom:3px;">Excellent Attendance This Month</div>
+          <div style="font-size:0.72rem;color:var(--txt2);line-height:1.5;">Aryan attended 91% of all scheduled classes in April — top 10% of the batch.</div>
+          <div style="font-size:0.64rem;color:var(--txt3);margin-top:5px;">1 week ago</div>
+        </div>
+      </div>
+
+      <div class="alert-item alert-warn">
+        <div class="alert-icon" style="background:rgba(200,151,42,0.1);">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#c8972a" stroke-width="1.5" stroke-linecap="round">
+            <path d="M8 2l2.5 5h5.5l-4.5 3.5 1.5 5L8 12.5 3 15.5l1.5-5L0 7h5.5z"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;font-weight:600;color:#8a620e;margin-bottom:3px;">Audit Score Below Threshold</div>
+          <div style="font-size:0.72rem;color:var(--txt2);line-height:1.5;">Latest Audit score: 54% — just above passing but Standard Auditing questions need revision.</div>
+          <div style="font-size:0.64rem;color:var(--txt3);margin-top:5px;">1 week ago</div>
+        </div>
+      </div>
+
+      <!-- Quick stats -->
+      <div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div style="text-align:center;padding:10px 6px;background:var(--cream);border-radius:8px;">
+          <div style="font-family:'Lora',serif;font-size:1.1rem;color:var(--teal);">12</div>
+          <div style="font-size:0.58rem;color:var(--txt3);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;">Mocks Done</div>
+        </div>
+        <div style="text-align:center;padding:10px 6px;background:var(--cream);border-radius:8px;">
+          <div style="font-family:'Lora',serif;font-size:1.1rem;color:var(--gold);">3</div>
+          <div style="font-size:0.58rem;color:var(--txt3);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;">Alerts Active</div>
+        </div>
+        <div style="text-align:center;padding:10px 6px;background:var(--cream);border-radius:8px;">
+          <div style="font-family:'Lora',serif;font-size:1.1rem;color:var(--sage);">47</div>
+          <div style="font-size:0.58rem;color:var(--txt3);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;">Days Left</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── FOOTER NOTE ── -->
+  <div class="fade-up delay-5" style="text-align:center;padding:20px 0 0;">
+    <p style="font-size:0.72rem;color:var(--txt3);font-weight:300;line-height:1.7;">This dashboard is generated by CALm Intelligence Engine and is updated daily. For queries, contact Excellence CA Institute. &nbsp;·&nbsp; Data shown is for <strong style="color:var(--txt2);font-weight:500;">Aryan Mehta</strong> only.</p>
+  </div>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ── PERFORMANCE TREND ── */
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: ['Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr'],
+    datasets: [
+      {
+        label: 'Aryan Score',
+        data: [48,53,56,59,61,63,66,71],
+        borderColor: '#1a6b5e',
+        backgroundColor: 'rgba(26,107,94,0.07)',
+        borderWidth: 2.5, pointRadius: 4.5, pointBackgroundColor: '#1a6b5e',
+        tension: 0.38, fill: true
+      },
+      {
+        label: 'Batch Avg',
+        data: [50,51,53,55,57,58,60,62],
+        borderColor: 'rgba(200,151,42,0.6)',
+        backgroundColor: 'transparent',
+        borderWidth: 1.8, pointRadius: 3, pointBackgroundColor: '#c8972a',
+        borderDash: [5,4], tension: 0.38
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: {
+        min: 40, max: 80,
+        grid: { color: 'rgba(0,0,0,0.04)' },
+        ticks: { color: '#9e9488', font: { size: 11, family: 'DM Sans' }, callback: v => v + '%' }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: '#9e9488', font: { size: 11 }, autoSkip: false }
+      }
+    }
+  }
+});
+
+/* ── SUBJECT PERFORMANCE ── */
+const subScores = [72, 65, 48, 54, 61];
+const subColors = subScores.map(s => s < 50 ? '#c04a2e' : s < 65 ? '#c8972a' : '#1a6b5e');
+new Chart(document.getElementById('subjectChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Accounts','Law','Taxation','Audit','Costing'],
+    datasets: [{
+      label: 'Score %',
+      data: subScores,
+      backgroundColor: subColors,
+      borderRadius: 6, borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: {
+        min: 0, max: 100,
+        grid: { color: 'rgba(0,0,0,0.04)' },
+        ticks: { color: '#9e9488', font: { size: 11 }, callback: v => v + '%' }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: '#9e9488', font: { size: 11 }, autoSkip: false }
+      }
+    },
+    animation: {
+      onComplete: function() {
+        const chart = this;
+        const ctx = chart.ctx;
+        ctx.font = '11px DM Sans';
+        ctx.fillStyle = '#5c5347';
+        ctx.textAlign = 'center';
+        chart.data.datasets[0].data.forEach((v, i) => {
+          const meta = chart.getDatasetMeta(0);
+          const bar = meta.data[i];
+          ctx.fillText(v + '%', bar.x, bar.y - 6);
+        });
+      }
+    }
+  }
+});
+
+/* ── STUDY HEATMAP ── */
+const weeks = ['Week 1','Week 2','Week 3','Week 4','Week 5'];
+const heatData = [
+  [3,5,4,6,4,5,2],
+  [4,5,6,5,3,6,1],
+  [5,4,5,6,4,5,3],
+  [2,5,4,5,6,4,2],
+  [5,6,5,4,6,3,0]
+];
+const maxHrs = 6;
+const container = document.getElementById('heatmap-rows');
+weeks.forEach((wk, wi) => {
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:4px;margin-bottom:4px;align-items:center;';
+  row.innerHTML = `<div style="width:30px;font-size:0.6rem;color:var(--txt3);text-align:right;padding-right:4px;flex-shrink:0;">${wk.replace('Week ','W')}</div>`;
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);flex:1;gap:4px;';
+  heatData[wi].forEach(h => {
+    const cell = document.createElement('div');
+    const intensity = h === 0 ? 0.04 : 0.1 + (h / maxHrs) * 0.82;
+    cell.className = 'heat-cell';
+    cell.style.cssText = `height:28px;background:rgba(26,107,94,${intensity});border-radius:4px;`;
+    cell.title = `${h}h studied`;
+    grid.appendChild(cell);
+  });
+  row.appendChild(grid);
+  container.appendChild(row);
+});
+</script>
+</body>
+</html>

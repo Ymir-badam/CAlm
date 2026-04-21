@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Institute Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --gold: #c8972a;
+    --gold-lt: #e0b84a;
+    --gold-dim: rgba(200,151,42,0.1);
+    --navy: #0e1420;
+    --navy-mid: #1a2436;
+    --bg: #f7f4ef;
+    --surface: #ffffff;
+    --border: rgba(0,0,0,0.07);
+    --text-primary: #1a1610;
+    --text-secondary: #6b6252;
+    --text-muted: #9e9488;
+    --sidebar-text: rgba(255,255,255,0.5);
+    --sidebar-hi: #ffffff;
+    --sidebar-border: rgba(255,255,255,0.06);
+    --danger: #b83232;
+    --success: #2d7a4f;
+    --warning: #c8972a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    min-height: 100vh;
+  }
+  h1,h2,h3,h4 { font-family: 'Libre Baskerville', serif; font-weight: 400; }
+
+  /* SIDEBAR */
+  #sidebar {
+    width: 252px;
+    min-height: 100vh;
+    background: var(--navy);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+    border-right: 1px solid rgba(255,255,255,0.04);
+    transition: transform 0.28s cubic-bezier(0.22,1,0.36,1);
+  }
+  #sidebar::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 180px;
+    background: radial-gradient(ellipse 100% 60% at 50% 100%, rgba(200,151,42,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .brand-area {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--sidebar-border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .brand-icon {
+    width: 38px; height: 38px;
+    background: rgba(200,151,42,0.1);
+    border: 1px solid rgba(200,151,42,0.22);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .brand-name { font-family: 'Libre Baskerville', serif; font-size: 1.2rem; font-weight: 700; color: #fff; letter-spacing: -0.01em; line-height:1; }
+  .brand-sub { font-size: 0.55rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-top: 4px; display: block; }
+
+  .nav-section-label {
+    font-size: 0.55rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(255,255,255,0.18); padding: 0 10px; margin: 12px 0 6px;
+  }
+  .nav-link {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--sidebar-text); text-decoration: none;
+    padding: 9px 12px; border-radius: 7px;
+    font-size: 0.84rem; font-weight: 400;
+    transition: all 0.15s; cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .nav-link:hover { color: rgba(255,255,255,0.82); background: rgba(255,255,255,0.055); }
+  .nav-link.active {
+    color: var(--sidebar-hi);
+    background: rgba(200,151,42,0.11);
+    border-color: rgba(200,151,42,0.18);
+    font-weight: 500;
+  }
+  .nav-link.active::before {
+    content: '';
+    position: absolute; left: 0; top: 22%; height: 56%;
+    width: 2.5px; background: var(--gold); border-radius: 0 2px 2px 0;
+  }
+  .nav-link { position: relative; }
+  .nav-icon { width: 16px; height: 16px; opacity: 0.5; flex-shrink: 0; transition: opacity 0.15s; }
+  .nav-link.active .nav-icon, .nav-link:hover .nav-icon { opacity: 1; }
+  .sidebar-footer { padding: 12px 12px 16px; border-top: 1px solid var(--sidebar-border); }
+  .sidebar-footer .nav-link { color: rgba(255,255,255,0.28); }
+  .sidebar-footer .nav-link:hover { background: rgba(184,50,50,0.08); color: #e07070; border-color: rgba(184,50,50,0.18); }
+
+  /* MAIN */
+  #main {
+    margin-left: 252px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* TOPBAR */
+  #topbar {
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-left h2 { font-family: 'Libre Baskerville', serif; font-size: 1rem; font-weight: 400; color: var(--text-primary); }
+  .topbar-left p { font-size: 0.72rem; color: var(--text-muted); font-weight: 300; }
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 7px 14px;
+    font-size: 0.8rem; color: var(--text-muted); width: 220px;
+  }
+  .search-bar input { background: none; border: none; outline: none; color: var(--text-primary); font-size: 0.8rem; width: 100%; font-family: 'Outfit', sans-serif; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--gold-dim); border: 1.5px solid rgba(200,151,42,0.3); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 600; color: var(--gold); cursor: pointer; }
+  .notif-btn { width: 34px; height: 34px; border-radius: 8px; background: var(--bg); border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: background 0.15s; }
+  .notif-btn:hover { background: var(--surface); }
+  .notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--danger); border: 1.5px solid var(--surface); }
+
+  /* CONTENT */
+  #content { padding: 28px 28px 48px; flex: 1; animation: fadeUp 0.35s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card { background: var(--surface); border-radius: 13px; border: 1px solid var(--border); padding: 22px 24px; transition: border-color 0.2s, box-shadow 0.2s; }
+  .card:hover { border-color: rgba(0,0,0,0.1); box-shadow: 0 4px 22px rgba(0,0,0,0.05); }
+
+  /* KPI */
+  .kpi-card { background: var(--surface); border-radius: 13px; border: 1px solid var(--border); padding: 20px 22px; transition: all 0.2s; }
+  .kpi-card:hover { box-shadow: 0 4px 22px rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.11); transform: translateY(-1px); }
+  .kpi-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+  .kpi-value { font-family: 'Libre Baskerville', serif; font-size: 1.85rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; line-height: 1; }
+  .kpi-delta { font-size: 0.72rem; margin-top: 7px; font-weight: 500; }
+  .kpi-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+
+  /* BADGE */
+  .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 4px; font-size: 0.63rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+  .badge-gold { background: rgba(200,151,42,0.1); color: #9a6d10; border: 1px solid rgba(200,151,42,0.22); }
+  .badge-green { background: rgba(45,122,79,0.08); color: #1e6b41; border: 1px solid rgba(45,122,79,0.15); }
+  .badge-red { background: rgba(184,50,50,0.08); color: #922626; border: 1px solid rgba(184,50,50,0.15); }
+  .badge-navy { background: rgba(14,20,32,0.06); color: #1a2436; border: 1px solid rgba(14,20,32,0.1); }
+  .badge-blue { background: rgba(23,105,200,0.08); color: #0d5a9e; border: 1px solid rgba(23,105,200,0.14); }
+
+  /* SECTION TITLE */
+  .section-title { font-family: 'Libre Baskerville', serif; font-size: 1.05rem; font-weight: 400; color: var(--text-primary); letter-spacing: -0.01em; margin-bottom: 4px; }
+  .section-sub { font-size: 0.75rem; color: var(--text-muted); font-weight: 300; margin-bottom: 18px; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); padding: 0 14px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: 11px 14px; border-bottom: 1px solid rgba(0,0,0,0.04); color: var(--text-primary); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(0,0,0,0.015); }
+
+  /* PROGRESS */
+  .progress-bar { height: 5px; border-radius: 99px; background: rgba(0,0,0,0.06); overflow: hidden; margin-top: 5px; }
+  .progress-fill { height: 100%; border-radius: 99px; background: var(--gold); transition: width 0.6s ease; }
+
+  /* HEATMAP */
+  .heat-cell { border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; transition: transform 0.15s; cursor: default; }
+  .heat-cell:hover { transform: scale(1.08); }
+
+  /* AI insight */
+  .insight-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+  .insight-item:last-child { border-bottom: none; }
+  .insight-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+
+  /* Faculty card */
+  .faculty-metric { text-align: center; padding: 14px 10px; border-radius: 9px; background: var(--bg); }
+  .faculty-metric-val { font-family: 'Libre Baskerville', serif; font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+  .faculty-metric-label { font-size: 0.65rem; color: var(--text-muted); margin-top: 3px; font-weight: 500; letter-spacing: 0.05em; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    #sidebar { transform: translateX(-100%); }
+    #sidebar.open { transform: translateX(0); }
+    #main { margin-left: 0; }
+    #content { padding: 20px 16px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="brand-area">
+    <div class="brand-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M12 6.5C10.5 5.2 8.5 4.5 6 4.5v13c2.5 0 4.5 0.7 6 2 1.5-1.3 3.5-2 6-2v-13c-2.5 0-4.5 0.7-6 1z" stroke="#c8972a" stroke-width="1.5" stroke-linejoin="round"/>
+        <line x1="12" y1="6.5" x2="12" y2="19.5" stroke="#c8972a" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-name">CALm</div>
+      <span class="brand-sub">Institute Intelligence</span>
+    </div>
+  </div>
+
+  <nav style="flex:1; padding: 14px 12px; overflow-y: auto; position: relative; z-index:1;">
+    <div class="nav-section-label">Main</div>
+
+    <a class="nav-link active" onclick="showSection('overview')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="9.5" y="1.5" width="5" height="5" rx="1"/>
+        <rect x="1.5" y="9.5" width="5" height="5" rx="1"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
+      </svg>
+      Dashboard Overview
+    </a>
+    <a class="nav-link" onclick="showSection('students')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="5" r="2.8"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+      </svg>
+      Students
+    </a>
+    <a class="nav-link" onclick="showSection('analytics')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="1.5 12 5 7 8 9.5 11 4.5 14.5 12"/><line x1="1.5" y1="14.5" x2="14.5" y2="14.5"/>
+      </svg>
+      Analytics
+    </a>
+    <a class="nav-link" onclick="showSection('rank')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 2l2.5 5h5.5l-4.5 3.5 1.5 5L8 12.5 3 15.5l1.5-5L0 7h5.5z"/>
+      </svg>
+      Rank Prediction
+    </a>
+    <a class="nav-link" onclick="showSection('doubts')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="8" r="6.5"/><path d="M6 6.2c0-1 .9-1.8 2-1.8s2 .8 2 1.8c0 1-1 1.5-2 2v1"/><circle cx="8" cy="11.5" r=".6" fill="currentColor"/>
+      </svg>
+      Doubt Heatmap
+    </a>
+    <a class="nav-link" onclick="showSection('faculty')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1.5" y="2" width="13" height="9" rx="1.5"/><line x1="5" y1="14" x2="11" y2="14"/><line x1="8" y1="11" x2="8" y2="14"/>
+      </svg>
+      Faculty Analytics
+    </a>
+    <a class="nav-link" onclick="showSection('revenue')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1.5" y="4.5" width="13" height="9" rx="1.5"/><path d="M5 4.5V3a2 2 0 014 0v1.5"/>
+        <circle cx="8" cy="9" r="1.8"/>
+      </svg>
+      Revenue &amp; Licenses
+    </a>
+    <a class="nav-link" onclick="showSection('ai')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 1.5C4.4 1.5 1.5 4.4 1.5 8S4.4 14.5 8 14.5 14.5 11.6 14.5 8 11.6 1.5 8 1.5z"/>
+        <path d="M5.5 8c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5"/>
+        <circle cx="8" cy="8" r=".8" fill="currentColor"/>
+      </svg>
+      AI Insights
+    </a>
+    <a class="nav-link" onclick="showSection('settings')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="8" r="2.2"/><path d="M8 1.5v1.2M8 13.3v1.2M1.5 8h1.2M13.3 8h1.2M3.6 3.6l.86.86M11.54 11.54l.86.86M3.6 12.4l.86-.86M11.54 4.46l.86-.86"/>
+      </svg>
+      Settings
+    </a>
+  </nav>
+
+  <div class="sidebar-footer" style="position:relative;z-index:1;">
+    <a class="nav-link">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/>
+        <polyline points="10 11 14 8 10 5"/><line x1="14" y1="8" x2="6" y2="8"/>
+      </svg>
+      Logout
+    </a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div id="main">
+  <!-- TOPBAR -->
+  <header id="topbar">
+    <div class="topbar-left">
+      <h2>Excellence CA Institute</h2>
+      <p>Academic Year 2024–25 &nbsp;·&nbsp; CA Final &amp; Inter</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="search-bar">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#9e9488" stroke-width="1.6" stroke-linecap="round">
+          <circle cx="7" cy="7" r="5"/><line x1="11" y1="11" x2="14.5" y2="14.5"/>
+        </svg>
+        <input type="text" placeholder="Search students, topics…"/>
+      </div>
+      <div class="notif-btn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6b6252" stroke-width="1.4" stroke-linecap="round">
+          <path d="M8 1.5a4.5 4.5 0 014.5 4.5c0 4 1.5 5 1.5 5H2s1.5-1 1.5-5A4.5 4.5 0 018 1.5z"/>
+          <path d="M6.5 12.5a1.5 1.5 0 003 0"/>
+        </svg>
+        <div class="notif-dot"></div>
+      </div>
+      <div class="avatar">AK</div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main id="content">
+
+    <!-- PAGE HEADER -->
+    <div style="margin-bottom:28px;">
+      <h1 style="font-size:1.75rem;letter-spacing:-0.02em;color:var(--text-primary);margin-bottom:6px;">Institute Intelligence Dashboard</h1>
+      <p style="font-size:0.82rem;color:var(--text-secondary);font-weight:300;">AI-powered analytics for CA coaching excellence &nbsp;·&nbsp; Last synced: Today, 9:42 AM</p>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px;">
+
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:rgba(14,20,32,0.06);">
+          <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="#0e1420" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="5" r="2.8"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        </div>
+        <div class="kpi-label">Total Students</div>
+        <div class="kpi-value">1,847</div>
+        <div class="kpi-delta" style="color:var(--success);">↑ 12% from last month</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:rgba(200,151,42,0.1);">
+          <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="#c8972a" stroke-width="1.4" stroke-linecap="round"><rect x="1.5" y="4.5" width="13" height="9" rx="1.5"/><path d="M5 4.5V3a2 2 0 014 0v1.5"/><circle cx="8" cy="9" r="1.8"/></svg>
+        </div>
+        <div class="kpi-label">Active AI Licenses</div>
+        <div class="kpi-value">1,203</div>
+        <div class="kpi-delta" style="color:var(--success);">↑ 87 new this week</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:rgba(45,122,79,0.08);">
+          <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="#2d7a4f" stroke-width="1.4" stroke-linecap="round"><polyline points="1.5 12 5 7 8 9.5 11 4.5 14.5 12"/></svg>
+        </div>
+        <div class="kpi-label">Exam Readiness</div>
+        <div class="kpi-value">72.4%</div>
+        <div class="kpi-delta" style="color:var(--success);">↑ 6.2pts this month</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:rgba(23,105,200,0.08);">
+          <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="#1769c8" stroke-width="1.4" stroke-linecap="round"><path d="M8 2l2.5 5h5.5l-4.5 3.5 1.5 5L8 12.5 3 15.5l1.5-5L0 7h5.5z"/></svg>
+        </div>
+        <div class="kpi-label">Predicted Pass %</div>
+        <div class="kpi-value">68.1%</div>
+        <div class="kpi-delta" style="color:var(--warning);">→ Target: 75%</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:rgba(45,122,79,0.08);">
+          <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="#2d7a4f" stroke-width="1.4" stroke-linecap="round"><rect x="1.5" y="1.5" width="13" height="13" rx="1.5"/><path d="M5.5 8h5M8 5.5v5"/></svg>
+        </div>
+        <div class="kpi-label">Monthly Revenue</div>
+        <div class="kpi-value">₹24.6L</div>
+        <div class="kpi-delta" style="color:var(--success);">↑ 18% YoY growth</div>
+      </div>
+
+    </div>
+
+    <!-- ROW: Performance + Rank Prediction -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
+
+      <!-- Student Performance Chart -->
+      <div class="card">
+        <div class="section-title">Student Performance Analytics</div>
+        <div class="section-sub">Mock test improvement trend — last 6 months</div>
+        <div style="display:flex;gap:16px;margin-bottom:12px;">
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);">
+            <span style="width:10px;height:3px;border-radius:2px;background:#0e1420;display:inline-block;"></span>CA Final
+          </span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);">
+            <span style="width:10px;height:3px;border-radius:2px;background:#c8972a;display:inline-block;"></span>CA Inter
+          </span>
+        </div>
+        <div style="position:relative;height:220px;">
+          <canvas id="perfChart" role="img" aria-label="Line chart showing student performance trends over 6 months for CA Final and CA Inter batches">Performance data for CA Final and Inter batches, showing improvement from January to June.</canvas>
+        </div>
+      </div>
+
+      <!-- Rank Prediction Table -->
+      <div class="card">
+        <div class="section-title">AI Rank Prediction Panel</div>
+        <div class="section-sub">Top students with AIR probability estimates</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Predicted Score</th>
+              <th>AIR Probability</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:500;">Arjun Mehta</td>
+              <td>487 / 600</td>
+              <td><span class="badge badge-green">Top 50</span></td>
+              <td><span class="badge badge-green">Low</span></td>
+            </tr>
+            <tr>
+              <td style="font-weight:500;">Priya Sharma</td>
+              <td>471 / 600</td>
+              <td><span class="badge badge-blue">Top 100</span></td>
+              <td><span class="badge badge-green">Low</span></td>
+            </tr>
+            <tr>
+              <td style="font-weight:500;">Rohan Gupta</td>
+              <td>452 / 600</td>
+              <td><span class="badge badge-navy">Top 200</span></td>
+              <td><span class="badge badge-gold">Medium</span></td>
+            </tr>
+            <tr>
+              <td style="font-weight:500;">Sneha Iyer</td>
+              <td>438 / 600</td>
+              <td><span class="badge badge-navy">Top 300</span></td>
+              <td><span class="badge badge-gold">Medium</span></td>
+            </tr>
+            <tr>
+              <td style="font-weight:500;">Karan Patel</td>
+              <td>401 / 600</td>
+              <td><span class="badge badge-red">Top 500</span></td>
+              <td><span class="badge badge-red">High</span></td>
+            </tr>
+            <tr>
+              <td style="font-weight:500;">Meera Nair</td>
+              <td>389 / 600</td>
+              <td><span class="badge badge-red">Top 800</span></td>
+              <td><span class="badge badge-red">High</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ROW: Weak Topics + Doubt Heatmap -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
+
+      <!-- Weak Topic Analytics -->
+      <div class="card">
+        <div class="section-title">Weak Topic Analytics</div>
+        <div class="section-sub">Average score by subject — batch performance</div>
+        <div style="display:flex;gap:16px;margin-bottom:12px;">
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);">
+            <span style="width:10px;height:10px;border-radius:2px;background:#0e1420;display:inline-block;"></span>Avg Score %
+          </span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);">
+            <span style="width:10px;height:10px;border-radius:2px;background:#b83232;display:inline-block;"></span>Weakest
+          </span>
+        </div>
+        <div style="position:relative;height:220px;">
+          <canvas id="weakChart" role="img" aria-label="Bar chart showing average student scores across 5 CA subjects, highlighting the weakest subject">Subject-wise performance: Audit 48%, Taxation 54%, Law 61%, Accounts 68%, Costing 57%</canvas>
+        </div>
+      </div>
+
+      <!-- Doubt Heatmap -->
+      <div class="card">
+        <div class="section-title">Doubt Heatmap</div>
+        <div class="section-sub">Chapter difficulty &amp; query volume — darker = more doubts</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:4px;" id="heatmap">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+          <span style="font-size:0.62rem;color:var(--text-muted);font-weight:500;">Few doubts</span>
+          <div style="display:flex;gap:3px;">
+            <div style="width:16px;height:8px;border-radius:2px;background:rgba(200,151,42,0.12);"></div>
+            <div style="width:16px;height:8px;border-radius:2px;background:rgba(200,151,42,0.3);"></div>
+            <div style="width:16px;height:8px;border-radius:2px;background:rgba(200,151,42,0.55);"></div>
+            <div style="width:16px;height:8px;border-radius:2px;background:rgba(200,151,42,0.8);"></div>
+            <div style="width:16px;height:8px;border-radius:2px;background:#c8972a;"></div>
+          </div>
+          <span style="font-size:0.62rem;color:var(--text-muted);font-weight:500;">Many doubts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW: Faculty + Revenue -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
+
+      <!-- Faculty Analytics -->
+      <div class="card">
+        <div class="section-title">Faculty Analytics</div>
+        <div class="section-sub">Engagement, resolution, and satisfaction metrics</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">
+          <div class="faculty-metric">
+            <div class="faculty-metric-val">86%</div>
+            <div class="faculty-metric-label">Lecture Engagement</div>
+          </div>
+          <div class="faculty-metric">
+            <div class="faculty-metric-val">4.2h</div>
+            <div class="faculty-metric-label">Avg Doubt Resolution</div>
+          </div>
+          <div class="faculty-metric">
+            <div class="faculty-metric-val">4.7/5</div>
+            <div class="faculty-metric-label">Satisfaction Score</div>
+          </div>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-muted);font-weight:500;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Top Faculty — Engagement</div>
+        <div id="faculty-list"></div>
+      </div>
+
+      <!-- Revenue Chart -->
+      <div class="card">
+        <div class="section-title">Revenue &amp; License Dashboard</div>
+        <div class="section-sub">Monthly subscriptions &amp; institute revenue share</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div style="background:var(--bg);border-radius:9px;padding:12px 14px;">
+            <div style="font-size:0.62rem;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">Total Licenses Sold</div>
+            <div style="font-family:'Libre Baskerville',serif;font-size:1.4rem;color:var(--text-primary);">2,841</div>
+          </div>
+          <div style="background:var(--bg);border-radius:9px;padding:12px 14px;">
+            <div style="font-size:0.62rem;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">Revenue Share</div>
+            <div style="font-family:'Libre Baskerville',serif;font-size:1.4rem;color:var(--text-primary);">₹8.4L</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:16px;margin-bottom:8px;">
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);">
+            <span style="width:10px;height:3px;border-radius:2px;background:#2d7a4f;display:inline-block;"></span>Revenue (₹L)
+          </span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);">
+            <span style="width:10px;height:10px;border-radius:2px;background:rgba(200,151,42,0.3);display:inline-block;"></span>Licenses
+          </span>
+        </div>
+        <div style="position:relative;height:160px;">
+          <canvas id="revenueChart" role="img" aria-label="Bar and line chart showing monthly license sales and revenue for the last 8 months">Monthly revenue and license sales data from September through April.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI INSIGHTS -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div>
+          <div class="section-title">AI Insights &amp; Recommendations</div>
+          <div class="section-sub" style="margin-bottom:0;">Powered by CALm Intelligence Engine · Updated 2 hours ago</div>
+        </div>
+        <span class="badge badge-gold" style="font-size:0.6rem;">8 new insights</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;" id="insights-grid">
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* === PERFORMANCE CHART === */
+new Chart(document.getElementById('perfChart'), {
+  type: 'line',
+  data: {
+    labels: ['Jan','Feb','Mar','Apr','May','Jun'],
+    datasets: [
+      {
+        label: 'CA Final',
+        data: [52,58,62,67,71,76],
+        borderColor: '#0e1420', backgroundColor: 'rgba(14,20,32,0.06)',
+        borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#0e1420',
+        tension: 0.35, fill: true,
+        borderDash: []
+      },
+      {
+        label: 'CA Inter',
+        data: [48,55,59,65,68,73],
+        borderColor: '#c8972a', backgroundColor: 'rgba(200,151,42,0.06)',
+        borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#c8972a',
+        pointStyle: 'triangle',
+        tension: 0.35, fill: true,
+        borderDash: [5,3]
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: {
+        min: 40, max: 85,
+        grid: { color: 'rgba(0,0,0,0.04)' },
+        ticks: { color: '#9e9488', font: { size: 11, family: 'Outfit' }, callback: v => v + '%' }
+      },
+      x: { grid: { display: false }, ticks: { color: '#9e9488', font: { size: 11, family: 'Outfit' } } }
+    }
+  }
+});
+
+/* === WEAK TOPICS CHART === */
+const subjectColors = ['#b83232','#0e1420','#0e1420','#0e1420','#0e1420'];
+new Chart(document.getElementById('weakChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Audit','Taxation','Costing','Law','Accounts'],
+    datasets: [{
+      label: 'Avg Score %',
+      data: [48,54,57,61,68],
+      backgroundColor: subjectColors,
+      borderRadius: 5,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: {
+        min: 0, max: 100,
+        grid: { color: 'rgba(0,0,0,0.04)' },
+        ticks: { color: '#9e9488', font: { size: 11 }, callback: v => v + '%' }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: '#9e9488', font: { size: 11 } },
+        autoSkip: false
+      }
+    }
+  }
+});
+
+/* === REVENUE CHART === */
+new Chart(document.getElementById('revenueChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr'],
+    datasets: [
+      {
+        type: 'line',
+        label: 'Revenue (₹L)',
+        data: [14.2,16.8,18.1,22.3,19.7,21.4,23.1,24.6],
+        borderColor: '#2d7a4f', backgroundColor: 'rgba(45,122,79,0.08)',
+        borderWidth: 2, pointRadius: 3, tension: 0.35, fill: true,
+        yAxisID: 'y1'
+      },
+      {
+        type: 'bar',
+        label: 'Licenses',
+        data: [180,210,245,310,270,295,322,341],
+        backgroundColor: 'rgba(200,151,42,0.28)',
+        borderRadius: 4,
+        yAxisID: 'y'
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { color: '#9e9488', font: { size: 10 } } },
+      y1: { position: 'right', grid: { display: false }, ticks: { color: '#9e9488', font: { size: 10 }, callback: v => '₹' + v } },
+      x: { grid: { display: false }, ticks: { color: '#9e9488', font: { size: 10 }, autoSkip: false } }
+    }
+  }
+});
+
+/* === HEATMAP === */
+const heatTopics = [
+  { name:'GST', v:5 },{ name:'Ind AS', v:4 },{ name:'Audit Std', v:5 },{ name:'Cos Acc', v:3 },
+  { name:'Transfer Pr.', v:4 },{ name:'FEMA', v:2 },{ name:'SFM', v:3 },{ name:'Ins. Audit', v:5 },
+  { name:'Corp Law', v:3 },{ name:'SBM', v:2 },{ name:'Risk Mgmt', v:4 },{ name:'Customs', v:3 },
+  { name:'Deferred Tax', v:4 },{ name:'MAT/AMT', v:3 },{ name:'IFC', v:5 },{ name:'Valuation', v:2 }
+];
+const heatOpacity = [0.12,0.28,0.48,0.7,1];
+const heatmap = document.getElementById('heatmap');
+heatTopics.forEach(t => {
+  const cell = document.createElement('div');
+  cell.className = 'heat-cell';
+  cell.style.cssText = `height:52px;background:rgba(200,151,42,${heatOpacity[t.v-1]});color:${t.v>=4?'#fff':'#6b4d10'};font-size:0.6rem;padding:4px;text-align:center;`;
+  cell.textContent = t.name;
+  heatmap.appendChild(cell);
+});
+
+/* === FACULTY LIST === */
+const faculty = [
+  { name:'CA Rajan Verma', subject:'Audit & Assurance', eng:92 },
+  { name:'CA Pooja Desai', subject:'Taxation (GST+DT)', eng:88 },
+  { name:'CA Sunil Kumar', subject:'Financial Reporting', eng:81 },
+  { name:'CA Anita Saxena', subject:'Strategic FM', eng:79 },
+];
+const fl = document.getElementById('faculty-list');
+faculty.forEach(f => {
+  fl.innerHTML += `<div style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+      <div>
+        <div style="font-size:0.82rem;font-weight:500;color:var(--text-primary);">${f.name}</div>
+        <div style="font-size:0.67rem;color:var(--text-muted);">${f.subject}</div>
+      </div>
+      <span style="font-size:0.82rem;font-weight:600;color:var(--text-primary);">${f.eng}%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${f.eng}%;background:${f.eng>85?'#2d7a4f':f.eng>75?'#c8972a':'#b83232'};"></div></div>
+  </div>`;
+});
+
+/* === AI INSIGHTS === */
+const insights = [
+  { color:'#b83232', text:'68% of CA Final students are struggling with GST amendments — targeted revision sessions recommended.', tag:'Urgent', tagClass:'badge-red' },
+  { color:'#c8972a', text:'Increase revision frequency for Audit Standards: avg score dropped 4 pts in last mock.', tag:'Action Needed', tagClass:'badge-gold' },
+  { color:'#c8972a', text:'3 students show burnout patterns — declining engagement over 3 consecutive weeks.', tag:'Wellbeing', tagClass:'badge-gold' },
+  { color:'#2d7a4f', text:'SFM module completion rate improved to 84% — up from 67% after new video format rollout.', tag:'Positive', tagClass:'badge-green' },
+  { color:'#1769c8', text:'Predict 14 students eligible for merit list if current improvement trajectory holds.', tag:'Forecast', tagClass:'badge-blue' },
+  { color:'#b83232', text:'FEMA & Transfer Pricing chapters have 0% completion among 23% of enrolled students.', tag:'Gap', tagClass:'badge-red' },
+  { color:'#c8972a', text:'Mock test attendance dropped 11% last fortnight — consider push notification reminders.', tag:'Engagement', tagClass:'badge-gold' },
+  { color:'#2d7a4f', text:'CA Inter batch shows strongest YoY progress — consider featuring as case study for marketing.', tag:'Insight', tagClass:'badge-green' },
+];
+const ig = document.getElementById('insights-grid');
+insights.forEach(ins => {
+  ig.innerHTML += `<div class="insight-item">
+    <div class="insight-dot" style="background:${ins.color};"></div>
+    <div>
+      <span class="badge ${ins.tagClass}" style="margin-bottom:5px;">${ins.tag}</span>
+      <p style="font-size:0.79rem;color:var(--text-secondary);line-height:1.55;">${ins.text}</p>
+    </div>
+  </div>`;
+});
+
+/* === SIDEBAR NAV === */
+function showSection(sec) {
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>
