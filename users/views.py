@@ -231,3 +231,5 @@ def institute_view(request):
     return render(request, "institute_analytics.html")
 def parents_view(request):
     return render(request, "parents.html")
+def performance_view(request):
+    return render(request, "performance.html")

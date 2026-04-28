@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CALm — Student Performance Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:             #f7f4ef;
+    --sidebar-bg:     #0e1420;
+    --sidebar-w:      240px;
+    --surface:        #ffffff;
+    --surface-hover:  #f1ede5;
+    --gold:           #c8972a;
+    --gold-lt:        #e0b84a;
+    --gold-dim:       rgba(200,151,42,0.11);
+    --navy:           #0e1420;
+    --navy-mid:       #1a2436;
+    --text-pri:       #1a1610;
+    --text-sec:       #6b6252;
+    --text-mute:      #9e9488;
+    --text-sb:        rgba(255,255,255,0.48);
+    --text-sb-hi:     #ffffff;
+    --border:         rgba(0,0,0,0.08);
+    --border-sb:      rgba(255,255,255,0.06);
+    --danger:         #b83232;
+    --danger-dim:     rgba(184,50,50,0.08);
+    --success:        #2d7a4f;
+    --success-dim:    rgba(45,122,79,0.09);
+    --warn:           #c8782a;
+    --warn-dim:       rgba(200,120,42,0.10);
+    --radius:         13px;
+    --radius-sm:      8px;
+    --topbar-h:       52px;
+  }
+
+  html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text-pri); -webkit-font-smoothing:antialiased; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    position: fixed; top:0; left:0;
+    display: flex; flex-direction: column;
+    overflow: hidden; z-index: 200;
+    border-right: 1px solid rgba(255,255,255,0.04);
+    transition: transform 0.28s cubic-bezier(0.22,1,0.36,1);
+  }
+  .sidebar::after {
+    content:'';
+    position:absolute; bottom:0; left:0; right:0; height:200px;
+    background: radial-gradient(ellipse 100% 60% at 50% 100%, rgba(200,151,42,0.07) 0%, transparent 70%);
+    pointer-events:none;
+  }
+
+  .sidebar-brand {
+    display:flex; align-items:center; gap:13px;
+    padding:24px 20px 20px;
+    border-bottom: 1px solid var(--border-sb);
+    position:relative; z-index:1;
+  }
+  .brand-icon {
+    width:38px; height:38px;
+    background: rgba(200,151,42,0.1);
+    border: 1px solid rgba(200,151,42,0.22);
+    border-radius:10px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .brand-icon svg { width:18px; height:18px; }
+  .brand-text { display:flex; flex-direction:column; line-height:1; }
+  .brand-text .main { font-family:'Libre Baskerville',serif; font-size:1.2rem; font-weight:700; color:#fff; letter-spacing:-0.01em; }
+  .brand-text .sub  { font-size:0.55rem; font-weight:400; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-top:4px; }
+
+  .sidebar-nav { padding:16px 10px; flex:1; display:flex; flex-direction:column; gap:2px; position:relative; z-index:1; overflow-y:auto; }
+  .sidebar-nav::-webkit-scrollbar { width:0; }
+  .section-label { font-size:0.55rem; font-weight:600; letter-spacing:0.22em; text-transform:uppercase; color:rgba(255,255,255,0.18); padding:0 10px; margin:10px 0 6px; }
+
+  .sidebar-nav a {
+    display:flex; align-items:center; gap:10px;
+    color:var(--text-sb); text-decoration:none;
+    padding:9px 12px; border-radius:var(--radius-sm);
+    font-size:0.84rem; font-weight:400;
+    transition:all 0.15s ease;
+    border:1px solid transparent;
+    cursor:pointer;
+  }
+  .nav-icon { width:16px; height:16px; flex-shrink:0; opacity:0.5; transition:opacity 0.15s; display:flex; align-items:center; justify-content:center; }
+  .nav-icon svg { width:14px; height:14px; }
+  .sidebar-nav a:hover { color:rgba(255,255,255,0.82); background:rgba(255,255,255,0.055); }
+  .sidebar-nav a:hover .nav-icon { opacity:0.85; }
+  .sidebar-nav a.active { color:var(--text-sb-hi); background:rgba(200,151,42,0.11); border-color:rgba(200,151,42,0.18); font-weight:500; }
+  .sidebar-nav a.active .nav-icon { opacity:1; }
+  .sidebar-nav a.active::before { content:''; position:absolute; left:0; top:22%; height:56%; width:2.5px; background:var(--gold); border-radius:0 2px 2px 0; }
+  .sidebar-nav a { position:relative; }
+
+  .sidebar-footer { padding:12px 10px; border-top:1px solid var(--border-sb); position:relative; z-index:1; }
+
+  /* ── MOBILE TOPBAR ── */
+  .mobile-topbar {
+    display:none; position:fixed; top:0; left:0; right:0;
+    height:var(--topbar-h);
+    background:var(--sidebar-bg);
+    border-bottom:1px solid var(--border-sb);
+    z-index:150; align-items:center; justify-content:space-between; padding:0 18px;
+  }
+  .mobile-brand { display:flex; align-items:center; gap:10px; }
+  .mobile-brand .brand-icon { width:30px; height:30px; border-radius:7px; }
+  .mobile-brand-name { font-family:'Libre Baskerville',serif; font-size:1rem; font-weight:700; color:#fff; }
+  .hamburger {
+    width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,0.07); border:1px solid var(--border-sb); border-radius:var(--radius-sm);
+    cursor:pointer; color:rgba(255,255,255,0.75); transition:background 0.15s;
+  }
+  .hamburger:hover { background:rgba(255,255,255,0.12); }
+  .hamburger svg { width:16px; height:16px; }
+
+  .sidebar-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(14,20,32,0.6); backdrop-filter:blur(3px);
+    z-index:190; opacity:0; transition:opacity 0.25s ease;
+  }
+  .sidebar-overlay.active { opacity:1; }
+
+  /* ── CONTENT ── */
+  .content { margin-left:var(--sidebar-w); padding:36px 44px; min-height:100vh; }
+
+  /* ── SECTION ── */
+  .section { display:none; animation:fadeUp 0.3s ease both; }
+  .section.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── PAGE HEADER ── */
+  .page-header { margin-bottom:28px; }
+  .page-header h1 { font-family:'Libre Baskerville',serif; font-size:1.8rem; font-weight:400; letter-spacing:-0.02em; line-height:1.2; margin-bottom:6px; }
+  .page-header p { color:var(--text-sec); font-size:0.85rem; font-weight:300; line-height:1.7; }
+
+  /* ── CARDS ── */
+  .card {
+    background:var(--surface); padding:24px 28px;
+    border-radius:var(--radius); border:1px solid var(--border);
+    margin-bottom:18px; transition:border-color 0.2s,box-shadow 0.2s;
+  }
+  .card:hover { border-color:rgba(0,0,0,0.11); box-shadow:0 4px 20px rgba(0,0,0,0.05); }
+  .card h3 { font-family:'Libre Baskerville',serif; font-weight:400; font-size:1.05rem; margin-bottom:16px; color:var(--text-pri); letter-spacing:-0.01em; }
+
+  /* ── GRID ── */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+
+  /* ── STAT TILES ── */
+  .stat-tile {
+    background:var(--surface); border-radius:var(--radius); border:1px solid var(--border);
+    padding:20px 22px; transition:all 0.2s;
+  }
+  .stat-tile:hover { box-shadow:0 4px 20px rgba(0,0,0,0.05); }
+  .stat-label { font-size:0.64rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-sec); margin-bottom:8px; }
+  .stat-value { font-family:'Libre Baskerville',serif; font-size:2rem; font-weight:400; color:var(--text-pri); line-height:1; }
+  .stat-value.gold { color:var(--gold); }
+  .stat-sub { font-size:0.75rem; color:var(--text-mute); margin-top:6px; }
+
+  /* ── PROGRESS BARS ── */
+  .progress-wrap { margin:8px 0; }
+  .progress-label { display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:5px; }
+  .progress-label span { color:var(--text-sec); }
+  .progress-label strong { color:var(--text-pri); font-weight:500; }
+  .progress-bar { height:6px; background:rgba(0,0,0,0.07); border-radius:100px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:100px; transition:width 1s ease; }
+  .fill-gold   { background:var(--gold); }
+  .fill-green  { background:#2d7a4f; }
+  .fill-navy   { background:var(--navy); }
+  .fill-warn   { background:var(--warn); }
+  .fill-danger { background:var(--danger); }
+
+  /* ── BADGES ── */
+  .badge {
+    display:inline-flex; align-items:center; padding:3px 8px;
+    border-radius:4px; font-size:0.62rem; font-weight:600;
+    letter-spacing:0.08em; text-transform:uppercase;
+  }
+  .badge-gold    { background:var(--gold-dim); color:var(--gold); border:1px solid rgba(200,151,42,0.2); }
+  .badge-navy    { background:rgba(14,20,32,0.06); color:var(--navy); border:1px solid rgba(14,20,32,0.1); }
+  .badge-green   { background:var(--success-dim); color:var(--success); border:1px solid rgba(45,122,79,0.15); }
+  .badge-muted   { background:rgba(0,0,0,0.04); color:var(--text-sec); border:1px solid var(--border); }
+  .badge-danger  { background:var(--danger-dim); color:var(--danger); border:1px solid rgba(184,50,50,0.15); }
+  .badge-warn    { background:var(--warn-dim); color:var(--warn); border:1px solid rgba(200,120,42,0.18); }
+
+  /* ── TABLES ── */
+  table { width:100%; border-collapse:collapse; font-size:0.83rem; }
+  th { font-size:0.62rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-sec); padding:0 12px 10px; text-align:left; border-bottom:1px solid var(--border); }
+  td { padding:11px 12px; border-bottom:1px solid rgba(0,0,0,0.04); color:var(--text-pri); vertical-align:middle; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(0,0,0,0.018); }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding:9px 18px; border:1px solid transparent; border-radius:var(--radius-sm);
+    cursor:pointer; font-family:'Outfit',sans-serif; font-size:0.83rem; font-weight:500;
+    transition:all 0.16s ease; display:inline-flex; align-items:center; gap:6px; text-decoration:none;
+  }
+  .btn:active { transform:scale(0.97); }
+  .btn-primary { background:var(--navy); color:#fff; box-shadow:0 1px 8px rgba(14,20,32,0.18); }
+  .btn-primary:hover { background:#161d2e; box-shadow:0 4px 16px rgba(14,20,32,0.26); transform:translateY(-1px); }
+  .btn-gold { background:var(--gold); color:#fff; box-shadow:0 1px 8px rgba(200,151,42,0.22); }
+  .btn-gold:hover { background:#b5851f; transform:translateY(-1px); }
+  .btn-secondary { background:transparent; color:var(--text-sec); border-color:var(--border); }
+  .btn-secondary:hover { color:var(--text-pri); background:var(--surface-hover); }
+  .btn-danger { background:transparent; color:var(--danger); border-color:rgba(184,50,50,0.2); }
+  .btn-danger:hover { background:var(--danger-dim); }
+  .btn-sm { padding:5px 12px; font-size:0.76rem; }
+
+  /* ── INPUTS ── */
+  input, select, textarea {
+    width:100%; padding:10px 13px; margin:6px 0;
+    background:var(--surface); border:1.5px solid var(--border);
+    border-radius:var(--radius-sm); color:var(--text-pri);
+    font-family:'Outfit',sans-serif; font-size:0.83rem; outline:none;
+    transition:border-color 0.16s,box-shadow 0.16s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color:rgba(200,151,42,0.45); box-shadow:0 0 0 3px rgba(200,151,42,0.10);
+  }
+  input::placeholder, textarea::placeholder { color:var(--text-mute); }
+  label { display:block; font-size:0.66rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-sec); margin-bottom:-2px; margin-top:14px; }
+
+  /* ── DIVIDER ── */
+  .divider { height:1px; background:var(--border); margin:20px 0; }
+
+  /* ── COUNTDOWN ── */
+  .countdown-row { display:flex; gap:18px; margin:14px 0; }
+  .countdown-box { background:var(--navy); border-radius:var(--radius-sm); padding:14px 18px; text-align:center; min-width:72px; }
+  .countdown-num { font-family:'Libre Baskerville',serif; font-size:1.8rem; color:var(--gold); font-weight:700; line-height:1; }
+  .countdown-unit { font-size:0.6rem; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.12em; margin-top:4px; }
+
+  /* ── TASK PLANNER ── */
+  .task-input-row { display:flex; gap:10px; margin-bottom:16px; }
+  .task-input-row input { flex:1; margin:0; }
+  .task-list { list-style:none; }
+  .task-item {
+    display:flex; align-items:center; gap:12px;
+    padding:10px 14px; border-radius:var(--radius-sm);
+    border:1px solid var(--border); margin-bottom:8px;
+    background:var(--surface); transition:all 0.15s;
+  }
+  .task-item.done { opacity:0.5; }
+  .task-item.done .task-text { text-decoration:line-through; color:var(--text-mute); }
+  .task-check {
+    width:18px; height:18px; border-radius:4px;
+    border:1.5px solid var(--border); cursor:pointer;
+    flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    transition:all 0.15s; background:var(--surface);
+  }
+  .task-check.checked { background:var(--success); border-color:var(--success); }
+  .task-check.checked::after { content:'✓'; color:#fff; font-size:10px; font-weight:700; }
+  .task-text { flex:1; font-size:0.85rem; }
+  .task-del { background:none; border:none; cursor:pointer; color:var(--text-mute); font-size:16px; padding:0; line-height:1; transition:color 0.15s; }
+  .task-del:hover { color:var(--danger); }
+  .task-progress-bar { height:4px; background:rgba(0,0,0,0.07); border-radius:100px; margin-top:14px; }
+  .task-progress-fill { height:100%; background:var(--gold); border-radius:100px; transition:width 0.4s ease; }
+
+  /* ── PARENT VIEW ── */
+  .readiness-dot { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:6px; }
+  .dot-green  { background:#2d7a4f; }
+  .dot-yellow { background:#c8782a; }
+  .dot-red    { background:#b83232; }
+
+  /* ── RECOMMENDATIONS ── */
+  .rec-item {
+    display:flex; gap:14px; align-items:flex-start;
+    padding:13px 16px; border-radius:var(--radius-sm);
+    border:1px solid var(--border); margin-bottom:10px;
+    background:var(--surface); transition:border-color 0.15s;
+  }
+  .rec-item:hover { border-color:rgba(200,151,42,0.3); }
+  .rec-icon { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:16px; }
+  .rec-icon.high   { background:var(--danger-dim); }
+  .rec-icon.medium { background:var(--warn-dim); }
+  .rec-icon.low    { background:var(--success-dim); }
+  .rec-body .rec-title { font-size:0.87rem; font-weight:500; margin-bottom:3px; }
+  .rec-body .rec-desc  { font-size:0.77rem; color:var(--text-sec); line-height:1.55; }
+
+  /* ── WEAK TOPICS ── */
+  .weak-item {
+    display:flex; align-items:center; gap:14px;
+    padding:12px 16px; border-radius:var(--radius-sm);
+    border:1px solid var(--border); margin-bottom:8px;
+    background:var(--surface);
+  }
+  .weak-num { width:28px; height:28px; border-radius:50%; background:var(--gold-dim); border:1px solid rgba(200,151,42,0.2); display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:600; color:var(--gold); flex-shrink:0; }
+  .weak-info { flex:1; }
+  .weak-info .wt  { font-size:0.87rem; font-weight:500; margin-bottom:3px; }
+  .weak-info .ws  { font-size:0.75rem; color:var(--text-sec); }
+
+  /* ── CHART ── */
+  .chart-wrap { position:relative; width:100%; }
+
+  /* ── STREAK ── */
+  .streak-grid { display:flex; gap:5px; flex-wrap:wrap; margin-top:12px; }
+  .streak-day { width:22px; height:22px; border-radius:4px; }
+  .streak-day.active { background:var(--gold); }
+  .streak-day.semi   { background:rgba(200,151,42,0.3); }
+  .streak-day.empty  { background:rgba(0,0,0,0.06); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:rgba(0,0,0,0.1); border-radius:10px; }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:900px) {
+    .grid-4 { grid-template-columns:repeat(2,1fr); }
+    .grid-3 { grid-template-columns:1fr 1fr; }
+  }
+  @media(max-width:768px) {
+    .mobile-topbar { display:flex; }
+    .sidebar-overlay { display:block; pointer-events:none; }
+    .sidebar { transform:translateX(-100%); }
+    .sidebar.open { transform:translateX(0); box-shadow:8px 0 40px rgba(0,0,0,0.3); }
+    .sidebar-overlay.active { opacity:1; pointer-events:all; }
+    .content { margin-left:0; padding:18px 16px 36px; padding-top:calc(var(--topbar-h) + 18px); }
+    .grid-2 { grid-template-columns:1fr; }
+    .grid-3 { grid-template-columns:1fr; }
+    .grid-4 { grid-template-columns:1fr 1fr; }
+    .countdown-row { flex-wrap:wrap; gap:10px; }
+    .countdown-box { min-width:60px; padding:10px 12px; }
+  }
+  @media(max-width:480px) {
+    .grid-4 { grid-template-columns:1fr; }
+  }
+  @media(min-width:769px) {
+    .mobile-topbar { display:none !important; }
+    .sidebar-overlay { display:none !important; }
+    .sidebar { transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── MOBILE OVERLAY ── -->
+<div class="sidebar-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+
+<!-- ── MOBILE TOPBAR ── -->
+<div class="mobile-topbar">
+  <div class="mobile-brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 6.5C10.5 5.2 8.5 4.5 6 4.5v13c2.5 0 4.5.7 6 2 1.5-1.3 3.5-2 6-2v-13c-2.5 0-4.5.7-6 1z" stroke="#c8972a" stroke-width="1.5" stroke-linejoin="round"/><line x1="12" y1="6.5" x2="12" y2="19.5" stroke="#c8972a" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </div>
+    <span class="mobile-brand-name">CALm</span>
+  </div>
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+    <svg id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <svg id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg>
+  </button>
+</div>
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 6.5C10.5 5.2 8.5 4.5 6 4.5v13c2.5 0 4.5.7 6 2 1.5-1.3 3.5-2 6-2v-13c-2.5 0-4.5.7-6 1z" stroke="#c8972a" stroke-width="1.5" stroke-linejoin="round"/><line x1="12" y1="6.5" x2="12" y2="19.5" stroke="#c8972a" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </div>
+    <div class="brand-text">
+      <span class="main">CALm</span>
+      <span class="sub">CA exam helper</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="section-label">Modules</div>
+
+    <a class="active" onclick="showSection('overview')">
+      <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="9.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="9.5" width="5" height="5" rx="1"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/></svg></span>
+      Overview
+    </a>
+
+    <a onclick="showSection('subjects')">
+      <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="1.5" width="10" height="13" rx="1.5"/><line x1="3" y1="5.5" x2="13" y2="5.5"/><line x1="6" y1="1.5" x2="6" y2="14.5"/></svg></span>
+      Subjects
+    </a>
+
+    <a onclick="showSection('weak')">
+      <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><line x1="8" y1="5" x2="8" y2="8.5"/><circle cx="8" cy="11" r="0.6" fill="currentColor"/></svg></span>
+      Weak Topics
+    </a>
+
+    <a onclick="showSection('mocks')">
+      <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5 10.5 4.5 6.5 7 9 10 4.5 14.5 8.5"/></svg></span>
+      Mock Tests
+    </a>
+
+    <a onclick="showSection('habits')">
+      <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.5"/><polyline points="8 5 8 8.5 10.5 10"/></svg></span>
+      Study Habits
+    </a>
+
+    <a onclick="showSection('ai')">
+      <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5a5.5 5.5 0 100 11M8 12.5v2M6 14.5h4"/><circle cx="8" cy="7" r="2"/></svg></span>
+      AI Recommendations
+    </a>
+
+    <a onclick="showSection('planner')">
+      <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="11" rx="1.5"/><line x1="2" y1="6.5" x2="14" y2="6.5"/><line x1="5.5" y1="1.5" x2="5.5" y2="4.5"/><line x1="10.5" y1="1.5" x2="10.5" y2="4.5"/></svg></span>
+      Daily Planner
+    </a>
+
+    <a onclick="showSection('parent')">
+      <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2.5"/><path d="M1 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/><circle cx="12" cy="5" r="2"/><path d="M14.5 12c0-2.2-1.5-4-3.5-4.5"/></svg></span>
+      Parent View
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a style="color:rgba(255,255,255,0.28);display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);font-size:0.84rem;cursor:pointer;text-decoration:none;border:1px solid transparent;transition:all 0.15s;">
+      <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><polyline points="10 11 14 8 10 5"/><line x1="14" y1="8" x2="6" y2="8"/></svg></span>
+      Logout
+    </a>
+  </div>
+</div>
+
+<!-- ── MAIN CONTENT ── -->
+<div class="content">
+
+  <!-- ══════════════════════════════
+       1. OVERVIEW
+  ══════════════════════════════ -->
+  <div class="section active" id="s-overview">
+    <div class="page-header">
+      <h1>Student Overview</h1>
+      <p>CA Intermediate · Nov 2025 Attempt · Priya Sharma</p>
+    </div>
+
+    <!-- Stats row -->
+    <div class="grid-4" style="margin-bottom:18px;">
+      <div class="stat-tile">
+        <div class="stat-label">Overall Preparation</div>
+        <div class="stat-value gold" id="overall-pct">67%</div>
+        <div class="stat-sub">Target: 85% by Oct 1</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Study Consistency</div>
+        <div class="stat-value" id="consistency">82%</div>
+        <div class="stat-sub">Last 30 days</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Today Logged</div>
+        <div class="stat-value">5.2 <span style="font-size:1rem;">hrs</span></div>
+        <div class="stat-sub">Target: 8 hrs</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Current Streak</div>
+        <div class="stat-value gold">14 <span style="font-size:1rem;">days</span></div>
+        <div class="stat-sub">Personal best: 21</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Student profile card -->
+      <div class="card">
+        <h3>Student Profile</h3>
+        <table style="font-size:0.84rem;">
+          <tr><td style="color:var(--text-sec);padding:8px 0;border:none;">Full Name</td><td style="font-weight:500;border:none;">Priya Sharma</td></tr>
+          <tr><td style="color:var(--text-sec);padding:8px 0;border:none;">Exam Level</td><td style="border:none;"><span class="badge badge-gold">CA Intermediate</span></td></tr>
+          <tr><td style="color:var(--text-sec);padding:8px 0;border:none;">Attempt</td><td style="border:none;">November 2025 (Group 1 + 2)</td></tr>
+          <tr><td style="color:var(--text-sec);padding:8px 0;border:none;">Institute</td><td style="border:none;">ICAI Hyderabad</td></tr>
+          <tr><td style="color:var(--text-sec);padding:8px 0;border:none;">Articleship</td><td style="border:none;">On leave (exam prep)</td></tr>
+          <tr><td style="color:var(--text-sec);padding:8px 0;border:none;">Mock Test Avg</td><td style="border:none;font-weight:500;color:var(--success);">54 / 100</td></tr>
+        </table>
+      </div>
+
+      <!-- Countdown -->
+      <div class="card">
+        <h3>Exam Countdown</h3>
+        <div style="color:var(--text-sec);font-size:0.83rem;margin-bottom:4px;">CA Inter Nov 2025 — Group 1 starts</div>
+        <div class="countdown-row" id="countdown-row">
+          <div class="countdown-box"><div class="countdown-num" id="cd-days">—</div><div class="countdown-unit">Days</div></div>
+          <div class="countdown-box"><div class="countdown-num" id="cd-hrs">—</div><div class="countdown-unit">Hours</div></div>
+          <div class="countdown-box"><div class="countdown-num" id="cd-min">—</div><div class="countdown-unit">Mins</div></div>
+          <div class="countdown-box"><div class="countdown-num" id="cd-sec">—</div><div class="countdown-unit">Secs</div></div>
+        </div>
+        <div class="divider"></div>
+        <div style="font-size:0.83rem;color:var(--text-sec);margin-bottom:12px;">Today's Target vs Completed</div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Study Hours</span><strong>5.2 / 8 hrs</strong></div>
+          <div class="progress-bar"><div class="progress-fill fill-gold" style="width:65%"></div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Topics Covered</span><strong>3 / 5</strong></div>
+          <div class="progress-bar"><div class="progress-fill fill-navy" style="width:60%"></div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>MCQs Attempted</span><strong>48 / 60</strong></div>
+          <div class="progress-bar"><div class="progress-fill fill-green" style="width:80%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       2. SUBJECTS
+  ══════════════════════════════ -->
+  <div class="section" id="s-subjects">
+    <div class="page-header">
+      <h1>Subject Performance</h1>
+      <p>Syllabus completion, revision status, and mock test scores per subject.</p>
+    </div>
+
+    <div id="subject-cards"></div>
+  </div>
+
+  <!-- ══════════════════════════════
+       3. WEAK TOPICS
+  ══════════════════════════════ -->
+  <div class="section" id="s-weak">
+    <div class="page-header">
+      <h1>Weak Topic Intelligence</h1>
+      <p>Prioritised chapters that need immediate attention based on test performance.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>High Priority</h3>
+        <div id="weak-high"></div>
+      </div>
+      <div class="card">
+        <h3>Medium &amp; Low Priority</h3>
+        <div id="weak-other"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       4. MOCK TEST ANALYTICS
+  ══════════════════════════════ -->
+  <div class="section" id="s-mocks">
+    <div class="page-header">
+      <h1>Mock Test Analytics</h1>
+      <p>History, accuracy, and trend across all mock attempts.</p>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:18px;">
+      <div class="stat-tile"><div class="stat-label">Tests Attempted</div><div class="stat-value">12</div></div>
+      <div class="stat-tile"><div class="stat-label">Average Score</div><div class="stat-value gold">54%</div></div>
+      <div class="stat-tile"><div class="stat-label">Best Score</div><div class="stat-value" style="color:var(--success);">72%</div></div>
+      <div class="stat-tile"><div class="stat-label">Trend</div><div class="stat-value" style="font-size:1.4rem;">↑ +8pts</div><div class="stat-sub">Last 4 tests</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <h3>Score Trend</h3>
+      <div class="chart-wrap" style="height:240px;">
+        <canvas id="mockChart" role="img" aria-label="Line chart showing mock test scores over 12 attempts, trending upward from 38 to 68">Mock test scores: 38,42,40,45,48,50,52,54,55,60,65,68</canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Test History</h3>
+      <div style="overflow-x:auto;">
+        <table id="mock-table">
+          <thead><tr><th>#</th><th>Subject</th><th>Date</th><th>Marks</th><th>Accuracy</th><th>Time Taken</th><th>Trend</th></tr></thead>
+          <tbody id="mock-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       5. STUDY HABITS
+  ══════════════════════════════ -->
+  <div class="section" id="s-habits">
+    <div class="page-header">
+      <h1>Study Habit Analysis</h1>
+      <p>Weekly hours, consistency, and productivity patterns.</p>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:18px;">
+      <div class="stat-tile"><div class="stat-label">This Week</div><div class="stat-value gold">38 <span style="font-size:1rem;">hrs</span></div><div class="stat-sub">Target: 48 hrs</div></div>
+      <div class="stat-tile"><div class="stat-label">Productivity</div><div class="stat-value">78%</div></div>
+      <div class="stat-tile"><div class="stat-label">Best Study Time</div><div class="stat-value" style="font-size:1.3rem;">Morning</div><div class="stat-sub">6 AM – 10 AM</div></div>
+      <div class="stat-tile"><div class="stat-label">Streak</div><div class="stat-value gold">14 <span style="font-size:1rem;">days</span></div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Weekly Hours (Last 7 Days)</h3>
+        <div class="chart-wrap" style="height:200px;">
+          <canvas id="weeklyChart" role="img" aria-label="Bar chart of daily study hours for the last 7 days">Daily hours: Mon 6, Tue 7, Wed 5, Thu 8, Fri 6, Sat 7, Sun 4</canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3>30-Day Consistency</h3>
+        <div style="font-size:0.8rem;color:var(--text-sec);margin-bottom:4px;">Each cell = 1 day · Darker = more hours studied</div>
+        <div class="streak-grid" id="streak-grid"></div>
+        <div style="margin-top:14px;display:flex;gap:14px;font-size:0.75rem;color:var(--text-sec);">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--gold);margin-right:4px;"></span>Full day (6+ hrs)</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(200,151,42,0.3);margin-right:4px;"></span>Partial</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(0,0,0,0.06);margin-right:4px;"></span>Rest/off</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       6. AI RECOMMENDATIONS
+  ══════════════════════════════ -->
+  <div class="section" id="s-ai">
+    <div class="page-header">
+      <h1>AI Study Recommendations</h1>
+      <p>Rule-based suggestions generated from your performance data.</p>
+    </div>
+    <div class="card">
+      <h3>Personalised Action Plan — Today</h3>
+      <div id="rec-list"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       7. DAILY PLANNER
+  ══════════════════════════════ -->
+  <div class="section" id="s-planner">
+    <div class="page-header">
+      <h1>Daily Task Planner</h1>
+      <p>Add and manage tasks for today. Progress saves automatically.</p>
+    </div>
+    <div class="card">
+      <h3 id="planner-date"></h3>
+      <div class="task-input-row">
+        <input type="text" id="task-input" placeholder="Add a new task (e.g. Revise PGBP Chapter 5)…">
+        <button class="btn btn-gold" onclick="addTask()">+ Add</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span style="font-size:0.78rem;color:var(--text-sec);" id="task-counter">0 of 0 tasks completed</span>
+        <button class="btn btn-secondary btn-sm" onclick="clearDoneTasks()">Clear Done</button>
+      </div>
+      <ul class="task-list" id="task-list"></ul>
+      <div class="task-progress-bar"><div class="task-progress-fill" id="task-progress-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       8. PARENT VIEW
+  ══════════════════════════════ -->
+  <div class="section" id="s-parent">
+    <div class="page-header">
+      <h1>Parent View Summary</h1>
+      <p>Simplified overview for parents/guardians — key metrics at a glance.</p>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:18px;">
+      <div class="card" style="background:var(--navy);border-color:transparent;">
+        <div style="font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Student</div>
+        <div style="font-family:'Libre Baskerville',serif;font-size:1.6rem;color:#fff;margin-bottom:4px;">Priya Sharma</div>
+        <div style="font-size:0.82rem;color:var(--gold);">CA Intermediate · Nov 2025</div>
+      </div>
+      <div class="card" style="display:flex;align-items:center;justify-content:center;gap:18px;">
+        <div style="text-align:center;">
+          <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-sec);margin-bottom:6px;">Readiness Status</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+            <span class="readiness-dot dot-yellow"></span>
+            <span style="font-family:'Libre Baskerville',serif;font-size:1.4rem;color:var(--warn);">Moderate</span>
+          </div>
+          <div style="font-size:0.75rem;color:var(--text-mute);margin-top:4px;">Needs consistent effort</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:18px;">
+      <div class="stat-tile">
+        <div class="stat-label">Overall Progress</div>
+        <div class="stat-value gold">67%</div>
+        <div class="stat-sub">Syllabus covered</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Mock Test Avg</div>
+        <div class="stat-value">54%</div>
+        <div class="stat-sub">Passing mark: 40%</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Study Attendance</div>
+        <div class="stat-value" style="color:var(--success);">82%</div>
+        <div class="stat-sub">Last 30 days</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Daily Avg Hours</div>
+        <div class="stat-value">6.1 <span style="font-size:1rem;">hrs</span></div>
+        <div class="stat-sub">Recommended: 8</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Subject Readiness</h3>
+      <div id="parent-subjects"></div>
+    </div>
+  </div>
+
+</div><!-- end .content -->
+
+<!-- Chart.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+<script>
+/* ══════════════════════════════════
+   DATA
+══════════════════════════════════ */
+const STUDENT = {
+  name: 'Priya Sharma',
+  level: 'CA Intermediate',
+  attempt: 'November 2025',
+  examDate: new Date('2025-11-01T09:00:00'),
+  overallPct: 67,
+  consistency: 82
+};
+
+const SUBJECTS = [
+  { name:'Accounts (Financial Reporting)',    short:'Accounts',  completion:78, revision:'Completed',  mockAvg:62, weakCount:3, lastStudy:'2 days ago',  fillClass:'fill-gold'   },
+  { name:'Law (Corporate & Other Laws)',       short:'Law',       completion:55, revision:'In Progress',mockAvg:48, weakCount:6, lastStudy:'Today',        fillClass:'fill-navy'   },
+  { name:'Taxation (IT + GST)',               short:'Taxation',  completion:60, revision:'In Progress',mockAvg:52, weakCount:5, lastStudy:'Yesterday',     fillClass:'fill-gold'   },
+  { name:'Costing (Cost & Mgmt Accounting)',  short:'Costing',   completion:80, revision:'Completed',  mockAvg:68, weakCount:2, lastStudy:'3 days ago',   fillClass:'fill-green'  },
+  { name:'Audit (Advanced Auditing)',         short:'Audit',     completion:45, revision:'Not Started', mockAvg:40, weakCount:8, lastStudy:'5 days ago',   fillClass:'fill-warn'   },
+  { name:'FM / Strategic Mgmt',              short:'FM/SM',     completion:70, revision:'In Progress',mockAvg:58, weakCount:4, lastStudy:'Yesterday',     fillClass:'fill-navy'   },
+];
+
+const WEAK_TOPICS = [
+  { topic:'TDS Provisions & Returns',          subject:'Taxation', priority:'High',   action:'Revise',          pclass:'badge-danger', aclass:'badge-navy' },
+  { topic:'Case Studies — Directors Liability', subject:'Law',      priority:'High',   action:'Practice MCQs',   pclass:'badge-danger', aclass:'badge-navy' },
+  { topic:'Audit Report Drafting',             subject:'Audit',    priority:'High',   action:'Mock Test',       pclass:'badge-danger', aclass:'badge-navy' },
+  { topic:'GST Composition Scheme',            subject:'Taxation', priority:'High',   action:'Revise',          pclass:'badge-danger', aclass:'badge-navy' },
+  { topic:'AS 15 — Employee Benefits',         subject:'Accounts', priority:'Medium', action:'Revise',          pclass:'badge-warn',   aclass:'badge-muted' },
+  { topic:'Capital Budgeting Techniques',      subject:'FM/SM',    priority:'Medium', action:'Practice MCQs',   pclass:'badge-warn',   aclass:'badge-muted' },
+  { topic:'Standard Costing Variances',        subject:'Costing',  priority:'Medium', action:'Practice MCQs',   pclass:'badge-warn',   aclass:'badge-muted' },
+  { topic:'Memorandum & Articles',             subject:'Law',      priority:'Low',    action:'Quick Read',      pclass:'badge-muted',  aclass:'badge-muted' },
+  { topic:'Ratio Analysis',                   subject:'Accounts', priority:'Low',    action:'Quick Read',      pclass:'badge-muted',  aclass:'badge-muted' },
+];
+
+const MOCK_TESTS = [
+  { id:1,  subject:'Taxation',  date:'12 Mar',  marks:38, accuracy:42, time:'2h 10m', prev:null },
+  { id:2,  subject:'Accounts',  date:'18 Mar',  marks:42, accuracy:47, time:'2h 30m', prev:38  },
+  { id:3,  subject:'Law',       date:'22 Mar',  marks:40, accuracy:44, time:'2h 00m', prev:42  },
+  { id:4,  subject:'Costing',   date:'28 Mar',  marks:45, accuracy:50, time:'2h 15m', prev:40  },
+  { id:5,  subject:'Taxation',  date:'3 Apr',   marks:48, accuracy:53, time:'2h 05m', prev:45  },
+  { id:6,  subject:'Audit',     date:'9 Apr',   marks:50, accuracy:55, time:'2h 20m', prev:48  },
+  { id:7,  subject:'FM/SM',     date:'14 Apr',  marks:52, accuracy:58, time:'2h 10m', prev:50  },
+  { id:8,  subject:'Accounts',  date:'17 Apr',  marks:54, accuracy:60, time:'2h 30m', prev:52  },
+  { id:9,  subject:'Law',       date:'19 Apr',  marks:55, accuracy:61, time:'2h 00m', prev:54  },
+  { id:10, subject:'Taxation',  date:'21 Apr',  marks:60, accuracy:67, time:'2h 05m', prev:55  },
+  { id:11, subject:'Costing',   date:'24 Apr',  marks:65, accuracy:72, time:'2h 15m', prev:60  },
+  { id:12, subject:'Audit',     date:'26 Apr',  marks:68, accuracy:75, time:'2h 20m', prev:65  },
+];
+
+const WEEKLY_HOURS = { Mon:6, Tue:7, Wed:5, Thu:8, Fri:6, Sat:7, Sun:4 };
+
+const RECOMMENDATIONS = [
+  { priority:'high',   icon:'📚', title:'Revise TDS Provisions in Taxation',       desc:'You scored below 40% on TDS-related questions in the last 3 mocks. Dedicate 3 hours today to Chapter 7 — TDS & TCS.' },
+  { priority:'high',   icon:'⚖️', title:'Practice Law Case Studies',               desc:'Directors liability and NCLT provisions are frequently tested. Attempt 20 case-based MCQs from ICAI practice manual.' },
+  { priority:'high',   icon:'📋', title:'Start Audit — do not delay further',      desc:'Audit syllabus completion is only 45%. Begin with Standards on Auditing (SA 200 series) today itself.' },
+  { priority:'medium', icon:'🔁', title:'Increase Mock Test Frequency',            desc:'You are averaging 2 mocks per week. Increase to 1 per day this month for each subject group.' },
+  { priority:'medium', icon:'📊', title:'Revise AS 15 — Employee Benefits',        desc:'This standard carries 8–10 marks in exams. Revisit theory + 5 practical illustrations.' },
+  { priority:'low',    icon:'💡', title:'Maintain morning study routine',           desc:'Your productivity score is highest between 6–10 AM. Protect this window and avoid phone use.' },
+];
+
+/* ══════════════════════════════════
+   SIDEBAR NAVIGATION
+══════════════════════════════════ */
+const SECTIONS = { overview:'s-overview', subjects:'s-subjects', weak:'s-weak', mocks:'s-mocks', habits:'s-habits', ai:'s-ai', planner:'s-planner', parent:'s-parent' };
+
+function showSection(key) {
+  Object.values(SECTIONS).forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById(SECTIONS[key]).classList.add('active');
+  document.querySelectorAll('.sidebar-nav a').forEach((a,i) => a.classList.remove('active'));
+  const navLinks = document.querySelectorAll('.sidebar-nav a');
+  const sectionOrder = ['overview','subjects','weak','mocks','habits','ai','planner','parent'];
+  const idx = sectionOrder.indexOf(key);
+  if(navLinks[idx]) navLinks[idx].classList.add('active');
+  if(window.innerWidth <= 768) closeSidebar();
+}
+
+/* ══════════════════════════════════
+   SIDEBAR MOBILE TOGGLE
+══════════════════════════════════ */
+function openSidebar()  { document.getElementById('sidebar').classList.add('open'); document.getElementById('sb-overlay').classList.add('active'); document.getElementById('icon-menu').style.display='none'; document.getElementById('icon-close').style.display='block'; document.body.style.overflow='hidden'; }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sb-overlay').classList.remove('active'); document.getElementById('icon-menu').style.display='block'; document.getElementById('icon-close').style.display='none'; document.body.style.overflow=''; }
+function toggleSidebar() { document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar(); }
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeSidebar(); });
+
+/* ══════════════════════════════════
+   COUNTDOWN TIMER
+══════════════════════════════════ */
+function updateCountdown() {
+  const now  = new Date();
+  const diff = STUDENT.examDate - now;
+  if(diff <= 0) { document.getElementById('cd-days').textContent='0'; return; }
+  const days = Math.floor(diff/86400000);
+  const hrs  = Math.floor((diff%86400000)/3600000);
+  const min  = Math.floor((diff%3600000)/60000);
+  const sec  = Math.floor((diff%60000)/1000);
+  document.getElementById('cd-days').textContent = days;
+  document.getElementById('cd-hrs').textContent  = String(hrs).padStart(2,'0');
+  document.getElementById('cd-min').textContent  = String(min).padStart(2,'0');
+  document.getElementById('cd-sec').textContent  = String(sec).padStart(2,'0');
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+/* ══════════════════════════════════
+   RENDER SUBJECTS
+══════════════════════════════════ */
+function revisionBadge(r) {
+  const map = { 'Completed':'badge-green','In Progress':'badge-gold','Not Started':'badge-danger' };
+  return `<span class="badge ${map[r]||'badge-muted'}">${r}</span>`;
+}
+
+function renderSubjects() {
+  const container = document.getElementById('subject-cards');
+  SUBJECTS.forEach(s => {
+    const scoreColor = s.mockAvg >= 60 ? 'var(--success)' : s.mockAvg >= 45 ? 'var(--gold)' : 'var(--danger)';
+    container.innerHTML += `
+      <div class="card" style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-family:'Libre Baskerville',serif;font-size:1rem;font-weight:400;margin-bottom:4px;">${s.name}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">${revisionBadge(s.revision)} <span class="badge badge-muted">Last: ${s.lastStudy}</span></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-sec);margin-bottom:4px;">Mock Avg</div>
+            <div style="font-size:1.5rem;font-family:'Libre Baskerville',serif;color:${scoreColor};">${s.mockAvg}%</div>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Syllabus Completion</span><strong>${s.completion}%</strong></div>
+          <div class="progress-bar"><div class="progress-fill ${s.fillClass}" style="width:${s.completion}%"></div></div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:16px;font-size:0.8rem;color:var(--text-sec);">
+          <span>Weak topics: <strong style="color:var(--text-pri);">${s.weakCount}</strong></span>
+        </div>
+      </div>`;
+  });
+}
+renderSubjects();
+
+/* ══════════════════════════════════
+   RENDER WEAK TOPICS
+══════════════════════════════════ */
+function renderWeakTopics() {
+  const high  = WEAK_TOPICS.filter(t => t.priority === 'High');
+  const other = WEAK_TOPICS.filter(t => t.priority !== 'High');
+  const makeItem = (t, i) => `
+    <div class="weak-item">
+      <div class="weak-num">${i+1}</div>
+      <div class="weak-info">
+        <div class="wt">${t.topic}</div>
+        <div class="ws">${t.subject}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+        <span class="badge ${t.pclass}">${t.priority}</span>
+        <span class="badge badge-navy" style="font-size:0.58rem;">${t.action}</span>
+      </div>
+    </div>`;
+  document.getElementById('weak-high').innerHTML  = high.map(makeItem).join('');
+  document.getElementById('weak-other').innerHTML = other.map(makeItem).join('');
+}
+renderWeakTopics();
+
+/* ══════════════════════════════════
+   RENDER MOCK TABLE
+══════════════════════════════════ */
+function renderMockTable() {
+  const tbody = document.getElementById('mock-tbody');
+  tbody.innerHTML = MOCK_TESTS.map(m => {
+    const trend = m.prev === null ? '—'
+      : m.marks > m.prev ? `<span style="color:var(--success);">↑ +${m.marks-m.prev}</span>`
+      : m.marks < m.prev ? `<span style="color:var(--danger);">↓ ${m.marks-m.prev}</span>`
+      : '<span style="color:var(--text-mute);">→</span>';
+    return `<tr>
+      <td>${m.id}</td>
+      <td>${m.subject}</td>
+      <td style="color:var(--text-sec);">${m.date}</td>
+      <td><strong>${m.marks}</strong>/100</td>
+      <td>${m.accuracy}%</td>
+      <td style="color:var(--text-sec);">${m.time}</td>
+      <td>${trend}</td>
+    </tr>`;
+  }).join('');
+}
+renderMockTable();
+
+/* ══════════════════════════════════
+   RENDER RECOMMENDATIONS
+══════════════════════════════════ */
+function renderRecs() {
+  document.getElementById('rec-list').innerHTML = RECOMMENDATIONS.map(r => `
+    <div class="rec-item">
+      <div class="rec-icon ${r.priority}"><span style="font-size:16px;">${r.icon}</span></div>
+      <div class="rec-body">
+        <div class="rec-title">${r.title}</div>
+        <div class="rec-desc">${r.desc}</div>
+      </div>
+      <span class="badge badge-${r.priority==='high'?'danger':r.priority==='medium'?'warn':'muted'}" style="flex-shrink:0;align-self:flex-start;">${r.priority}</span>
+    </div>`).join('');
+}
+renderRecs();
+
+/* ══════════════════════════════════
+   STREAK GRID
+══════════════════════════════════ */
+function renderStreak() {
+  const pattern = [1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1];
+  const grid = document.getElementById('streak-grid');
+  grid.innerHTML = pattern.map(v =>
+    `<div class="streak-day ${v===1?'active':v===0.5?'semi':'empty'}" title="${v===1?'Full day':'Rest'}"></div>`
+  ).join('');
+}
+renderStreak();
+
+/* ══════════════════════════════════
+   PARENT VIEW — SUBJECT ROWS
+══════════════════════════════════ */
+function renderParentSubjects() {
+  document.getElementById('parent-subjects').innerHTML = SUBJECTS.map(s => {
+    const status = s.completion >= 70 ? ['badge-green','On Track'] : s.completion >= 50 ? ['badge-warn','Needs Work'] : ['badge-danger','Behind'];
+    return `
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.05);">
+        <div style="flex:1;">
+          <div style="font-size:0.87rem;font-weight:500;margin-bottom:4px;">${s.short}</div>
+          <div class="progress-bar"><div class="progress-fill ${s.fillClass}" style="width:${s.completion}%"></div></div>
+        </div>
+        <div style="min-width:48px;text-align:right;font-size:0.87rem;font-weight:500;">${s.completion}%</div>
+        <span class="badge ${status[0]}">${status[1]}</span>
+      </div>`;
+  }).join('');
+}
+renderParentSubjects();
+
+/* ══════════════════════════════════
+   PLANNER
+══════════════════════════════════ */
+const STORAGE_KEY = 'calm_tasks_v1';
+
+function getPlannerDate() {
+  return new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+
+function loadTasks() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } }
+function saveTasks(tasks) { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
+
+function renderTasks() {
+  const tasks = loadTasks();
+  const list  = document.getElementById('task-list');
+  list.innerHTML = tasks.length === 0
+    ? '<li style="text-align:center;padding:24px;color:var(--text-mute);font-size:0.85rem;">No tasks yet. Add one above.</li>'
+    : tasks.map((t,i) => `
+        <li class="task-item ${t.done?'done':''}" id="task-${i}">
+          <div class="task-check ${t.done?'checked':''}" onclick="toggleTask(${i})"></div>
+          <span class="task-text">${t.text}</span>
+          <button class="task-del" onclick="deleteTask(${i})" title="Delete">×</button>
+        </li>`).join('');
+  const done  = tasks.filter(t=>t.done).length;
+  const total = tasks.length;
+  document.getElementById('task-counter').textContent = `${done} of ${total} task${total!==1?'s':''} completed`;
+  document.getElementById('task-progress-fill').style.width = total ? `${Math.round(done/total*100)}%` : '0%';
+}
+
+function addTask() {
+  const input = document.getElementById('task-input');
+  const text  = input.value.trim();
+  if(!text) return;
+  const tasks = loadTasks();
+  tasks.push({ text, done:false });
+  saveTasks(tasks);
+  input.value = '';
+  renderTasks();
+}
+
+function toggleTask(i) {
+  const tasks = loadTasks();
+  tasks[i].done = !tasks[i].done;
+  saveTasks(tasks);
+  renderTasks();
+}
+
+function deleteTask(i) {
+  const tasks = loadTasks();
+  tasks.splice(i, 1);
+  saveTasks(tasks);
+  renderTasks();
+}
+
+function clearDoneTasks() {
+  saveTasks(loadTasks().filter(t=>!t.done));
+  renderTasks();
+}
+
+document.getElementById('task-input').addEventListener('keydown', e => { if(e.key==='Enter') addTask(); });
+document.getElementById('planner-date').textContent = getPlannerDate();
+
+/* Seed default tasks if first visit */
+if(!localStorage.getItem(STORAGE_KEY)) {
+  const defaults = [
+    { text:'Revise TDS Chapter — Taxation', done:false },
+    { text:'Practice 30 MCQs — Law (Company Law)', done:true  },
+    { text:'Solve 2 Audit case studies', done:false },
+    { text:'Watch ICAI lecture — AS 15', done:false },
+    { text:'Attempt Costing mock test (30 min)', done:true  },
+  ];
+  saveTasks(defaults);
+}
+renderTasks();
+
+/* ══════════════════════════════════
+   CHARTS (Chart.js)
+══════════════════════════════════ */
+function initCharts() {
+  /* Mock test score trend */
+  new Chart(document.getElementById('mockChart'), {
+    type: 'line',
+    data: {
+      labels: MOCK_TESTS.map(m => `#${m.id}`),
+      datasets: [{
+        label: 'Score',
+        data: MOCK_TESTS.map(m => m.marks),
+        borderColor: '#c8972a',
+        backgroundColor: 'rgba(200,151,42,0.08)',
+        borderWidth: 2,
+        pointBackgroundColor: '#c8972a',
+        pointRadius: 4,
+        tension: 0.35,
+        fill: true,
+        pointStyle: 'circle',
+      },{
+        label: 'Pass mark',
+        data: MOCK_TESTS.map(() => 40),
+        borderColor: '#b83232',
+        borderWidth: 1.5,
+        borderDash: [6,4],
+        pointRadius: 0,
+        fill: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}` } }
+      },
+      scales: {
+        y: { min:30, max:80, grid:{ color:'rgba(0,0,0,0.05)' }, ticks:{ color:'#9e9488', font:{size:11} } },
+        x: { grid:{ display:false }, ticks:{ color:'#9e9488', font:{size:11} } }
+      }
+    }
+  });
+
+  /* Weekly bar chart */
+  new Chart(document.getElementById('weeklyChart'), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(WEEKLY_HOURS),
+      datasets:[{
+        label: 'Hours',
+        data: Object.values(WEEKLY_HOURS),
+        backgroundColor: Object.values(WEEKLY_HOURS).map(v => v >= 7 ? '#c8972a' : 'rgba(200,151,42,0.35)'),
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend:{ display:false } },
+      scales: {
+        y: { min:0, max:10, grid:{ color:'rgba(0,0,0,0.05)' }, ticks:{ color:'#9e9488', font:{size:11} } },
+        x: { grid:{ display:false }, ticks:{ color:'#9e9488', font:{size:11} } }
+      }
+    }
+  });
+}
+
+/* Chart.js loads async — wait for DOM + script */
+window.addEventListener('load', initCharts);
+</script>
+</body>
+</html>

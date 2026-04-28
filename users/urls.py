@@ -18,4 +18,5 @@ urlpatterns = [
 
     path("institute/", views.institute_view, name="institute"),
     path("parents/", views.parents_view, name="parents"),
+    path("performance/", views.performance_view, name="performance"),
 ]
