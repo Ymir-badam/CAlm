@@ -222,14 +222,53 @@ def logout_view(request):
     return redirect("login")
 
 
+# def subscription_view(request):
+#     profile = request.user.userprofile
+#     return render(request, "subscription.html", {"profile": profile})
+
+# views.py
+
+PLANS = {
+    "free": {
+        "price": 0,
+        "max_documents": 3,
+        "max_tokens_per_query": 500,
+    },
+    "pro": {
+        "price": 299,
+        "max_documents": 25,
+        "max_tokens_per_query": 4000,
+    },
+    "elite": {
+        "price": 799,
+        "max_documents": -1,       # -1 = unlimited
+        "max_tokens_per_query": 16000,
+    },
+}
+
 def subscription_view(request):
-    profile = request.user.userprofile
-    return render(request, "subscription.html", {"profile": profile})
+    if request.method == "POST":
+        tier = request.POST.get("tier")
+        if tier in PLANS:
+            profile = request.user.profile
+            profile.subscription_tier = tier
+            profile.save()
+        return redirect("subscription")
 
-
+    profile = request.user.profile
+    return render(request, "subscription.html", {
+        "plans": PLANS,
+        "profile": profile,
+    })
 def institute_view(request):
     return render(request, "institute_analytics.html")
 def parents_view(request):
     return render(request, "parents.html")
 def performance_view(request):
     return render(request, "performance.html")
+
+def sample_mock_test(request):
+    return render(request, "mock_test.html")
+
+def sample_pattern(request):
+    return render(request, "pattern.html")

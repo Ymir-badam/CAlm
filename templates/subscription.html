@@ -1,25 +1,797 @@
-{% extends "base.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>CALM — Subscription Plans</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<h2>Subscription Plans</h2>
+        :root {
+            --bg:              #f7f4ef;
+            --sidebar-bg:      #0e1420;
+            --sidebar-width:   260px;
+            --surface:         #ffffff;
+            --surface-hover:   #f1ede5;
+            --gold:            #c8972a;
+            --gold-lt:         #e0b84a;
+            --gold-dim:        rgba(200,151,42,0.11);
+            --navy:            #0e1420;
+            --navy-mid:        #1a2436;
+            --text-primary:    #1a1610;
+            --text-secondary:  #6b6252;
+            --text-muted:      #9e9488;
+            --text-sidebar:    rgba(255,255,255,0.48);
+            --text-sidebar-hi: #ffffff;
+            --border:          rgba(0,0,0,0.08);
+            --border-subtle:   rgba(0,0,0,0.05);
+            --border-sidebar:  rgba(255,255,255,0.06);
+            --danger:          #b83232;
+            --danger-dim:      rgba(184,50,50,0.08);
+            --radius:          13px;
+            --radius-sm:       8px;
+            --topbar-h:        52px;
+        }
 
-{% for tier, data in plans.items %}
-<div class="card">
-    <h3>{{ tier|capfirst }}</h3>
-    <p>Price: ₹{{ data.price }}</p>
-    <p>Max Documents: {{ data.max_documents }}</p>
-    <p>Max Tokens / Query: {{ data.max_tokens_per_query }}</p>
+        html, body {
+            height: 100%;
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
 
-    {% if profile.subscription_tier == tier %}
-        <p><b>Current Plan</b></p>
-    {% else %}
-        <form method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="tier" value="{{ tier }}">
-            <button class="btn">Switch Plan</button>
-        </form>
-    {% endif %}
+        /* ════ SIDEBAR ════ */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--sidebar-bg);
+            position: fixed;
+            top: 0; left: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 200;
+            border-right: 1px solid rgba(255,255,255,0.04);
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .sidebar::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 200px;
+            background: radial-gradient(ellipse 100% 60% at 50% 100%, rgba(200,151,42,0.07) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 26px 22px 22px;
+            border-bottom: 1px solid var(--border-sidebar);
+            position: relative; z-index: 1;
+        }
+
+        .brand-icon {
+            width: 40px; height: 40px;
+            background: rgba(200,151,42,0.1);
+            border: 1px solid rgba(200,151,42,0.22);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .brand-icon svg { width: 20px; height: 20px; }
+
+        .brand-text { display: flex; flex-direction: column; line-height: 1; }
+
+        .brand-text .main {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.3rem; font-weight: 700;
+            color: #ffffff; letter-spacing: -0.01em;
+        }
+
+        .brand-text .sub {
+            font-size: 0.57rem; font-weight: 400;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--gold); margin-top: 4px;
+        }
+
+        .sidebar-nav {
+            padding: 18px 12px;
+            flex: 1;
+            display: flex; flex-direction: column; gap: 2px;
+            position: relative; z-index: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-nav::-webkit-scrollbar { width: 0; }
+
+        .sidebar-section-label {
+            font-size: 0.57rem; font-weight: 600;
+            letter-spacing: 0.22em; text-transform: uppercase;
+            color: rgba(255,255,255,0.18);
+            padding: 0 10px; margin: 10px 0 8px;
+        }
+
+        .sidebar a {
+            display: flex; align-items: center; gap: 11px;
+            color: var(--text-sidebar);
+            text-decoration: none;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem; font-weight: 400;
+            transition: all 0.15s ease;
+            position: relative;
+            border: 1px solid transparent;
+        }
+
+        .nav-icon {
+            width: 18px; height: 18px; flex-shrink: 0;
+            opacity: 0.5; transition: opacity 0.15s;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .nav-icon svg { width: 15px; height: 15px; }
+
+        .sidebar a:hover {
+            color: rgba(255,255,255,0.82);
+            background: rgba(255,255,255,0.055);
+        }
+
+        .sidebar a:hover .nav-icon { opacity: 0.85; }
+
+        .sidebar a.active {
+            color: var(--text-sidebar-hi);
+            background: rgba(200,151,42,0.11);
+            border-color: rgba(200,151,42,0.18);
+            font-weight: 500;
+        }
+
+        .sidebar a.active .nav-icon { opacity: 1; }
+
+        .sidebar a.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 22%; height: 56%;
+            width: 2.5px;
+            background: var(--gold);
+            border-radius: 0 2px 2px 0;
+        }
+
+        .sidebar-footer {
+            padding: 14px 12px;
+            border-top: 1px solid var(--border-sidebar);
+            position: relative; z-index: 1;
+        }
+
+        .sidebar-footer a { color: rgba(255,255,255,0.28) !important; }
+
+        .sidebar-footer a:hover {
+            background: var(--danger-dim) !important;
+            color: #e07070 !important;
+            border-color: rgba(184,50,50,0.18) !important;
+        }
+
+        /* ════ MOBILE TOPBAR ════ */
+        .mobile-topbar {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--topbar-h);
+            background: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-sidebar);
+            z-index: 150;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+        }
+
+        .mobile-brand { display: flex; align-items: center; gap: 10px; }
+        .mobile-brand .brand-icon { width: 32px; height: 32px; border-radius: 8px; }
+        .mobile-brand .brand-icon svg { width: 16px; height: 16px; }
+
+        .mobile-brand-name {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.05rem; font-weight: 700;
+            color: #fff; letter-spacing: -0.01em;
+        }
+
+        .hamburger {
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid var(--border-sidebar);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            color: rgba(255,255,255,0.75);
+            transition: background 0.15s;
+        }
+
+        .hamburger:hover { background: rgba(255,255,255,0.12); }
+        .hamburger svg { width: 18px; height: 18px; }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(14,20,32,0.6);
+            backdrop-filter: blur(3px);
+            z-index: 190;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .sidebar-overlay.active { opacity: 1; }
+
+        /* ════ CONTENT ════ */
+        .content {
+            margin-left: var(--sidebar-width);
+            padding: 48px 56px;
+            min-height: 100vh;
+            animation: fadeUp 0.38s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ════ PAGE HEADER ════ */
+        .page-header { margin-bottom: 36px; }
+
+        .page-header h1 {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 2rem; font-weight: 400;
+            color: var(--text-primary);
+            letter-spacing: -0.02em; line-height: 1.18;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 0.88rem; font-weight: 300;
+            line-height: 1.7;
+        }
+
+        /* ════ PLANS GRID ════ */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0,1fr));
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* ════ PLAN CARD ════ */
+        .plan-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 30px 26px 26px;
+            position: relative;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+            display: flex; flex-direction: column;
+            animation: fadeUp 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+        }
+
+        .plan-card:nth-child(1) { animation-delay: 0.05s; }
+        .plan-card:nth-child(2) { animation-delay: 0.12s; }
+        .plan-card:nth-child(3) { animation-delay: 0.19s; }
+
+        .plan-card:hover {
+            border-color: rgba(200,151,42,0.22);
+            box-shadow: 0 6px 32px rgba(0,0,0,0.07);
+            transform: translateY(-2px);
+        }
+
+        .plan-card.featured {
+            border-color: rgba(200,151,42,0.4);
+            background: linear-gradient(160deg, #fffdf7 0%, #ffffff 60%);
+            box-shadow: 0 4px 24px rgba(200,151,42,0.1);
+        }
+
+        .plan-card.featured:hover {
+            box-shadow: 0 8px 40px rgba(200,151,42,0.16);
+        }
+
+        .plan-card.current {
+            border-color: rgba(14,20,32,0.2);
+            background: linear-gradient(160deg, #f4f6f9 0%, #ffffff 60%);
+        }
+
+        /* ── Featured ribbon ── */
+        .featured-ribbon {
+            position: absolute;
+            top: -1px; right: 22px;
+            background: var(--gold);
+            color: #fff;
+            font-size: 0.6rem; font-weight: 600;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 8px rgba(200,151,42,0.3);
+        }
+
+        /* ── Plan header ── */
+        .plan-name {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.2rem; font-weight: 400;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+            margin-bottom: 5px;
+        }
+
+        .plan-tagline {
+            font-size: 0.78rem; color: var(--text-muted);
+            font-weight: 300; line-height: 1.55;
+            margin-bottom: 22px;
+        }
+
+        /* ── Price ── */
+        .plan-price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
+            margin-bottom: 22px;
+        }
+
+        .price-symbol {
+            font-size: 1rem; font-weight: 500;
+            color: var(--text-secondary);
+            padding-bottom: 3px;
+        }
+
+        .price-amount {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 2.5rem; font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.04em;
+            line-height: 1;
+        }
+
+        .price-period {
+            font-size: 0.75rem; color: var(--text-muted);
+            font-weight: 300; margin-left: 3px;
+        }
+
+        /* ── Divider ── */
+        .plan-divider {
+            height: 1px; background: var(--border);
+            margin: 0 0 20px;
+        }
+
+        /* ── Features ── */
+        .plan-features {
+            list-style: none;
+            display: flex; flex-direction: column;
+            gap: 11px;
+            margin-bottom: 26px;
+            flex: 1;
+        }
+
+        .plan-features li {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 0.835rem;
+            color: var(--text-secondary);
+        }
+
+        .feat-icon {
+            width: 17px; height: 17px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .feat-icon svg { width: 13px; height: 13px; }
+        .feat-on  { color: #2d7a4f; }
+        .feat-off { opacity: 0.38; }
+
+        /* ── Buttons ── */
+        .plan-btn {
+            width: 100%;
+            padding: 11px 18px;
+            border-radius: var(--radius-sm);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.875rem; font-weight: 500;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: all 0.16s ease;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--border);
+        }
+
+        .plan-btn:active { transform: scale(0.97); }
+
+        .plan-btn-default {
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .plan-btn-default:hover {
+            color: var(--text-primary);
+            background: var(--surface-hover);
+            border-color: rgba(0,0,0,0.14);
+            transform: translateY(-1px);
+        }
+
+        .plan-btn-gold {
+            background: var(--gold);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 2px 10px rgba(200,151,42,0.24);
+        }
+
+        .plan-btn-gold:hover {
+            background: #b5851f;
+            box-shadow: 0 4px 18px rgba(200,151,42,0.34);
+            transform: translateY(-1px);
+        }
+
+        .plan-btn-current {
+            background: rgba(14,20,32,0.05);
+            color: var(--text-muted);
+            border-color: rgba(14,20,32,0.08);
+            cursor: default;
+            pointer-events: none;
+            gap: 7px;
+        }
+
+        /* ── Note ── */
+        .sub-note {
+            margin-top: 28px;
+            font-size: 0.775rem;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        /* ════ SCROLLBAR ════ */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+
+        /* ════ RESPONSIVE ════ */
+        @media (max-width: 900px) {
+            .plans-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-topbar { display: flex; }
+            .sidebar-overlay { display: block; pointer-events: none; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); box-shadow: 8px 0 40px rgba(0,0,0,0.3); }
+            .sidebar-overlay.active { pointer-events: all; }
+            .content { margin-left: 0; padding: 24px 18px 40px; padding-top: calc(var(--topbar-h) + 24px); }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-topbar { display: none !important; }
+            .sidebar-overlay { display: none !important; }
+            .sidebar { transform: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Sidebar overlay ── -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- ── Mobile topbar ── -->
+<div class="mobile-topbar">
+    <div class="mobile-brand">
+        <div class="brand-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 6.5C10.5 5.2 8.5 4.5 6 4.5v13c2.5 0 4.5 0.7 6 2 1.5-1.3 3.5-2 6-2v-13c-2.5 0-4.5 0.7-6 1z" stroke="#c8972a" stroke-width="1.5" stroke-linejoin="round"/>
+                <line x1="12" y1="6.5" x2="12" y2="19.5" stroke="#c8972a" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <span class="mobile-brand-name">CALM</span>
+    </div>
+    <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()">
+        <svg id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="3" y1="6"  x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+        <svg id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none;">
+            <line x1="4" y1="4" x2="20" y2="20"/>
+            <line x1="20" y1="4" x2="4" y2="20"/>
+        </svg>
+    </button>
 </div>
-{% endfor %}
 
-{% endblock %}
+<!-- ── Sidebar ── -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 6.5C10.5 5.2 8.5 4.5 6 4.5v13c2.5 0 4.5 0.7 6 2 1.5-1.3 3.5-2 6-2v-13c-2.5 0-4.5 0.7-6 1z" stroke="#c8972a" stroke-width="1.5" stroke-linejoin="round"/>
+                <line x1="12" y1="6.5" x2="12" y2="19.5" stroke="#c8972a" stroke-width="1.4" stroke-linecap="round"/>
+                <line x1="8"  y1="9"   x2="10.5" y2="9"   stroke="#c8972a" stroke-width="1.1" stroke-linecap="round" opacity="0.65"/>
+                <line x1="8"  y1="12"  x2="10.5" y2="12"  stroke="#c8972a" stroke-width="1.1" stroke-linecap="round" opacity="0.65"/>
+                <line x1="13.5" y1="9"  x2="16" y2="9"    stroke="#c8972a" stroke-width="1.1" stroke-linecap="round" opacity="0.65"/>
+                <line x1="13.5" y1="12" x2="16" y2="12"   stroke="#c8972a" stroke-width="1.1" stroke-linecap="round" opacity="0.65"/>
+            </svg>
+        </div>
+        <div class="brand-text">
+            <span class="main">CALm</span>
+            <span class="sub">CA exam helper</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Navigation</div>
+
+        <a href="{% url 'profile' %}">
+            <span class="nav-icon">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="8" cy="5" r="2.8"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+                </svg>
+            </span>
+            Profile
+        </a>
+        <a href="{% url 'performance' %}">
+            <span class="nav-icon">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1.5" y="1.5" width="5" height="5" rx="1"/>
+                    <rect x="9.5" y="1.5" width="5" height="5" rx="1"/>
+                    <rect x="1.5" y="9.5" width="5" height="5" rx="1"/>
+                    <rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
+                </svg>
+            </span>
+            Performance
+        </a>
+        <a href="{% url 'notebook_list' %}">
+            <span class="nav-icon">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="1.5" width="10" height="13" rx="1.5"/>
+                    <line x1="3" y1="5.5" x2="13" y2="5.5"/>
+                    <line x1="6" y1="1.5" x2="6"  y2="14.5"/>
+                    <line x1="8.5" y1="8"   x2="11" y2="8"/>
+                    <line x1="8.5" y1="10.5" x2="11" y2="10.5"/>
+                </svg>
+            </span>
+            Notebooks
+        </a>
+        <a href="{% url 'mock_test' %}">
+            <span class="nav-icon">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 2l3 4H5l3-4z"/><path d="M5 6l3 8 3-8"/><line x1="3" y1="6" x2="13" y2="6"/>
+                </svg>
+            </span>
+            Mock Test
+        </a>
+        <a href="{% url 'pattern' %}">
+            <span class="nav-icon">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 2l3 4H5l3-4z"/><path d="M5 6l3 8 3-8"/><line x1="3" y1="6" x2="13" y2="6"/>
+                </svg>
+            </span>
+            ICAI Exam Pattern
+        </a>
+        <a href="{% url 'subscription' %}" class="active">
+            <span class="nav-icon">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 2l3 4H5l3-4z"/><path d="M5 6l3 8 3-8"/><line x1="3" y1="6" x2="13" y2="6"/>
+                </svg>
+            </span>
+            Subscription
+        </a>
+        <a href="{% url 'dashboard' %}">
+            <span class="nav-icon">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1.5" y="1.5" width="5" height="5" rx="1"/>
+                    <rect x="9.5" y="1.5" width="5" height="5" rx="1"/>
+                    <rect x="1.5" y="9.5" width="5" height="5" rx="1"/>
+                    <rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
+                </svg>
+            </span>
+            Usage Dashboard
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="{% url 'logout' %}">
+            <span class="nav-icon">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/>
+                    <polyline points="10 11 14 8 10 5"/>
+                    <line x1="14" y1="8" x2="6" y2="8"/>
+                </svg>
+            </span>
+            Logout
+        </a>
+    </div>
+</div>
+
+<!-- ── Main content ── -->
+<div class="content">
+
+    <div class="page-header">
+        <h1>Subscription Plans</h1>
+        <p>Choose the plan that fits your exam preparation journey.</p>
+    </div>
+
+    <div class="plans-grid">
+
+        <!-- FREE -->
+        <div class="plan-card current">
+            <div class="plan-name">Free</div>
+            <div class="plan-tagline">Get started — no credit card required.</div>
+            <div class="plan-price-row">
+                <span class="price-symbol">₹</span>
+                <span class="price-amount">0</span>
+                <span class="price-period">/ forever</span>
+            </div>
+            <div class="plan-divider"></div>
+            <ul class="plan-features">
+                <li>
+                    <span class="feat-icon feat-on">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8 6 12 14 4"/></svg>
+                    </span>
+                    Up to 3 documents
+                </li>
+                <li>
+                    <span class="feat-icon feat-on">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8 6 12 14 4"/></svg>
+                    </span>
+                    500 tokens per query
+                </li>
+                <li>
+                    <span class="feat-icon feat-on">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8 6 12 14 4"/></svg>
+                    </span>
+                    AI-powered Notebooks
+                </li>
+                <li class="feat-off">
+                    <span class="feat-icon">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="8" x2="13" y2="8"/></svg>
+                    </span>
+                    Mock tests &amp; analytics
+                </li>
+                <li class="feat-off">
+                    <span class="feat-icon">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="8" x2="13" y2="8"/></svg>
+                    </span>
+                    Priority support
+                </li>
+            </ul>
+            <button class="plan-btn plan-btn-current">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8 6 12 14 4"/></svg>
+                Current plan
+            </button>
+        </div>
+
+        <!-- PRO -->
+        <div class="plan-card featured">
+            <div class="featured-ribbon">Most Popular</div>
+            <div class="plan-name">Pro</div>
+            <div class="plan-tagline">Everything you need to pass on the first attempt.</div>
+            <div class="plan-price-row">
+                <span class="price-symbol">₹</span>
+                <span class="price-amount" id="pro-price">—</span>
+                <span class="price-period">/ month</span>
+            </div>
+            <div class="plan-divider"></div>
+            <ul class="plan-features">
+                <li>
+                    <span class="feat-icon feat-on">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8 6 12 14 4"/></svg>
+                    </span>
+                    Up to 25 documents
+                </li>
+                <li>
+                    <span class="feat-icon feat-on">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8 6 12 14 4"/></svg>
+                    </span>
+                    4,000 tokens per query
+                </li>
+                <li>
+                    <span class="feat-icon feat-on">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8 6 12 14 4"/></svg>
+                    </span>
+                    AI-powered Notebooks
+                </li>
+                <li>
+                    <span class="feat-icon feat-on">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8 6 12 14 4"/></svg>
+                    </span>
+                    Mock tests &amp; analytics
+                </li>
+                <li class="feat-off">
+                    <span class="feat-icon">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="8" x2="13" y2="8"/></svg>
+                    </span>
+                    Priority support
+                </li>
+            </ul>
+            <button class="plan-btn plan-btn-gold">Upgrade to Pro</button>
+        </div>
+
+        <!-- ELITE -->
+        <div class="plan-card">
+            <div class="plan-name">Elite</div>
+            <div class="plan-tagline">Unlimited power for the most serious candidates.</div>
+            <div class="plan-price-row">
+                <span class="price-symbol">₹</span>
+                <span class="price-amount" id="elite-price">—</span>
+                <span class="price-period">/ month</span>
+            </div>
+            <div class="plan-divider"></div>
+            <ul class="plan-features">
+                <li>
+                    <span class="feat-icon feat-on">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8 6 12 14 4"/></svg>
+                    </span>
+                    Unlimited documents
+                </li>
+                <li>
+                    <span class="feat-icon feat-on">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8 6 12 14 4"/></svg>
+                    </span>
+                    16,000 tokens per query
+                </li>
+                <li>
+                    <span class="feat-icon feat-on">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8 6 12 14 4"/></svg>
+                    </span>
+                    AI-powered Notebooks
+                </li>
+                <li>
+                    <span class="feat-icon feat-on">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8 6 12 14 4"/></svg>
+                    </span>
+                    Mock tests &amp; analytics
+                </li>
+                <li>
+                    <span class="feat-icon feat-on">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 8 6 12 14 4"/></svg>
+                    </span>
+                    Priority support
+                </li>
+            </ul>
+            <button class="plan-btn plan-btn-default">Upgrade to Elite</button>
+        </div>
+
+    </div>
+
+    <p class="sub-note">
+        All plans include access to ICAI Exam Pattern insights and Performance tracking.<br>
+        Upgrades take effect immediately. Downgrades apply at the end of your billing cycle.
+    </p>
+
+</div>
+
+<script>
+    function openSidebar() {
+        document.getElementById('sidebar').classList.add('open');
+        document.getElementById('sidebar-overlay').classList.add('active');
+        document.getElementById('icon-menu').style.display  = 'none';
+        document.getElementById('icon-close').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('active');
+        document.getElementById('icon-menu').style.display  = 'block';
+        document.getElementById('icon-close').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar();
+    }
+
+    document.querySelectorAll('.sidebar a').forEach(function(link) {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 768) closeSidebar();
+        });
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeSidebar();
+    });
+</script>
+
+</body>
+</html>

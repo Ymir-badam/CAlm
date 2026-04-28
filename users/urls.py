@@ -19,4 +19,6 @@ urlpatterns = [
     path("institute/", views.institute_view, name="institute"),
     path("parents/", views.parents_view, name="parents"),
     path("performance/", views.performance_view, name="performance"),
+    path("mock-test/", views.sample_mock_test, name="mock_test"),
+    path("pattern/", views.sample_pattern, name="pattern"),
 ]

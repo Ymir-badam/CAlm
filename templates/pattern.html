@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICAI Pattern Intelligence Dashboard — CALm</title>
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN SYSTEM — CALm Intelligence Theme
+   Dark analytical aesthetic, editorial density
+═══════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #0b0f18;
+  --bg-2:         #111620;
+  --bg-3:         #171e2d;
+  --surface:      #1a2133;
+  --surface-2:    #1f2840;
+  --gold:         #c8972a;
+  --gold-lt:      #e0b84a;
+  --gold-dim:     rgba(200,151,42,0.12);
+  --gold-border:  rgba(200,151,42,0.22);
+  --teal:         #2a9d8f;
+  --teal-dim:     rgba(42,157,143,0.12);
+  --coral:        #e07060;
+  --coral-dim:    rgba(224,112,96,0.12);
+  --green:        #3ab07a;
+  --green-dim:    rgba(58,176,122,0.12);
+  --text-pri:     #e8e2d6;
+  --text-sec:     #8a8070;
+  --text-mute:    #4a4438;
+  --border:       rgba(255,255,255,0.06);
+  --border-hi:    rgba(255,255,255,0.1);
+  --radius:       12px;
+  --radius-sm:    7px;
+  --sidebar-w:    240px;
+  --header-h:     58px;
+  --mono:         'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text-pri);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--bg-2);
+  border-right: 1px solid var(--border);
+  position: fixed; top:0; left:0; bottom:0;
+  display: flex; flex-direction: column;
+  z-index: 100; overflow-y: auto;
+}
+.sidebar::-webkit-scrollbar { width: 0; }
+
+.sb-brand {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+}
+.sb-brand-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.sb-brand-icon svg { width: 18px; height: 18px; }
+.sb-brand-name { font-family: 'Libre Baskerville', serif; font-size: 1.1rem; font-weight: 700; color: #fff; }
+.sb-brand-sub  { font-size: 0.54rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-top: 2px; }
+
+.sb-nav { padding: 14px 10px; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.sb-label { font-size: 0.54rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-mute); padding: 0 10px; margin: 10px 0 5px; }
+
+.sb-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 11px; border-radius: var(--radius-sm);
+  color: var(--text-sec); text-decoration: none; font-size: 0.8rem;
+  cursor: pointer; transition: all 0.14s; border: 1px solid transparent;
+}
+.sb-link:hover { color: var(--text-pri); background: rgba(255,255,255,0.04); }
+.sb-link.active { color: var(--gold); background: var(--gold-dim); border-color: var(--gold-border); }
+.sb-link svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.6; }
+.sb-link.active svg { opacity: 1; }
+
+.sb-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 0.72rem; color: var(--text-mute);
+  line-height: 1.6;
+}
+
+/* ── MAIN ── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex; flex-direction: column;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  height: var(--header-h);
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px;
+}
+.topbar-title {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1rem; font-weight: 400; color: var(--text-pri);
+  display: flex; align-items: center; gap: 12px;
+}
+.topbar-title .sep { color: var(--text-mute); }
+.topbar-meta { display: flex; align-items: center; gap: 16px; }
+.topbar-badge {
+  padding: 4px 12px; border-radius: 100px;
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  background: var(--gold-dim); border: 1px solid var(--gold-border); color: var(--gold);
+}
+.topbar-time {
+  font-family: var(--mono);
+  font-size: 0.78rem; color: var(--text-sec);
+}
+
+/* ── CONTENT ── */
+.content {
+  padding: 32px 32px 60px;
+  display: flex; flex-direction: column; gap: 0;
+}
+
+/* ── SECTION ── */
+.section {
+  margin-bottom: 36px;
+  animation: fadeUp 0.4s ease both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.section-header {
+  display: flex; align-items: baseline; gap: 14px;
+  margin-bottom: 18px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: var(--mono);
+  font-size: 0.62rem; color: var(--gold); font-weight: 500;
+  letter-spacing: 0.1em;
+}
+.section-title {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.15rem; font-weight: 400; color: var(--text-pri);
+  letter-spacing: -0.01em;
+}
+.section-desc {
+  font-size: 0.78rem; color: var(--text-sec); margin-left: auto;
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  transition: border-color 0.18s;
+}
+.card:hover { border-color: var(--border-hi); }
+.card-title {
+  font-size: 0.64rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-sec); margin-bottom: 12px;
+}
+
+/* ── GRIDS ── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+
+/* ── STAT TILES ── */
+.stat-tile {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+}
+.stat-lbl { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-sec); margin-bottom: 8px; }
+.stat-val  { font-family: 'Libre Baskerville', serif; font-size: 1.9rem; color: var(--text-pri); line-height: 1; }
+.stat-val.gold  { color: var(--gold); }
+.stat-val.teal  { color: var(--teal); }
+.stat-val.green { color: var(--green); }
+.stat-val.coral { color: var(--coral); }
+.stat-sub  { font-size: 0.72rem; color: var(--text-sec); margin-top: 6px; }
+
+/* ── READINESS GAUGE ── */
+.readiness-wrap {
+  display: flex; align-items: center; gap: 20px;
+  padding: 18px 24px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.gauge-ring { position: relative; width: 90px; height: 90px; flex-shrink: 0; }
+.gauge-ring canvas { display: block; }
+.gauge-val {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Libre Baskerville', serif; font-size: 1.3rem; color: var(--gold);
+}
+.readiness-info { flex: 1; }
+.readiness-label { font-size: 1rem; font-weight: 500; color: var(--text-pri); margin-bottom: 4px; }
+.readiness-sub   { font-size: 0.78rem; color: var(--text-sec); line-height: 1.6; }
+
+/* ── TABLE ── */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+thead th {
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-sec); padding: 0 14px 10px; text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+tbody td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ── BADGES ── */
+.badge {
+  display: inline-flex; align-items: center; padding: 3px 9px;
+  border-radius: 4px; font-size: 0.62rem; font-weight: 600;
+  letter-spacing: 0.07em; text-transform: uppercase; white-space: nowrap;
+}
+.b-high   { background: rgba(224,112,96,0.13);  color: var(--coral); border: 1px solid rgba(224,112,96,0.22); }
+.b-medium { background: var(--gold-dim);         color: var(--gold);  border: 1px solid var(--gold-border); }
+.b-low    { background: rgba(58,176,122,0.1);    color: var(--green); border: 1px solid rgba(58,176,122,0.2); }
+.b-rising { background: rgba(42,157,143,0.12);   color: var(--teal);  border: 1px solid rgba(42,157,143,0.2); }
+.b-stable { background: rgba(255,255,255,0.04);  color: var(--text-sec); border: 1px solid var(--border); }
+.b-decline{ background: rgba(224,112,96,0.09);   color: #c06050;      border: 1px solid rgba(224,112,96,0.15); }
+
+/* ── PROGRESS BARS ── */
+.prog-row { margin: 8px 0; }
+.prog-label-row { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 5px; }
+.prog-label-row .lbl { color: var(--text-sec); }
+.prog-label-row .pct { font-weight: 600; color: var(--text-pri); font-family: var(--mono); }
+.prog-bar { height: 5px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 100px; transition: width 1.2s cubic-bezier(0.22,1,0.36,1); }
+.pf-gold  { background: var(--gold); }
+.pf-teal  { background: var(--teal); }
+.pf-green { background: var(--green); }
+.pf-coral { background: var(--coral); }
+
+/* ── FREQUENCY DOTS ── */
+.freq-dots { display: flex; gap: 4px; align-items: center; }
+.fdot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--text-mute); flex-shrink: 0; transition: background 0.2s;
+}
+.fdot.on { background: var(--gold); }
+.fdot.on.hi { background: var(--coral); }
+
+/* ── PREDICTION CARDS ── */
+.pred-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 12px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg-3);
+  margin-bottom: 8px; transition: border-color 0.15s;
+}
+.pred-item:hover { border-color: var(--border-hi); }
+.pred-prob {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em;
+  text-transform: uppercase; flex-shrink: 0; text-align: center;
+  line-height: 1.2;
+}
+.prob-hi  { background: rgba(224,112,96,0.15);  color: var(--coral); }
+.prob-med { background: var(--gold-dim);         color: var(--gold); }
+.prob-low { background: rgba(58,176,122,0.1);    color: var(--green); }
+.pred-body { flex: 1; }
+.pred-title { font-size: 0.86rem; font-weight: 500; color: var(--text-pri); margin-bottom: 3px; }
+.pred-meta  { font-size: 0.74rem; color: var(--text-sec); display: flex; gap: 12px; flex-wrap: wrap; }
+.pred-action { flex-shrink: 0; }
+
+/* ── REC ITEMS ── */
+.rec-item {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 14px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg-3);
+  margin-bottom: 8px;
+}
+.rec-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.ri-coral { background: var(--coral-dim); }
+.ri-gold  { background: var(--gold-dim); }
+.ri-teal  { background: var(--teal-dim); }
+.ri-green { background: var(--green-dim); }
+.rec-body .rt { font-size: 0.85rem; font-weight: 500; margin-bottom: 3px; color: var(--text-pri); }
+.rec-body .rd { font-size: 0.76rem; color: var(--text-sec); line-height: 1.55; }
+
+/* ── STRATEGY ── */
+.strategy-row {
+  display: flex; align-items: center; gap: 16px;
+  padding: 12px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg-3);
+  margin-bottom: 8px;
+}
+.strategy-rank {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 0.72rem; color: var(--gold);
+  font-weight: 700; flex-shrink: 0;
+}
+.strategy-info { flex: 1; }
+.strategy-subject { font-size: 0.87rem; font-weight: 500; color: var(--text-pri); }
+.strategy-reason  { font-size: 0.74rem; color: var(--text-sec); margin-top: 2px; }
+.strategy-score   { font-family: var(--mono); font-size: 0.8rem; color: var(--gold); flex-shrink: 0; }
+
+/* ── CONFIDENCE METER ── */
+.conf-meter {
+  display: flex; gap: 6px; align-items: center; margin-top: 14px;
+}
+.conf-seg {
+  flex: 1; height: 8px; border-radius: 100px;
+  background: rgba(255,255,255,0.06); overflow: hidden;
+}
+.conf-fill {
+  height: 100%; border-radius: 100px;
+  transition: width 1.5s ease;
+}
+
+/* ── CHART ── */
+.chart-canvas-wrap { position: relative; width: 100%; }
+canvas.trend-chart { display: block; width: 100%; }
+
+/* ── DIVIDER ── */
+.divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+/* ── MONO TEXT ── */
+.mono { font-family: var(--mono); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+
+/* ── RESPONSIVE ── */
+@media(max-width: 1100px) {
+  .g4 { grid-template-columns: repeat(2,1fr); }
+}
+@media(max-width: 900px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { display: none; }
+  .g2, .g3 { grid-template-columns: 1fr; }
+  .content { padding: 20px 16px 40px; }
+  .topbar  { padding: 0 16px; }
+}
+@media(max-width:600px) {
+  .g4 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-icon">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 6.5C10.5 5.2 8.5 4.5 6 4.5v13c2.5 0 4.5.7 6 2 1.5-1.3 3.5-2 6-2v-13c-2.5 0-4.5.7-6 1z" stroke="#c8972a" stroke-width="1.5" stroke-linejoin="round"/>
+        <line x1="12" y1="6.5" x2="12" y2="19.5" stroke="#c8972a" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="sb-brand-name">CALm</div>
+      <div class="sb-brand-sub">Pattern Intelligence</div>
+    </div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-label">Dashboard</div>
+    
+    <a class="sb-link active" href="#s1">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M2 14c0-3 2.7-5.5 6-5.5s6 2.5 6 5.5"/></svg>
+      Exam Context
+    </a>
+    <a class="sb-link" href="#s2">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><line x1="2" y1="6" x2="14" y2="6"/><line x1="5" y1="9" x2="11" y2="9"/><line x1="5" y1="11.5" x2="9" y2="11.5"/></svg>
+      Chapter Weightage
+    </a>
+    <a class="sb-link" href="#s3">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><polyline points="1.5 11 4.5 7 7 9.5 10 5 14.5 8"/></svg>
+      Trend Analysis
+    </a>
+    <a class="sb-link" href="#s4">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><polygon points="8 1.5 10 6 14.5 6.5 11 10 12 14.5 8 12 4 14.5 5 10 1.5 6.5 6 6"/></svg>
+      High Scoring Topics
+    </a>
+    <a class="sb-link" href="#s5">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="5.5"/><polyline points="5.5 8 7.5 10 10.5 6"/></svg>
+      RTP / MTP / PYQ
+    </a>
+    <a class="sb-link" href="#s6">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M8 2l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z"/></svg>
+      Prediction Engine
+    </a>
+    <a class="sb-link" href="#s7">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="2"/></svg>
+      AI Recommendations
+    </a>
+    <a class="sb-link" href="#s8">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="2" y="2" width="12" height="12" rx="2"/><line x1="5" y1="8" x2="11" y2="8"/><line x1="8" y1="5" x2="8" y2="11"/></svg>
+      Exam Strategy
+    </a>
+    <a class="sb-link active" href="{% url 'dashboard' %}">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M2 14c0-3 2.7-5.5 6-5.5s6 2.5 6 5.5"/></svg>
+      Home
+    </a>
+  </nav>
+
+  <div class="sb-footer">
+    Data based on ICAI pattern analysis<br>
+    May 2022 – May 2024
+  </div>
+</aside>
+
+<!-- ════════════════════════════════════════
+     MAIN
+════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-title">
+      ICAI Pattern Intelligence Dashboard
+    </div>
+    <div class="topbar-meta">
+      <span class="topbar-badge" id="exam-level-badge">CA Intermediate</span>
+      <span class="topbar-time mono" id="live-clock">—</span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ══════════════════════════════════
+         SECTION 1 — EXAM CONTEXT
+    ══════════════════════════════════ -->
+    <section class="section" id="s1">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <span class="section-title">Student Exam Context</span>
+        <span class="section-desc">Live preparation snapshot</span>
+      </div>
+
+      <div class="g4" style="margin-bottom:16px;">
+        <div class="stat-tile">
+          <div class="stat-lbl">Student</div>
+          <div style="font-family:'Libre Baskerville',serif;font-size:1.2rem;color:var(--text-pri);line-height:1.2;" id="ctx-name">Priya Sharma</div>
+          <div class="stat-sub" id="ctx-level">CA Intermediate · Group 1+2</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-lbl">Attempt</div>
+          <div class="stat-val gold" id="ctx-attempt">Nov 2025</div>
+          <div class="stat-sub">ICAI Scheduled</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-lbl">Days Remaining</div>
+          <div class="stat-val gold" id="ctx-days">—</div>
+          <div class="stat-sub">Until exam</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-lbl">Study Streak</div>
+          <div class="stat-val teal">14 <span style="font-size:1rem;">days</span></div>
+          <div class="stat-sub">Personal best: 21</div>
+        </div>
+      </div>
+
+      <div class="readiness-wrap">
+        <div class="gauge-ring">
+          <canvas id="gaugeCanvas" width="90" height="90"></canvas>
+          <div class="gauge-val" id="gauge-pct">68%</div>
+        </div>
+        <div class="readiness-info">
+          <div class="readiness-label">Overall Exam Readiness — <span id="readiness-grade" style="color:var(--gold);">Moderate</span></div>
+          <div class="readiness-sub" id="readiness-sub">
+            Syllabus coverage is 68%. 3 subjects are on track; Audit requires urgent attention.
+            Recommended: increase daily hours from 5.2 to 8 and attempt 1 mock per subject per week.
+          </div>
+          <div style="margin-top:12px;display:flex;gap:20px;flex-wrap:wrap;font-size:0.78rem;">
+            <span style="color:var(--text-sec);">Syllabus covered: <strong style="color:var(--text-pri);">68%</strong></span>
+            <span style="color:var(--text-sec);">Mock avg: <strong style="color:var(--gold);">54%</strong></span>
+            <span style="color:var(--text-sec);">Weak subjects: <strong style="color:var(--coral);">2</strong></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         SECTION 2 — CHAPTER WEIGHTAGE
+    ══════════════════════════════════ -->
+    <section class="section" id="s2">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <span class="section-title">Chapter Weightage Tracker</span>
+        <span class="section-desc">Auto-classified by frequency threshold</span>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+          <div class="card-title" style="margin:0;">Filter:</div>
+          <select id="subj-filter" onchange="renderWeightageTable()" style="background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-pri);padding:5px 10px;font-family:'Outfit',sans-serif;font-size:0.8rem;outline:none;cursor:pointer;">
+            <option value="all">All Subjects</option>
+            <option value="Accounts">Accounts</option>
+            <option value="Law">Law</option>
+            <option value="Taxation">Taxation</option>
+            <option value="Costing">Costing</option>
+            <option value="Audit">Audit</option>
+            <option value="FM/Economics">FM / Economics</option>
+          </select>
+          <select id="imp-filter" onchange="renderWeightageTable()" style="background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-pri);padding:5px 10px;font-family:'Outfit',sans-serif;font-size:0.8rem;outline:none;cursor:pointer;">
+            <option value="all">All Importance</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+          <span id="tbl-count" style="margin-left:auto;font-size:0.74rem;color:var(--text-sec);"></span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Chapter</th>
+                <th>Avg Weightage</th>
+                <th>Last 5 Attempts</th>
+                <th>Trend</th>
+                <th>Importance</th>
+              </tr>
+            </thead>
+            <tbody id="weightage-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         SECTION 3 — TREND ANALYSIS
+    ══════════════════════════════════ -->
+    <section class="section" id="s3">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <span class="section-title">Past Attempt Trend Analysis</span>
+        <span class="section-desc">May 2022 – May 2024 · Canvas Chart</span>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <div class="card-title" style="margin:0;">Chapter Appearance Frequency</div>
+          <select id="trend-subj-filter" onchange="drawTrendChart()" style="background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-pri);padding:5px 10px;font-family:'Outfit',sans-serif;font-size:0.8rem;outline:none;cursor:pointer;">
+            <option value="Accounts">Accounts</option>
+            <option value="Taxation">Taxation</option>
+            <option value="Law">Law</option>
+            <option value="Costing">Costing</option>
+            <option value="Audit">Audit</option>
+          </select>
+        </div>
+        <div class="chart-canvas-wrap">
+          <canvas id="trendChart" height="260"></canvas>
+        </div>
+        <!-- Legend dynamically rendered -->
+        <div id="trend-legend" style="display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;"></div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Rising Topics</div>
+          <div id="rising-topics"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Declining Topics</div>
+          <div id="declining-topics"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         SECTION 4 — HIGH SCORING TOPICS
+    ══════════════════════════════════ -->
+    <section class="section" id="s4">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <span class="section-title">High Scoring Topics Indicator</span>
+        <span class="section-desc">High weightage × high accuracy × frequent appearance</span>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Top Scoring Chapters</div>
+          <div id="top-scoring-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Focus Priority Map</div>
+          <div id="focus-priority-map"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         SECTION 5 — RTP / MTP / PYQ
+    ══════════════════════════════════ -->
+    <section class="section" id="s5">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <span class="section-title">RTP / MTP / PYQ Completion Tracker</span>
+        <span class="section-desc">ICAI official study material coverage</span>
+      </div>
+
+      <div class="g3" style="margin-bottom:16px;" id="rtp-cards"></div>
+
+      <div class="g3" id="rtp-pending-cards"></div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         SECTION 6 — PREDICTION ENGINE
+    ══════════════════════════════════ -->
+    <section class="section" id="s6">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <span class="section-title">Expected Questions Prediction Engine</span>
+        <span class="section-desc">Rule-based model: frequency × trend × recency</span>
+      </div>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-title">Prediction Logic</div>
+        <div style="font-size:0.8rem;color:var(--text-sec);line-height:1.7;font-family:var(--mono);background:var(--bg-3);padding:12px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+          IF frequency &gt; 3 AND trend = "rising" AND last_appeared ≤ 2 attempts → <span style="color:var(--coral);">HIGH PROBABILITY</span><br>
+          IF frequency &gt;= 2 AND (trend = "rising" OR last_appeared ≤ 3) → <span style="color:var(--gold);">MEDIUM PROBABILITY</span><br>
+          ELSE → <span style="color:var(--green);">LOW PROBABILITY</span>
+        </div>
+      </div>
+
+      <div id="prediction-list"></div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         SECTION 7 — AI RECOMMENDATIONS
+    ══════════════════════════════════ -->
+    <section class="section" id="s7">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <span class="section-title">AI Study Recommendation Panel</span>
+        <span class="section-desc">Auto-generated from pattern + completion data</span>
+      </div>
+
+      <div id="ai-rec-list"></div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         SECTION 8 — EXAM STRATEGY
+    ══════════════════════════════════ -->
+    <section class="section" id="s8">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <span class="section-title">Exam Strategy Summary</span>
+        <span class="section-desc">Auto-calculated priority order + confidence</span>
+      </div>
+
+      <div class="g2" style="margin-bottom:16px;">
+        <div class="card">
+          <div class="card-title">Smart Subject Priority Order</div>
+          <div id="strategy-priority"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Revision Recommendation Schedule</div>
+          <div id="revision-schedule"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Attempt Confidence Score</div>
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+          <div>
+            <div style="font-family:'Libre Baskerville',serif;font-size:2.5rem;color:var(--gold);line-height:1;" id="conf-score">—</div>
+            <div style="font-size:0.78rem;color:var(--text-sec);margin-top:4px;" id="conf-label">—</div>
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-sec);margin-bottom:6px;">
+              <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+            </div>
+            <div class="conf-meter" id="conf-meter"></div>
+            <div style="font-size:0.74rem;color:var(--text-sec);margin-top:8px;" id="conf-desc">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /content -->
+</main>
+
+<!-- ════════════════════════════════════════
+     JAVASCRIPT — ALL DATA + LOGIC
+════════════════════════════════════════ -->
+<script>
+/* ═══════════════════════════════════════
+   STUDENT DATA
+═══════════════════════════════════════ */
+const STUDENT = {
+  name:      'Priya Sharma',
+  level:     'CA Intermediate',
+  group:     'Group 1+2',
+  attempt:   'Nov 2025',
+  examDate:  new Date('2025-11-01'),
+  readiness: 68,
+  mockAvg:   54,
+  weakSubjects: ['Audit','Law'],
+  streak:    14
+};
+
+/* ═══════════════════════════════════════
+   CHAPTER WEIGHTAGE DATA
+   frequency: how many of last 5 attempts had this chapter
+   trend: 'rising' | 'stable' | 'declining'
+═══════════════════════════════════════ */
+const CHAPTERS = [
+  /* Accounts */
+  { subject:'Accounts',     chapter:'Amalgamation of Companies (AS-14)',    weightage:14, frequency:5, trend:'rising'   },
+  { subject:'Accounts',     chapter:'Internal Reconstruction',              weightage:10, frequency:4, trend:'stable'   },
+  { subject:'Accounts',     chapter:'Banking Company Accounts',             weightage:12, frequency:4, trend:'rising'   },
+  { subject:'Accounts',     chapter:'Insurance Company Accounts',           weightage:8,  frequency:3, trend:'stable'   },
+  { subject:'Accounts',     chapter:'AS 22 — Deferred Tax',                 weightage:8,  frequency:5, trend:'rising'   },
+  { subject:'Accounts',     chapter:'Departmental Accounts',                weightage:6,  frequency:2, trend:'declining'},
+  { subject:'Accounts',     chapter:'Investment Accounts',                  weightage:7,  frequency:3, trend:'stable'   },
+
+  /* Law */
+  { subject:'Law',          chapter:'Meetings (Companies Act)',             weightage:12, frequency:5, trend:'rising'   },
+  { subject:'Law',          chapter:'Directors & Their Powers',             weightage:14, frequency:5, trend:'rising'   },
+  { subject:'Law',          chapter:'Winding Up / Insolvency (IBC)',        weightage:10, frequency:4, trend:'rising'   },
+  { subject:'Law',          chapter:'SEBI Regulations',                     weightage:8,  frequency:3, trend:'stable'   },
+  { subject:'Law',          chapter:'Contract Act — Fundamentals',          weightage:7,  frequency:2, trend:'declining'},
+  { subject:'Law',          chapter:'Negotiable Instruments Act',           weightage:6,  frequency:2, trend:'stable'   },
+
+  /* Taxation */
+  { subject:'Taxation',     chapter:'Income from Business & Profession (PGBP)', weightage:16, frequency:5, trend:'rising' },
+  { subject:'Taxation',     chapter:'TDS & TCS Provisions',                 weightage:10, frequency:5, trend:'rising'   },
+  { subject:'Taxation',     chapter:'GST — Time, Place & Value of Supply',  weightage:12, frequency:5, trend:'rising'   },
+  { subject:'Taxation',     chapter:'Capital Gains',                        weightage:10, frequency:4, trend:'stable'   },
+  { subject:'Taxation',     chapter:'GST — Input Tax Credit',               weightage:10, frequency:5, trend:'rising'   },
+  { subject:'Taxation',     chapter:'Assessment & Appeals',                 weightage:7,  frequency:3, trend:'stable'   },
+  { subject:'Taxation',     chapter:'Salary Income',                        weightage:8,  frequency:3, trend:'declining'},
+
+  /* Costing */
+  { subject:'Costing',      chapter:'Standard Costing & Variance Analysis', weightage:16, frequency:5, trend:'stable'   },
+  { subject:'Costing',      chapter:'Marginal Costing',                     weightage:14, frequency:5, trend:'rising'   },
+  { subject:'Costing',      chapter:'Budget & Budgetary Control',           weightage:12, frequency:4, trend:'stable'   },
+  { subject:'Costing',      chapter:'Process Costing',                      weightage:10, frequency:4, trend:'stable'   },
+  { subject:'Costing',      chapter:'Activity Based Costing',               weightage:8,  frequency:3, trend:'declining'},
+  { subject:'Costing',      chapter:'Pricing Decisions',                    weightage:6,  frequency:2, trend:'declining'},
+
+  /* Audit */
+  { subject:'Audit',        chapter:'Standards on Auditing (SA 200–299)',   weightage:16, frequency:5, trend:'rising'   },
+  { subject:'Audit',        chapter:'Audit Report & CARO',                  weightage:14, frequency:5, trend:'rising'   },
+  { subject:'Audit',        chapter:'Company Audit & Audit Committees',     weightage:12, frequency:4, trend:'stable'   },
+  { subject:'Audit',        chapter:'Risk Assessment & Internal Controls',  weightage:10, frequency:4, trend:'rising'   },
+  { subject:'Audit',        chapter:'Audit Sampling & Evidence',            weightage:8,  frequency:3, trend:'stable'   },
+  { subject:'Audit',        chapter:'Computer Assisted Audit Techniques',   weightage:6,  frequency:2, trend:'declining'},
+
+  /* FM/Economics */
+  { subject:'FM/Economics', chapter:'Capital Budgeting (NPV/IRR)',          weightage:16, frequency:5, trend:'rising'   },
+  { subject:'FM/Economics', chapter:'Working Capital Management',           weightage:14, frequency:5, trend:'rising'   },
+  { subject:'FM/Economics', chapter:'Cost of Capital & Capital Structure',  weightage:12, frequency:4, trend:'stable'   },
+  { subject:'FM/Economics', chapter:'Dividend Policy & Theories',           weightage:8,  frequency:3, trend:'stable'   },
+  { subject:'FM/Economics', chapter:'Leasing & Hire Purchase',              weightage:7,  frequency:2, trend:'declining'},
+  { subject:'FM/Economics', chapter:'Derivatives — Hedging Strategies',     weightage:9,  frequency:3, trend:'rising'   },
+];
+
+/* Auto-classify importance: frequency > 3 = High, 2–3 = Medium, <2 = Low */
+CHAPTERS.forEach(c => {
+  if(c.frequency > 3) c.importance = 'High';
+  else if(c.frequency >= 2) c.importance = 'Medium';
+  else c.importance = 'Low';
+});
+
+/* ═══════════════════════════════════════
+   TREND DATA (frequency per attempt)
+═══════════════════════════════════════ */
+const ATTEMPTS = ['May 22','Nov 22','May 23','Nov 23','May 24'];
+
+const TREND_DATA = {
+  Accounts: [
+    { chapter:'Amalgamation (AS-14)',  data:[2,3,4,4,5], color:'#c8972a' },
+    { chapter:'Banking Accounts',      data:[1,2,3,4,5], color:'#2a9d8f' },
+    { chapter:'AS 22 Deferred Tax',    data:[3,3,4,5,5], color:'#e07060' },
+    { chapter:'Investment Accounts',   data:[3,2,2,3,2], color:'#3ab07a' },
+    { chapter:'Departmental Accounts', data:[4,3,3,2,2], color:'#8a8070' },
+  ],
+  Taxation: [
+    { chapter:'PGBP',              data:[3,4,4,5,5], color:'#c8972a' },
+    { chapter:'TDS/TCS',           data:[2,3,4,5,5], color:'#2a9d8f' },
+    { chapter:'GST — Time/Place',  data:[3,4,4,5,5], color:'#e07060' },
+    { chapter:'Capital Gains',     data:[3,3,4,4,4], color:'#3ab07a' },
+    { chapter:'Salary Income',     data:[4,4,3,3,2], color:'#8a8070' },
+  ],
+  Law: [
+    { chapter:'Directors & Powers', data:[2,3,4,5,5], color:'#c8972a' },
+    { chapter:'Meetings',           data:[3,4,4,5,5], color:'#2a9d8f' },
+    { chapter:'IBC / Winding Up',   data:[1,2,3,4,5], color:'#e07060' },
+    { chapter:'SEBI Regs',          data:[2,2,3,3,4], color:'#3ab07a' },
+    { chapter:'Contract Act',       data:[4,4,3,2,2], color:'#8a8070' },
+  ],
+  Costing: [
+    { chapter:'Standard Costing',  data:[4,4,5,5,5], color:'#c8972a' },
+    { chapter:'Marginal Costing',  data:[3,4,4,5,5], color:'#2a9d8f' },
+    { chapter:'Budget Control',    data:[3,3,4,4,4], color:'#e07060' },
+    { chapter:'Process Costing',   data:[3,3,4,4,3], color:'#3ab07a' },
+    { chapter:'Activity Based',    data:[4,3,3,2,2], color:'#8a8070' },
+  ],
+  Audit: [
+    { chapter:'SA 200–299',         data:[2,3,4,5,5], color:'#c8972a' },
+    { chapter:'Audit Report/CARO',  data:[3,3,4,5,5], color:'#2a9d8f' },
+    { chapter:'Company Audit',      data:[3,3,3,4,4], color:'#e07060' },
+    { chapter:'Risk & Controls',    data:[2,2,3,4,5], color:'#3ab07a' },
+    { chapter:'Audit Sampling',     data:[3,3,3,3,3], color:'#8a8070' },
+  ],
+};
+
+/* ═══════════════════════════════════════
+   PERFORMANCE DATA (for high-scoring logic)
+   accuracy: student's self-accuracy on this topic
+═══════════════════════════════════════ */
+const PERFORMANCE = [
+  { chapter:'Standard Costing',      subject:'Costing',    accuracy:75, weightage:16, frequency:5 },
+  { chapter:'Capital Budgeting',      subject:'FM/Econ',    accuracy:78, weightage:16, frequency:5 },
+  { chapter:'PGBP',                   subject:'Taxation',   accuracy:70, weightage:16, frequency:5 },
+  { chapter:'Amalgamation (AS-14)',   subject:'Accounts',   accuracy:72, weightage:14, frequency:5 },
+  { chapter:'Marginal Costing',       subject:'Costing',    accuracy:68, weightage:14, frequency:5 },
+  { chapter:'Working Capital Mgmt',   subject:'FM/Econ',    accuracy:65, weightage:14, frequency:5 },
+  { chapter:'Directors & Powers',     subject:'Law',        accuracy:55, weightage:14, frequency:5 },
+  { chapter:'GST — ITC',              subject:'Taxation',   accuracy:58, weightage:10, frequency:5 },
+  { chapter:'TDS/TCS',                subject:'Taxation',   accuracy:48, weightage:10, frequency:5 },
+  { chapter:'SA 200–299',             subject:'Audit',      accuracy:42, weightage:16, frequency:5 },
+  { chapter:'Audit Report/CARO',      subject:'Audit',      accuracy:40, weightage:14, frequency:5 },
+  { chapter:'Meetings (Companies)',   subject:'Law',        accuracy:52, weightage:12, frequency:5 },
+];
+
+/* Compute high-scoring score = (accuracy * weightage * frequency) / 100 */
+PERFORMANCE.forEach(p => { p.score = Math.round(p.accuracy * p.weightage * p.frequency / 100); });
+PERFORMANCE.sort((a,b) => b.score - a.score);
+
+/* ═══════════════════════════════════════
+   RTP / MTP / PYQ DATA
+═══════════════════════════════════════ */
+const MATERIAL = {
+  RTP: {
+    label:'Revision Test Papers',
+    desc:'ICAI official RTP for Nov 2025',
+    subjects: [
+      { name:'Accounts',    pct:80 },
+      { name:'Law',         pct:60 },
+      { name:'Taxation',    pct:70 },
+      { name:'Costing',     pct:85 },
+      { name:'Audit',       pct:35 },
+      { name:'FM/Econ',     pct:75 },
+    ],
+    pending: ['Audit — All modules','Law — SEBI & IBC chapters','Taxation — Assessment procedures']
+  },
+  MTP: {
+    label:'Mock Test Papers',
+    desc:'ICAI official MTPs — Series I & II',
+    subjects: [
+      { name:'Accounts',    pct:70 },
+      { name:'Law',         pct:50 },
+      { name:'Taxation',    pct:65 },
+      { name:'Costing',     pct:80 },
+      { name:'Audit',       pct:25 },
+      { name:'FM/Econ',     pct:72 },
+    ],
+    pending: ['Audit — Series I & II full','Law — MTP 2024 series','Taxation — GST MTP questions']
+  },
+  PYQ: {
+    label:'Previous Year Questions',
+    desc:'Last 10 attempts ICAI PYQs',
+    subjects: [
+      { name:'Accounts',    pct:90 },
+      { name:'Law',         pct:65 },
+      { name:'Taxation',    pct:75 },
+      { name:'Costing',     pct:88 },
+      { name:'Audit',       pct:40 },
+      { name:'FM/Econ',     pct:80 },
+    ],
+    pending: ['Audit — Nov 22, May 23 papers','Law — Nov 23, May 24 papers']
+  }
+};
+
+/* ═══════════════════════════════════════
+   PREDICTION ENGINE DATA
+═══════════════════════════════════════ */
+const PREDICTIONS = [
+  { chapter:'GST — Time, Place & Value of Supply', subject:'Taxation', frequency:5, trend:'rising',   lastAppeared:1, recAction:'Master' },
+  { chapter:'SA 200–299 — Standards on Auditing',  subject:'Audit',    frequency:5, trend:'rising',   lastAppeared:1, recAction:'Master' },
+  { chapter:'Directors & Their Powers',             subject:'Law',      frequency:5, trend:'rising',   lastAppeared:1, recAction:'Master' },
+  { chapter:'TDS & TCS Provisions',                subject:'Taxation', frequency:5, trend:'rising',   lastAppeared:1, recAction:'Revise' },
+  { chapter:'Capital Budgeting (NPV/IRR)',          subject:'FM/Econ',  frequency:5, trend:'rising',   lastAppeared:2, recAction:'Revise' },
+  { chapter:'Amalgamation of Companies (AS-14)',   subject:'Accounts', frequency:5, trend:'rising',   lastAppeared:1, recAction:'Master' },
+  { chapter:'IBC / Winding Up',                    subject:'Law',      frequency:4, trend:'rising',   lastAppeared:2, recAction:'Revise' },
+  { chapter:'Audit Report & CARO',                 subject:'Audit',    frequency:5, trend:'rising',   lastAppeared:1, recAction:'Master' },
+  { chapter:'Standard Costing & Variances',        subject:'Costing',  frequency:5, trend:'stable',   lastAppeared:1, recAction:'Revise' },
+  { chapter:'GST — Input Tax Credit',              subject:'Taxation', frequency:5, trend:'rising',   lastAppeared:1, recAction:'Master' },
+  { chapter:'Working Capital Management',          subject:'FM/Econ',  frequency:5, trend:'rising',   lastAppeared:2, recAction:'Revise' },
+  { chapter:'SEBI Regulations',                    subject:'Law',      frequency:3, trend:'stable',   lastAppeared:2, recAction:'Practice'},
+  { chapter:'Budget & Budgetary Control',          subject:'Costing',  frequency:4, trend:'stable',   lastAppeared:2, recAction:'Practice'},
+  { chapter:'Banking Company Accounts',            subject:'Accounts', frequency:4, trend:'rising',   lastAppeared:2, recAction:'Revise' },
+  { chapter:'Derivatives — Hedging',               subject:'FM/Econ',  frequency:3, trend:'rising',   lastAppeared:2, recAction:'Practice'},
+  { chapter:'Departmental Accounts',               subject:'Accounts', frequency:2, trend:'declining',lastAppeared:4, recAction:'Practice'},
+  { chapter:'CAAT',                                subject:'Audit',    frequency:2, trend:'declining',lastAppeared:4, recAction:'Practice'},
+  { chapter:'Activity Based Costing',              subject:'Costing',  frequency:3, trend:'declining',lastAppeared:3, recAction:'Practice'},
+];
+
+/* Classify probability */
+PREDICTIONS.forEach(p => {
+  if(p.frequency > 3 && p.trend === 'rising' && p.lastAppeared <= 2)       p.prob = 'High';
+  else if(p.frequency >= 2 && (p.trend === 'rising' || p.lastAppeared <= 3)) p.prob = 'Medium';
+  else                                                                       p.prob = 'Low';
+});
+PREDICTIONS.sort((a,b) => { const o={High:0,Medium:1,Low:2}; return o[a.prob]-o[b.prob]; });
+
+/* ═══════════════════════════════════════
+   AI RECOMMENDATIONS — generated from data
+═══════════════════════════════════════ */
+function generateRecommendations() {
+  const recs = [];
+  /* Audit — very low RTP/MTP */
+  const auditRTP = MATERIAL.RTP.subjects.find(s=>s.name==='Audit');
+  if(auditRTP.pct < 50) {
+    recs.push({ icon:'⚠', cls:'ri-coral', title:'Urgent: Start Audit RTP & MTP immediately', desc:`Audit RTP completion is only ${auditRTP.pct}%. SA 200–299 is appearing in every attempt with rising trend. Allocate 3 hrs/day for the next 2 weeks.` });
+  }
+  /* Rising high-freq chapters */
+  const risingHigh = CHAPTERS.filter(c=>c.trend==='rising' && c.frequency===5).slice(0,3);
+  risingHigh.forEach(c => {
+    recs.push({ icon:'📈', cls:'ri-gold', title:`Focus: ${c.chapter}`, desc:`Appearing in all 5 recent attempts with a rising trend. ${c.weightage}% average weightage. Prioritise mastery before the exam.` });
+  });
+  /* Weak accuracy high-frequency */
+  const weakHigh = PERFORMANCE.filter(p=>p.accuracy<55 && p.frequency>=4);
+  weakHigh.forEach(p => {
+    recs.push({ icon:'🔁', cls:'ri-teal', title:`Improve accuracy in ${p.chapter}`, desc:`Your accuracy is ${p.accuracy}% on this high-frequency topic. Practice 30 MCQs from ICAI PM + PYQ to push above 65%.` });
+  });
+  /* Mock test frequency recommendation */
+  recs.push({ icon:'📋', cls:'ri-green', title:'Increase mock test frequency to 1 per day', desc:'Current mock average is 54%. Targeting 1 subject-wise mock per day in the final 30 days will significantly improve accuracy and time management.' });
+  /* GST specific */
+  recs.push({ icon:'📚', cls:'ri-gold', title:'Revise GST — ITC and Reverse Charge before exam', desc:'GST Input Tax Credit and Reverse Charge Mechanism appear in every attempt and carry 10%+ weightage. Ensure you can solve numericals in under 8 minutes.' });
+  /* Law case studies */
+  recs.push({ icon:'⚖', cls:'ri-teal', title:'Practice Law case studies (Directors chapter)', desc:'Directors & Powers is the highest-frequency Law chapter. ICAI frequently tests practical application via case studies. Attempt 20 case-based questions per week.' });
+
+  return recs.slice(0,7);
+}
+
+/* ═══════════════════════════════════════
+   STRATEGY DATA — auto-calculated
+═══════════════════════════════════════ */
+function computeStrategy() {
+  /* Priority score = avg_completion * 0.4 + mock_accuracy * 0.3 + avg_frequency * 0.3 */
+  const subjectData = [
+    { subject:'Accounts',    completion:80, accuracy:65, avgFreq:3.7 },
+    { subject:'Law',         completion:55, accuracy:52, avgFreq:3.5 },
+    { subject:'Taxation',    completion:60, accuracy:58, avgFreq:4.2 },
+    { subject:'Costing',     completion:80, accuracy:70, avgFreq:3.8 },
+    { subject:'Audit',       completion:45, accuracy:41, avgFreq:3.4 },
+    { subject:'FM/Econ',     completion:70, accuracy:62, avgFreq:3.5 },
+  ];
+
+  subjectData.forEach(s => {
+    /* Priority = inverse of readiness * frequency = most urgent */
+    const readiness = (s.completion * 0.5 + s.accuracy * 0.5);
+    s.urgencyScore = Math.round((100 - readiness) * 0.6 + s.avgFreq * 8);
+    s.readiness    = Math.round(readiness);
+  });
+
+  /* Sort by urgency (higher urgency = study first) */
+  subjectData.sort((a,b) => b.urgencyScore - a.urgencyScore);
+  return subjectData;
+}
+
+const STRATEGY = computeStrategy();
+
+/* Attempt confidence: weighted avg of readiness + mock + material coverage */
+function computeConfidence() {
+  const allMaterialAvg = (
+    MATERIAL.RTP.subjects.reduce((s,x)=>s+x.pct,0)/6 +
+    MATERIAL.MTP.subjects.reduce((s,x)=>s+x.pct,0)/6 +
+    MATERIAL.PYQ.subjects.reduce((s,x)=>s+x.pct,0)/6
+  ) / 3;
+  const conf = Math.round(STUDENT.readiness * 0.4 + STUDENT.mockAvg * 0.35 + allMaterialAvg * 0.25);
+  return conf;
+}
+
+const CONFIDENCE = computeConfidence();
+
+/* ═══════════════════════════════════════
+   RENDER FUNCTIONS
+═══════════════════════════════════════ */
+
+/* Section 1 — Days remaining */
+function initContextPanel() {
+  document.getElementById('ctx-name').textContent  = STUDENT.name;
+  document.getElementById('ctx-level').textContent = `${STUDENT.level} · ${STUDENT.group}`;
+  document.getElementById('ctx-attempt').textContent = STUDENT.attempt;
+
+  const today = new Date();
+  const diff  = Math.ceil((STUDENT.examDate - today) / 86400000);
+  document.getElementById('ctx-days').textContent = diff > 0 ? diff : 0;
+
+  /* Readiness grade */
+  const r = STUDENT.readiness;
+  let grade, sub;
+  if(r >= 80)      { grade='Excellent'; sub='Strong preparation. Maintain consistency and focus on remaining weak areas.'; }
+  else if(r >= 65) { grade='Moderate';  sub='3 subjects on track. Audit requires urgent attention. Increase study hours to 8/day.'; }
+  else if(r >= 50) { grade='Needs Work';sub='Syllabus coverage below 50% in multiple subjects. Consider intensive revision plan.'; }
+  else             { grade='Critical';  sub='Immediate intervention needed. Prioritise high-weightage chapters exclusively.'; }
+
+  document.getElementById('readiness-grade').textContent = grade;
+  document.getElementById('readiness-sub').textContent   = sub;
+  drawGauge(r);
+}
+
+/* Gauge canvas */
+function drawGauge(pct) {
+  const canvas = document.getElementById('gaugeCanvas');
+  const ctx    = canvas.getContext('2d');
+  const cx=45, cy=45, r=36, lw=7;
+  const startAngle = Math.PI * 0.75;
+  const endAngle   = Math.PI * 2.25;
+  const fillAngle  = startAngle + (endAngle - startAngle) * (pct/100);
+
+  ctx.clearRect(0,0,90,90);
+  /* Track */
+  ctx.beginPath(); ctx.arc(cx,cy,r,startAngle,endAngle);
+  ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=lw; ctx.lineCap='round';
+  ctx.stroke();
+  /* Fill */
+  const grad = ctx.createLinearGradient(0,0,90,0);
+  grad.addColorStop(0,'#c8972a'); grad.addColorStop(1,'#e0b84a');
+  ctx.beginPath(); ctx.arc(cx,cy,r,startAngle,fillAngle);
+  ctx.strokeStyle=grad; ctx.lineWidth=lw; ctx.lineCap='round';
+  ctx.stroke();
+  document.getElementById('gauge-pct').textContent = pct+'%';
+}
+
+/* Section 2 — Weightage table */
+function renderWeightageTable() {
+  const subjFilter = document.getElementById('subj-filter').value;
+  const impFilter  = document.getElementById('imp-filter').value;
+  let data = CHAPTERS;
+  if(subjFilter !== 'all') data = data.filter(c => c.subject === subjFilter);
+  if(impFilter  !== 'all') data = data.filter(c => c.importance === impFilter);
+
+  const impBadge = { High:'<span class="badge b-high">High</span>', Medium:'<span class="badge b-medium">Medium</span>', Low:'<span class="badge b-low">Low</span>' };
+  const trendBadge = { rising:'<span class="badge b-rising">↑ Rising</span>', stable:'<span class="badge b-stable">→ Stable</span>', declining:'<span class="badge b-decline">↓ Declining</span>' };
+
+  const tbody = document.getElementById('weightage-tbody');
+  tbody.innerHTML = data.map(c => {
+    const dots = Array(5).fill(0).map((_,i) => `<div class="fdot${i < c.frequency?' on'+(c.frequency>3?' hi':''):''}"></div>`).join('');
+    return `<tr>
+      <td style="color:var(--text-sec);white-space:nowrap;">${c.subject}</td>
+      <td style="color:var(--text-pri);font-weight:500;">${c.chapter}</td>
+      <td><span class="mono" style="color:var(--gold);">${c.weightage}%</span></td>
+      <td><div class="freq-dots">${dots}<span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-sec);margin-left:6px;">${c.frequency}/5</span></div></td>
+      <td>${trendBadge[c.trend]}</td>
+      <td>${impBadge[c.importance]}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tbl-count').textContent = `${data.length} chapters`;
+}
+
+/* Section 3 — Trend chart */
+function drawTrendChart() {
+  const subj    = document.getElementById('trend-subj-filter').value;
+  const dataset = TREND_DATA[subj] || TREND_DATA['Accounts'];
+  const canvas  = document.getElementById('trendChart');
+  const ctx     = canvas.getContext('2d');
+
+  /* Resize canvas to actual width */
+  const wrapper = canvas.parentElement;
+  canvas.width  = wrapper.clientWidth || 700;
+  canvas.height = 260;
+
+  const W = canvas.width, H = canvas.height;
+  const pad = { top:20, right:20, bottom:40, left:40 };
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top  - pad.bottom;
+  const pts    = ATTEMPTS.length;
+  const maxVal = 6;
+
+  ctx.clearRect(0,0,W,H);
+
+  /* Grid lines */
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth   = 1;
+  for(let v=0; v<=maxVal; v++) {
+    const y = pad.top + chartH - (v/maxVal)*chartH;
+    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(pad.left+chartW,y); ctx.stroke();
+    ctx.fillStyle = 'rgba(138,128,112,0.6)';
+    ctx.font      = '10px JetBrains Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(v, pad.left-6, y+4);
+  }
+
+  /* X axis labels */
+  ctx.fillStyle = 'rgba(138,128,112,0.8)';
+  ctx.font      = '10px Outfit, sans-serif';
+  ctx.textAlign = 'center';
+  ATTEMPTS.forEach((lbl,i) => {
+    const x = pad.left + (i/(pts-1))*chartW;
+    ctx.fillText(lbl, x, H-8);
+    /* Vertical tick */
+    ctx.strokeStyle='rgba(255,255,255,0.04)';
+    ctx.beginPath(); ctx.moveTo(x,pad.top); ctx.lineTo(x,pad.top+chartH); ctx.stroke();
+  });
+
+  /* Lines */
+  dataset.forEach(ds => {
+    const pts2 = ds.data;
+    /* Shadow */
+    ctx.save();
+    ctx.shadowColor   = ds.color;
+    ctx.shadowBlur    = 8;
+    ctx.strokeStyle   = ds.color;
+    ctx.lineWidth     = 2.5;
+    ctx.lineJoin      = 'round';
+    ctx.lineCap       = 'round';
+    ctx.beginPath();
+    pts2.forEach((val,i) => {
+      const x = pad.left + (i/(pts-1))*chartW;
+      const y = pad.top + chartH - (val/maxVal)*chartH;
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    ctx.restore();
+
+    /* Dots */
+    pts2.forEach((val,i) => {
+      const x = pad.left + (i/(pts-1))*chartW;
+      const y = pad.top + chartH - (val/maxVal)*chartH;
+      ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2);
+      ctx.fillStyle = ds.color;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth   = 1;
+      ctx.stroke();
+    });
+  });
+
+  /* Legend */
+  const legend = document.getElementById('trend-legend');
+  legend.innerHTML = dataset.map(ds =>
+    `<span style="display:flex;align-items:center;gap:6px;font-size:0.74rem;color:var(--text-sec);">
+      <span style="width:14px;height:3px;border-radius:2px;background:${ds.color};flex-shrink:0;"></span>
+      ${ds.chapter}
+    </span>`
+  ).join('');
+
+  /* Rising / declining */
+  const risingEl   = document.getElementById('rising-topics');
+  const decliningEl = document.getElementById('declining-topics');
+  const rising   = CHAPTERS.filter(c=>c.subject===subj && c.trend==='rising');
+  const declining= CHAPTERS.filter(c=>c.subject===subj && c.trend==='declining');
+
+  const mkItem = (c,badge) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+    <span style="font-size:0.8rem;color:var(--text-pri);">${c.chapter}</span>
+    ${badge}
+  </div>`;
+
+  risingEl.innerHTML   = rising.length   ? rising.map(c   => mkItem(c,'<span class="badge b-rising">↑ Rising</span>')).join('') : '<p style="color:var(--text-mute);font-size:0.8rem;">None for this subject</p>';
+  decliningEl.innerHTML= declining.length ? declining.map(c => mkItem(c,'<span class="badge b-decline">↓ Declining</span>')).join('') : '<p style="color:var(--text-mute);font-size:0.8rem;">None for this subject</p>';
+}
+
+/* Section 4 — High scoring */
+function renderHighScoring() {
+  const list = document.getElementById('top-scoring-list');
+  list.innerHTML = PERFORMANCE.slice(0,8).map((p,i) => {
+    const barColor = p.accuracy>=70?'pf-green':p.accuracy>=55?'pf-gold':'pf-coral';
+    return `<div style="margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">
+        <span class="mono" style="font-size:0.68rem;color:var(--gold);min-width:20px;">#${i+1}</span>
+        <span style="font-size:0.82rem;font-weight:500;flex:1;">${p.chapter}</span>
+        <span class="badge b-${p.subject==='Costing'||p.subject==='FM/Econ'?'low':p.subject==='Audit'||p.subject==='Law'?'high':'medium'}" style="font-size:0.58rem;">${p.subject}</span>
+      </div>
+      <div class="prog-row">
+        <div class="prog-label-row">
+          <span class="lbl">Your accuracy</span>
+          <span class="pct">${p.accuracy}%</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill ${barColor}" style="width:${p.accuracy}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  /* Focus priority map */
+  const fpm = document.getElementById('focus-priority-map');
+  /* Quick win = high accuracy + high frequency */
+  const quickWins = PERFORMANCE.filter(p=>p.accuracy>=65 && p.frequency>=4);
+  const needsWork = PERFORMANCE.filter(p=>p.accuracy<55  && p.frequency>=4);
+  const maintain  = PERFORMANCE.filter(p=>p.accuracy>=55 && p.accuracy<65 && p.frequency>=3);
+
+  const mkGroup = (label,items,color,badge) =>
+    `<div style="margin-bottom:14px;">
+      <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${color};margin-bottom:6px;">${label}</div>
+      ${items.slice(0,3).map(p=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+        <span style="font-size:0.8rem;color:var(--text-pri);">${p.chapter}</span>
+        ${badge}
+      </div>`).join('')}
+    </div>`;
+
+  fpm.innerHTML  = mkGroup('Quick Wins — Reinforce',quickWins,'var(--green)','<span class="badge b-low">Reinforce</span>')
+                 + mkGroup('Needs Work — Priority',needsWork,'var(--coral)','<span class="badge b-high">Urgent</span>')
+                 + mkGroup('Maintain — Moderate',maintain,'var(--gold)','<span class="badge b-medium">Keep Up</span>');
+}
+
+/* Section 5 — RTP/MTP/PYQ */
+function renderMaterialTracker() {
+  const cards   = document.getElementById('rtp-cards');
+  const pending = document.getElementById('rtp-pending-cards');
+  const matTypes = ['RTP','MTP','PYQ'];
+  const colors   = ['pf-gold','pf-teal','pf-green'];
+
+  cards.innerHTML = matTypes.map((type,idx) => {
+    const m = MATERIAL[type];
+    const avg = Math.round(m.subjects.reduce((s,x)=>s+x.pct,0)/m.subjects.length);
+    return `<div class="card">
+      <div class="card-title">${m.label}</div>
+      <div style="font-family:'Libre Baskerville',serif;font-size:2rem;color:var(--gold);line-height:1;margin-bottom:4px;">${avg}%</div>
+      <div style="font-size:0.74rem;color:var(--text-sec);margin-bottom:14px;">${m.desc}</div>
+      ${m.subjects.map(s => `<div class="prog-row">
+        <div class="prog-label-row"><span class="lbl">${s.name}</span><span class="pct">${s.pct}%</span></div>
+        <div class="prog-bar"><div class="prog-fill ${colors[idx]}" style="width:${s.pct}%"></div></div>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+
+  pending.innerHTML = matTypes.map((type,idx) => {
+    const m = MATERIAL[type];
+    return `<div class="card">
+      <div class="card-title">${type} — Pending Chapters</div>
+      ${m.pending.map(p=>`<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+        <span style="color:var(--coral);margin-top:2px;font-size:12px;">○</span>
+        <span style="font-size:0.8rem;color:var(--text-sec);">${p}</span>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+/* Section 6 — Predictions */
+function renderPredictions() {
+  const el = document.getElementById('prediction-list');
+  const probBadge = { High:'<span class="badge b-high">High Probability</span>', Medium:'<span class="badge b-medium">Medium</span>', Low:'<span class="badge b-low">Low</span>' };
+  const probCls   = { High:'prob-hi', Medium:'prob-med', Low:'prob-low' };
+  const actCls    = { Master:'b-high', Revise:'b-medium', Practice:'b-low' };
+
+  el.innerHTML = PREDICTIONS.map(p => `
+    <div class="pred-item">
+      <div class="pred-prob ${probCls[p.prob]}">${p.prob.toUpperCase()}</div>
+      <div class="pred-body">
+        <div class="pred-title">${p.chapter}</div>
+        <div class="pred-meta">
+          <span>${p.subject}</span>
+          <span>Freq: ${p.frequency}/5</span>
+          <span>Trend: ${p.trend}</span>
+          <span>Last: ${p.lastAppeared} attempt(s) ago</span>
+        </div>
+      </div>
+      <div class="pred-action">
+        ${probBadge[p.prob]}
+        <div style="margin-top:5px;text-align:right;"><span class="badge ${actCls[p.recAction]}">${p.recAction}</span></div>
+      </div>
+    </div>`).join('');
+}
+
+/* Section 7 — AI Recs */
+function renderRecommendations() {
+  const recs = generateRecommendations();
+  const el   = document.getElementById('ai-rec-list');
+  el.innerHTML = recs.map(r => `
+    <div class="rec-item">
+      <div class="rec-icon ${r.cls}"><span style="font-size:14px;">${r.icon}</span></div>
+      <div class="rec-body">
+        <div class="rt">${r.title}</div>
+        <div class="rd">${r.desc}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* Section 8 — Strategy */
+function renderStrategy() {
+  /* Priority order */
+  const prEl = document.getElementById('strategy-priority');
+  prEl.innerHTML = STRATEGY.map((s,i) => `
+    <div class="strategy-row">
+      <div class="strategy-rank">${i+1}</div>
+      <div class="strategy-info">
+        <div class="strategy-subject">${s.subject}</div>
+        <div class="strategy-reason">Readiness: ${s.readiness}% · Urgency score: ${s.urgencyScore}</div>
+      </div>
+      <span class="strategy-score mono">${s.urgencyScore}</span>
+    </div>`).join('');
+
+  /* Revision schedule */
+  const schedData = [
+    { week:'Week 1–2',  focus:'Audit (SA 200–299, Audit Report)',     hrs:'3 hrs/day', priority:'high'   },
+    { week:'Week 3–4',  focus:'Taxation (GST ITC, TDS, PGBP)',        hrs:'3 hrs/day', priority:'high'   },
+    { week:'Week 5',    focus:'Law (Directors, Meetings, IBC)',        hrs:'2 hrs/day', priority:'medium' },
+    { week:'Week 6',    focus:'Accounts (Amalgamation, AS-22)',        hrs:'2 hrs/day', priority:'medium' },
+    { week:'Week 7',    focus:'FM/Econ (Capital Budgeting, WCM)',      hrs:'2 hrs/day', priority:'medium' },
+    { week:'Final Week',focus:'Full revision + 2 Mock Tests/Subject',  hrs:'Full day',  priority:'high'   },
+  ];
+  const prioColor = { high:'var(--coral)', medium:'var(--gold)', low:'var(--green)' };
+  const rsEl = document.getElementById('revision-schedule');
+  rsEl.innerHTML = schedData.map(s=>`
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+      <div style="font-family:var(--mono);font-size:0.68rem;color:var(--text-mute);min-width:70px;padding-top:2px;">${s.week}</div>
+      <div style="flex:1;">
+        <div style="font-size:0.82rem;color:var(--text-pri);">${s.focus}</div>
+        <div style="font-size:0.72rem;color:var(--text-sec);margin-top:2px;">${s.hrs}</div>
+      </div>
+      <div style="width:6px;height:6px;border-radius:50%;background:${prioColor[s.priority]};margin-top:6px;flex-shrink:0;"></div>
+    </div>`).join('');
+
+  /* Confidence score */
+  document.getElementById('conf-score').textContent = CONFIDENCE + '%';
+  let confLabel, confDesc;
+  if(CONFIDENCE>=75)     { confLabel='High Confidence';   confDesc='Well-prepared. Focus on weak areas and maintain current pace.'; }
+  else if(CONFIDENCE>=55){ confLabel='Moderate Confidence';confDesc='On track but 2–3 subjects need intensive work. Increase daily hours.'; }
+  else if(CONFIDENCE>=40){ confLabel='Low Confidence';    confDesc='Immediate intervention required. Focus only on high-weightage chapters.'; }
+  else                   { confLabel='Critical';          confDesc='Emergency study plan needed. Consult coaching for structured guidance.'; }
+  document.getElementById('conf-label').textContent = confLabel;
+  document.getElementById('conf-desc').textContent  = confDesc;
+
+  /* Confidence meter — 20 segments */
+  const meterEl = document.getElementById('conf-meter');
+  const segs = 20;
+  const fill  = Math.round(CONFIDENCE / 100 * segs);
+  meterEl.innerHTML = Array(segs).fill(0).map((_,i) => {
+    const on    = i < fill;
+    const color = i < segs*0.4 ? '#b83232' : i < segs*0.65 ? '#c8972a' : '#3ab07a';
+    return `<div class="conf-seg"><div class="conf-fill" style="width:${on?100:0}%;background:${color};"></div></div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════
+   LIVE CLOCK
+═══════════════════════════════════════ */
+function tickClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  const el = document.getElementById('live-clock');
+  if(el) el.textContent = `${h}:${m}:${s}`;
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+/* ═══════════════════════════════════════
+   SIDEBAR LINK ACTIVE HIGHLIGHT
+═══════════════════════════════════════ */
+const sbLinks = document.querySelectorAll('.sb-link');
+const sections = ['s1','s2','s3','s4','s5','s6','s7','s8'];
+window.addEventListener('scroll', () => {
+  let current = 's1';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if(el && el.getBoundingClientRect().top < 100) current = id;
+  });
+  sbLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#'+current);
+  });
+}, { passive:true });
+
+/* ═══════════════════════════════════════
+   INIT — run all renderers on load
+═══════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  initContextPanel();
+  renderWeightageTable();
+  drawTrendChart();
+  renderHighScoring();
+  renderMaterialTracker();
+  renderPredictions();
+  renderRecommendations();
+  renderStrategy();
+
+  /* Progress bar animate after paint */
+  setTimeout(() => {
+    document.querySelectorAll('.prog-fill').forEach(el => {
+      const w = el.style.width;
+      el.style.width = '0%';
+      requestAnimationFrame(() => { el.style.width = w; });
+    });
+  }, 100);
+});
+
+/* Redraw chart on resize */
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(drawTrendChart, 150);
+});
+</script>
+
+</body>
+</html>

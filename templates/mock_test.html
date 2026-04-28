@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CALm — Mock Test</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #f7f4ef;
+  --surface:      #ffffff;
+  --navy:         #0e1420;
+  --navy-mid:     #1a2436;
+  --gold:         #c8972a;
+  --gold-dim:     rgba(200,151,42,0.12);
+  --gold-border:  rgba(200,151,42,0.25);
+  --text-pri:     #1a1610;
+  --text-sec:     #6b6252;
+  --text-mute:    #9e9488;
+  --border:       rgba(0,0,0,0.08);
+  --border-md:    rgba(0,0,0,0.12);
+  --danger:       #b83232;
+  --danger-dim:   rgba(184,50,50,0.09);
+  --success:      #2d7a4f;
+  --success-dim:  rgba(45,122,79,0.09);
+  --radius:       14px;
+  --radius-sm:    9px;
+  --radius-xs:    6px;
+  --panel-w:      280px;
+  --header-h:     64px;
+}
+
+html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text-pri); -webkit-font-smoothing:antialiased; overflow:hidden; }
+
+/* ════════════════ SCREENS ════════════════ */
+.screen { position:fixed; inset:0; display:none; flex-direction:column; overflow:hidden; }
+.screen.active { display:flex; }
+
+/* ════════════════ START SCREEN ════════════════ */
+#screen-start {
+  background: var(--navy);
+  align-items: center; justify-content: center;
+  animation: fadeIn 0.4s ease;
+}
+
+.start-bg {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+}
+.start-bg::before {
+  content:'';
+  position:absolute; top:-20%; left:-10%;
+  width:600px; height:600px; border-radius:50%;
+  background: radial-gradient(circle, rgba(200,151,42,0.07) 0%, transparent 65%);
+}
+.start-bg::after {
+  content:'';
+  position:absolute; bottom:-15%; right:-10%;
+  width:500px; height:500px; border-radius:50%;
+  background: radial-gradient(circle, rgba(200,151,42,0.05) 0%, transparent 65%);
+}
+
+.start-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 48px 52px;
+  width: min(560px, 92vw);
+  position: relative; z-index: 1;
+  animation: slideUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+@keyframes slideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+
+.brand-row {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 36px;
+}
+.brand-icon {
+  width:44px; height:44px;
+  background: rgba(200,151,42,0.12);
+  border: 1px solid rgba(200,151,42,0.25);
+  border-radius: 11px;
+  display:flex; align-items:center; justify-content:center;
+}
+.brand-icon svg { width:22px; height:22px; }
+.brand-name { font-family:'Libre Baskerville',serif; font-size:1.5rem; font-weight:700; color:#fff; }
+.brand-sub  { font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-top:3px; }
+
+.start-title { font-family:'Libre Baskerville',serif; font-size:1.9rem; font-weight:400; color:#fff; line-height:1.2; margin-bottom:8px; }
+.start-desc  { font-size:0.88rem; color:rgba(255,255,255,0.45); line-height:1.65; margin-bottom:32px; }
+
+.config-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:28px; }
+.config-field label {
+  display:block; font-size:0.62rem; font-weight:600; letter-spacing:0.14em;
+  text-transform:uppercase; color:rgba(255,255,255,0.35); margin-bottom:6px;
+}
+.config-field select, .config-field input {
+  width:100%; padding:10px 13px;
+  background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.1);
+  border-radius:var(--radius-sm); color:#fff;
+  font-family:'Outfit',sans-serif; font-size:0.85rem; outline:none;
+  transition:border-color 0.15s, box-shadow 0.15s; -webkit-appearance:none; appearance:none;
+}
+.config-field select:focus, .config-field input:focus {
+  border-color:var(--gold-border); box-shadow:0 0 0 3px rgba(200,151,42,0.12);
+}
+.config-field select option { background:#1a2436; color:#fff; }
+
+.test-info-row {
+  display:flex; gap:10px; flex-wrap:wrap; margin-bottom:28px;
+}
+.info-pill {
+  display:flex; align-items:center; gap:7px;
+  padding:7px 14px; border-radius:100px;
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+  font-size:0.78rem; color:rgba(255,255,255,0.55);
+}
+.info-pill svg { width:13px; height:13px; opacity:0.7; }
+
+.btn-start {
+  width:100%; padding:14px; border:none; border-radius:var(--radius-sm);
+  background:var(--gold); color:#fff;
+  font-family:'Outfit',sans-serif; font-size:1rem; font-weight:600;
+  cursor:pointer; letter-spacing:0.02em;
+  transition:all 0.18s ease; box-shadow:0 4px 20px rgba(200,151,42,0.3);
+}
+.btn-start:hover { background:#b5851f; transform:translateY(-1px); box-shadow:0 6px 28px rgba(200,151,42,0.38); }
+.btn-start:active { transform:scale(0.98); }
+
+/* ════════════════ TEST SCREEN ════════════════ */
+#screen-test { background:var(--bg); display:none; flex-direction:row; }
+#screen-test.active { display:flex; }
+
+/* Header */
+.test-header {
+  position: fixed; top:0; left:0; right:0; height:var(--header-h);
+  background:var(--navy); z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 24px; border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.header-left { display:flex; align-items:center; gap:18px; }
+.header-brand { font-family:'Libre Baskerville',serif; font-size:1.1rem; color:#fff; font-weight:700; }
+.header-meta  { font-size:0.78rem; color:rgba(255,255,255,0.4); }
+.header-center { display:flex; align-items:center; gap:12px; }
+
+/* Timer */
+.timer-wrap {
+  display:flex; align-items:center; gap:10px;
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+  border-radius:var(--radius-sm); padding:8px 16px;
+}
+.timer-display {
+  font-family:'Libre Baskerville',serif; font-size:1.3rem;
+  color:var(--gold); letter-spacing:0.05em; font-weight:700;
+  min-width:72px; text-align:center;
+}
+.timer-display.warn  { color:#e07a7a; }
+.timer-label { font-size:0.62rem; text-transform:uppercase; letter-spacing:0.12em; color:rgba(255,255,255,0.3); }
+
+.header-right { display:flex; align-items:center; gap:10px; }
+.btn-submit-hdr {
+  padding:8px 20px; background:var(--gold); border:none; border-radius:var(--radius-sm);
+  color:#fff; font-family:'Outfit',sans-serif; font-size:0.84rem; font-weight:600;
+  cursor:pointer; transition:all 0.15s;
+}
+.btn-submit-hdr:hover { background:#b5851f; }
+
+/* Question panel */
+.test-main {
+  margin-top:var(--header-h);
+  flex:1; overflow-y:auto; padding:32px 32px 32px 32px;
+  margin-right:var(--panel-w);
+}
+
+/* Question */
+.q-meta {
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:20px; flex-wrap:wrap;
+}
+.q-num-badge {
+  background:var(--navy); color:var(--gold);
+  font-family:'Libre Baskerville',serif; font-size:0.9rem; font-weight:700;
+  padding:5px 14px; border-radius:100px;
+}
+.q-subject-badge {
+  font-size:0.65rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+  padding:4px 10px; border-radius:4px;
+  background:var(--gold-dim); color:var(--gold); border:1px solid var(--gold-border);
+}
+.q-marks-badge {
+  font-size:0.7rem; color:var(--text-mute); padding:4px 10px;
+  background:rgba(0,0,0,0.04); border-radius:4px; border:1px solid var(--border);
+}
+
+.q-card {
+  background:var(--surface); border-radius:var(--radius); border:1px solid var(--border);
+  padding:32px 36px; margin-bottom:20px;
+  animation:qSlide 0.3s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes qSlide { from{opacity:0;transform:translateX(12px)} to{opacity:1;transform:translateX(0)} }
+
+.q-text {
+  font-family:'Libre Baskerville',serif; font-size:1.08rem; line-height:1.75;
+  color:var(--text-pri); margin-bottom:28px; font-weight:400;
+}
+.q-text .highlight { background:rgba(200,151,42,0.12); padding:1px 4px; border-radius:3px; }
+
+/* Options */
+.options-list { list-style:none; display:flex; flex-direction:column; gap:11px; }
+.option-item {
+  display:flex; align-items:flex-start; gap:14px;
+  padding:15px 18px; border-radius:var(--radius-sm);
+  border:1.5px solid var(--border); background:var(--surface);
+  cursor:pointer; transition:all 0.16s ease; position:relative;
+  user-select:none;
+}
+.option-item:hover { border-color:var(--gold-border); background:var(--gold-dim); }
+.option-item.selected {
+  border-color:var(--gold); background:rgba(200,151,42,0.09);
+  box-shadow:0 0 0 1px var(--gold);
+}
+.option-item.correct  { border-color:var(--success) !important; background:var(--success-dim) !important; box-shadow:none !important; }
+.option-item.wrong    { border-color:var(--danger)  !important; background:var(--danger-dim)  !important; box-shadow:none !important; }
+.option-item.show-correct { border-color:var(--success); background:var(--success-dim); }
+
+.opt-letter {
+  width:28px; height:28px; border-radius:50%; flex-shrink:0;
+  border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center;
+  font-size:0.78rem; font-weight:600; color:var(--text-sec);
+  transition:all 0.15s;
+}
+.option-item.selected .opt-letter   { background:var(--gold); border-color:var(--gold); color:#fff; }
+.option-item.correct  .opt-letter   { background:var(--success); border-color:var(--success); color:#fff; }
+.option-item.wrong    .opt-letter   { background:var(--danger);  border-color:var(--danger);  color:#fff; }
+.option-item.show-correct .opt-letter { background:var(--success); border-color:var(--success); color:#fff; }
+
+.opt-text { font-size:0.9rem; line-height:1.6; color:var(--text-pri); padding-top:3px; flex:1; }
+
+/* Explanation box */
+.explanation-box {
+  margin-top:18px; padding:18px 20px; border-radius:var(--radius-sm);
+  background:rgba(45,122,79,0.06); border:1px solid rgba(45,122,79,0.18);
+  animation:fadeIn 0.3s ease;
+}
+.explanation-box.wrong-exp { background:rgba(184,50,50,0.05); border-color:rgba(184,50,50,0.15); }
+.exp-label { font-size:0.65rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--success); margin-bottom:6px; }
+.exp-label.wrong { color:var(--danger); }
+.exp-text { font-size:0.85rem; line-height:1.65; color:var(--text-sec); }
+
+/* Bottom nav */
+.q-nav {
+  display:flex; align-items:center; gap:12px; justify-content:space-between;
+  flex-wrap:wrap;
+}
+.q-nav-left, .q-nav-right { display:flex; gap:10px; }
+.btn-nav {
+  padding:10px 22px; border-radius:var(--radius-sm); cursor:pointer;
+  font-family:'Outfit',sans-serif; font-size:0.86rem; font-weight:500;
+  border:1.5px solid var(--border); background:var(--surface); color:var(--text-pri);
+  transition:all 0.15s; display:inline-flex; align-items:center; gap:6px;
+}
+.btn-nav:hover { border-color:var(--border-md); background:var(--bg); }
+.btn-nav:active { transform:scale(0.97); }
+.btn-nav.primary { background:var(--navy); color:#fff; border-color:var(--navy); }
+.btn-nav.primary:hover { background:#161d2e; }
+.btn-mark {
+  padding:10px 18px; border-radius:var(--radius-sm); cursor:pointer;
+  font-family:'Outfit',sans-serif; font-size:0.86rem; font-weight:500;
+  border:1.5px solid rgba(200,151,42,0.3); background:var(--gold-dim); color:var(--gold);
+  transition:all 0.15s;
+}
+.btn-mark.marked { background:var(--gold); color:#fff; border-color:var(--gold); }
+.btn-mark:hover { opacity:0.85; }
+
+/* ════════════════ RIGHT PANEL ════════════════ */
+.test-panel {
+  position:fixed; top:var(--header-h); right:0; bottom:0;
+  width:var(--panel-w); background:var(--surface);
+  border-left:1px solid var(--border);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.panel-section { padding:18px 18px 14px; border-bottom:1px solid var(--border); }
+.panel-title { font-size:0.64rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-sec); margin-bottom:12px; }
+
+/* Progress ring */
+.progress-ring-wrap { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+.ring-labels { display:flex; flex-direction:column; gap:5px; }
+.ring-label { font-size:0.75rem; color:var(--text-sec); display:flex; align-items:center; gap:6px; }
+.ring-label span { font-weight:600; color:var(--text-pri); }
+.ring-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+/* Question grid */
+.q-grid-scroll { flex:1; overflow-y:auto; padding:14px 18px; }
+.q-grid-scroll::-webkit-scrollbar { width:3px; }
+.q-grid-scroll::-webkit-scrollbar-thumb { background:rgba(0,0,0,0.1); border-radius:10px; }
+
+.q-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:7px; }
+.q-dot {
+  aspect-ratio:1; border-radius:var(--radius-xs);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.72rem; font-weight:600; cursor:pointer;
+  border:1.5px solid var(--border); background:var(--bg);
+  color:var(--text-sec); transition:all 0.14s;
+}
+.q-dot:hover { border-color:var(--gold-border); color:var(--gold); }
+.q-dot.current  { border-color:var(--gold); background:var(--gold); color:#fff; }
+.q-dot.answered { border-color:rgba(45,122,79,0.4); background:var(--success-dim); color:var(--success); }
+.q-dot.marked   { border-color:rgba(200,151,42,0.5); background:var(--gold-dim); color:var(--gold); }
+.q-dot.skipped  { border-color:rgba(0,0,0,0.08); background:rgba(0,0,0,0.04); color:var(--text-mute); }
+
+/* Legend */
+.legend { display:flex; flex-wrap:wrap; gap:8px 14px; padding:14px 18px; border-top:1px solid var(--border); }
+.leg-item { display:flex; align-items:center; gap:5px; font-size:0.7rem; color:var(--text-sec); }
+.leg-box { width:12px; height:12px; border-radius:3px; border:1.5px solid; flex-shrink:0; }
+
+/* ════════════════ RESULT SCREEN ════════════════ */
+#screen-result {
+  background: var(--bg); overflow-y:auto;
+  align-items:center; justify-content:flex-start; padding:48px 24px;
+}
+
+.result-wrap { width:min(780px,100%); margin:0 auto; animation:slideUp 0.4s ease both; }
+
+.result-header { text-align:center; margin-bottom:36px; }
+.result-title { font-family:'Libre Baskerville',serif; font-size:2.2rem; font-weight:400; margin-bottom:8px; }
+.result-subtitle { font-size:0.9rem; color:var(--text-sec); }
+
+.score-hero {
+  background:var(--navy); border-radius:20px; padding:40px;
+  display:flex; align-items:center; justify-content:space-around; gap:24px;
+  margin-bottom:24px; flex-wrap:wrap;
+}
+.score-main { text-align:center; }
+.score-pct { font-family:'Libre Baskerville',serif; font-size:4rem; color:var(--gold); font-weight:700; line-height:1; }
+.score-out { font-size:1rem; color:rgba(255,255,255,0.4); margin-top:6px; }
+.score-grade { margin-top:14px; }
+.grade-pill {
+  display:inline-block; padding:6px 20px; border-radius:100px;
+  font-size:0.85rem; font-weight:600; letter-spacing:0.05em;
+}
+
+.score-stats { display:flex; gap:28px; flex-wrap:wrap; justify-content:center; }
+.score-stat { text-align:center; }
+.score-stat-val { font-family:'Libre Baskerville',serif; font-size:1.8rem; color:#fff; }
+.score-stat-lbl { font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:rgba(255,255,255,0.35); margin-top:4px; }
+
+.result-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:24px; }
+.res-card {
+  background:var(--surface); border-radius:var(--radius); border:1px solid var(--border);
+  padding:22px 24px;
+}
+.res-card h3 { font-family:'Libre Baskerville',serif; font-weight:400; font-size:1rem; margin-bottom:16px; color:var(--text-pri); }
+
+.stat-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(0,0,0,0.04); font-size:0.85rem; }
+.stat-row:last-child { border:none; }
+.stat-row .label { color:var(--text-sec); }
+.stat-row .value { font-weight:600; }
+
+/* Review list */
+.review-list { list-style:none; }
+.review-item {
+  padding:14px 0; border-bottom:1px solid rgba(0,0,0,0.05);
+  font-size:0.84rem;
+}
+.review-item:last-child { border:none; }
+.review-q { color:var(--text-sec); margin-bottom:6px; font-size:0.78rem; display:flex; gap:8px; align-items:center; }
+.review-text { line-height:1.6; margin-bottom:8px; color:var(--text-pri); }
+.review-answers { display:flex; gap:14px; flex-wrap:wrap; }
+.review-ans { font-size:0.78rem; display:flex; align-items:center; gap:5px; }
+
+.result-actions { display:flex; gap:12px; justify-content:center; margin-top:32px; flex-wrap:wrap; }
+.btn-action {
+  padding:12px 28px; border-radius:var(--radius-sm); cursor:pointer;
+  font-family:'Outfit',sans-serif; font-size:0.9rem; font-weight:500;
+  border:1.5px solid; transition:all 0.15s;
+}
+.btn-action.primary { background:var(--navy); color:#fff; border-color:var(--navy); }
+.btn-action.primary:hover { background:#161d2e; }
+.btn-action.ghost { background:transparent; color:var(--text-sec); border-color:var(--border); }
+.btn-action.ghost:hover { background:var(--surface); color:var(--text-pri); }
+
+/* ════════════════ MODAL (Submit confirmation) ════════════════ */
+.modal-bg {
+  position:fixed; inset:0; background:rgba(14,20,32,0.55); backdrop-filter:blur(4px);
+  z-index:500; display:none; align-items:center; justify-content:center;
+  animation:fadeIn 0.2s ease;
+}
+.modal-bg.open { display:flex; }
+.modal {
+  background:var(--surface); border-radius:18px; padding:36px 40px;
+  width:min(440px,90vw); border:1px solid var(--border);
+  box-shadow:0 24px 80px rgba(0,0,0,0.14);
+  animation:slideUp 0.25s ease both;
+}
+.modal h2 { font-family:'Libre Baskerville',serif; font-size:1.3rem; font-weight:400; margin-bottom:8px; }
+.modal p  { font-size:0.86rem; color:var(--text-sec); line-height:1.65; margin-bottom:24px; }
+.modal-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:24px; }
+.mstat { text-align:center; background:var(--bg); border-radius:var(--radius-sm); padding:12px 8px; }
+.mstat-val { font-family:'Libre Baskerville',serif; font-size:1.4rem; font-weight:700; }
+.mstat-lbl { font-size:0.65rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-sec); margin-top:3px; }
+.modal-actions { display:flex; gap:10px; }
+.modal-actions button { flex:1; padding:11px; border-radius:var(--radius-sm); cursor:pointer; font-family:'Outfit',sans-serif; font-size:0.88rem; font-weight:500; border:1.5px solid; transition:all 0.15s; }
+.modal-cancel { background:transparent; color:var(--text-sec); border-color:var(--border); }
+.modal-cancel:hover { background:var(--bg); }
+.modal-confirm { background:var(--navy); color:#fff; border-color:var(--navy); }
+.modal-confirm:hover { background:#161d2e; }
+
+/* ════════════════ PROGRESS BAR ════════════════ */
+.prog-bar-wrap { margin-bottom:8px; }
+.prog-bar { height:5px; background:rgba(0,0,0,0.06); border-radius:100px; }
+.prog-fill { height:100%; background:var(--gold); border-radius:100px; transition:width 0.5s ease; }
+.prog-label { display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-sec); margin-bottom:5px; }
+
+/* ════════════════ RESPONSIVE ════════════════ */
+@media(max-width:768px) {
+  :root { --panel-w:0px; }
+  .test-panel { display:none; }
+  .test-main  { margin-right:0; padding:20px 16px 100px; }
+  .q-card { padding:22px 20px; }
+  .result-grid { grid-template-columns:1fr; }
+  .config-grid { grid-template-columns:1fr; }
+  .start-card { padding:32px 24px; }
+  .score-hero { padding:28px 20px; }
+  .score-pct { font-size:3rem; }
+  .test-header { padding:0 14px; gap:8px; }
+  .header-meta { display:none; }
+  .btn-submit-hdr span { display:none; }
+  /* mobile panel as bottom sheet hint */
+  .mobile-q-bar {
+    display:flex !important;
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--surface); border-top:1px solid var(--border);
+    padding:10px 14px; z-index:90; align-items:center; justify-content:space-between; gap:10px;
+  }
+}
+.mobile-q-bar { display:none; }
+
+@media(max-width:480px) {
+  .score-stats { gap:16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     START SCREEN
+════════════════════════════════ -->
+<div class="screen active" id="screen-start">
+  <div class="start-bg"></div>
+  <div class="start-card">
+
+    <div class="brand-row">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 6.5C10.5 5.2 8.5 4.5 6 4.5v13c2.5 0 4.5.7 6 2 1.5-1.3 3.5-2 6-2v-13c-2.5 0-4.5.7-6 1z" stroke="#c8972a" stroke-width="1.5" stroke-linejoin="round"/>
+          <line x1="12" y1="6.5" x2="12" y2="19.5" stroke="#c8972a" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">CALm</div>
+        <div class="brand-sub">CA Exam Helper</div>
+      </div>
+    </div>
+
+    <div class="start-title">Mock Test Portal</div>
+    <div class="start-desc">Simulate real exam conditions. Timed, subject-specific practice for CA Foundation, Inter &amp; Final.</div>
+
+    <div class="config-grid">
+      <div class="config-field">
+        <label>Exam Level</label>
+        <select id="cfg-level">
+          <option>CA Foundation</option>
+          <option selected>CA Intermediate</option>
+          <option>CA Final</option>
+        </select>
+      </div>
+      <div class="config-field">
+        <label>Subject</label>
+        <select id="cfg-subject">
+          <option>Accounts (FR)</option>
+          <option>Law</option>
+          <option selected>Taxation (IT + GST)</option>
+          <option>Costing</option>
+          <option>Audit</option>
+          <option>FM / Strategic Mgmt</option>
+        </select>
+      </div>
+      <div class="config-field">
+        <label>No. of Questions</label>
+        <select id="cfg-count">
+          <option value="5">5 — Quick Practice</option>
+          <option value="10" selected>10 — Standard</option>
+          <option value="15">15 — Full Chapter</option>
+          <option value="20">20 — Exam Simulation</option>
+        </select>
+      </div>
+      <div class="config-field">
+        <label>Time Limit</label>
+        <select id="cfg-time">
+          <option value="600">10 minutes</option>
+          <option value="900" selected>15 minutes</option>
+          <option value="1800">30 minutes</option>
+          <option value="3600">60 minutes</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="test-info-row">
+      <div class="info-pill">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="5.5"/><polyline points="8 5 8 8.5 10.5 10"/></svg>
+        Timed exam
+      </div>
+      <div class="info-pill">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="1.5 10.5 4.5 6.5 7 9 10 4.5 14.5 8.5"/></svg>
+        Instant results
+      </div>
+      <div class="info-pill">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="2" width="12" height="12" rx="1.5"/><line x1="5" y1="8" x2="11" y2="8"/><line x1="8" y1="5" x2="8" y2="11"/></svg>
+        ICAI pattern MCQs
+      </div>
+    </div>
+
+    <button class="btn-start" onclick="startTest()">Begin Mock Test →</button>
+
+   
+    
+
+    
+
+    
+  </div>
+  <br>
+  <div ><a href="{% url 'dashboard' %}" class="btn-start">Home</a></div>
+</div>
+
+<!-- ════════════════════════════════
+     TEST SCREEN
+════════════════════════════════ -->
+<div class="screen" id="screen-test">
+
+  <!-- Header -->
+  <div class="test-header">
+    <div class="header-left">
+      <div class="header-brand">CALm</div>
+      <div class="header-meta" id="hdr-meta">Taxation · 10 Questions</div>
+    </div>
+    <div class="header-center">
+      <div class="timer-wrap">
+        <div>
+          <div class="timer-label">Time Left</div>
+          <div class="timer-display" id="timer-display">15:00</div>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn-submit-hdr" onclick="openSubmitModal()">
+        <span>Submit Test</span> →
+      </button>
+    </div>
+  </div>
+
+  <!-- Main question area -->
+  <div class="test-main" id="test-main">
+
+    <!-- Progress -->
+    <div class="prog-bar-wrap">
+      <div class="prog-label">
+        <span id="prog-label-left">Question 1 of 10</span>
+        <span id="prog-label-right">0 answered</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Question meta -->
+    <div class="q-meta" style="margin-top:18px;">
+      <span class="q-num-badge" id="q-num-badge">Q1</span>
+      <span class="q-subject-badge" id="q-subject-badge">Taxation</span>
+      <span class="q-marks-badge">+4 marks · −1 for wrong</span>
+    </div>
+
+    <!-- Question card -->
+    <div class="q-card" id="q-card">
+      <div class="q-text" id="q-text">Loading question...</div>
+      <ul class="options-list" id="options-list"></ul>
+      <div id="explanation-box"></div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="q-nav">
+      <div class="q-nav-left">
+        <button class="btn-nav" onclick="goTo(state.current - 1)">← Prev</button>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-mark" id="btn-mark" onclick="toggleMark()">☆ Mark for Review</button>
+        <button class="btn-nav" onclick="skipQ()">Skip</button>
+      </div>
+      <div class="q-nav-right">
+        <button class="btn-nav primary" onclick="goTo(state.current + 1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="test-panel">
+    <div class="panel-section">
+      <div class="panel-title">Progress</div>
+      <div class="prog-bar-wrap">
+        <div class="prog-label">
+          <span id="panel-prog-lbl">0 / 10 answered</span>
+          <span id="panel-pct">0%</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" id="panel-prog-fill" style="width:0%"></div></div>
+      </div>
+      <div class="ring-labels">
+        <div class="ring-label"><span class="ring-dot" style="background:var(--success)"></span>Answered: <span id="cnt-answered">0</span></div>
+        <div class="ring-label"><span class="ring-dot" style="background:var(--gold)"></span>Marked: <span id="cnt-marked">0</span></div>
+        <div class="ring-label"><span class="ring-dot" style="background:rgba(0,0,0,0.15)"></span>Not visited: <span id="cnt-notvisited">10</span></div>
+      </div>
+    </div>
+
+    <div class="panel-section" style="border:none;padding-bottom:8px;">
+      <div class="panel-title">Question Navigator</div>
+    </div>
+    <div class="q-grid-scroll">
+      <div class="q-grid" id="q-grid"></div>
+    </div>
+
+    <div class="legend">
+      <div class="leg-item"><div class="leg-box" style="background:var(--success-dim);border-color:rgba(45,122,79,0.4);"></div>Answered</div>
+      <div class="leg-item"><div class="leg-box" style="background:var(--gold-dim);border-color:rgba(200,151,42,0.5);"></div>Marked</div>
+      <div class="leg-item"><div class="leg-box" style="background:var(--bg);border-color:var(--border);"></div>Not visited</div>
+    </div>
+  </div>
+
+  <!-- Mobile bottom bar -->
+  <div class="mobile-q-bar">
+    <button class="btn-nav" onclick="goTo(state.current-1)" style="padding:8px 16px;">← Prev</button>
+    <span style="font-size:0.8rem;color:var(--text-sec);" id="mob-prog">1 / 10</span>
+    <button class="btn-mark" id="btn-mark-mob" onclick="toggleMark()" style="padding:8px 12px;font-size:0.78rem;">☆</button>
+    <button class="btn-nav primary" onclick="goTo(state.current+1)" style="padding:8px 16px;">Next →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     RESULT SCREEN
+════════════════════════════════ -->
+<div class="screen" id="screen-result">
+  <div class="result-wrap">
+    <div class="result-header">
+      <div class="result-title" id="result-title">Test Complete</div>
+      <div class="result-subtitle" id="result-subtitle">CA Intermediate · Taxation · 10 Questions</div>
+    </div>
+
+    <!-- Score hero -->
+    <div class="score-hero">
+      <div class="score-main">
+        <div class="score-pct" id="res-pct">—</div>
+        <div class="score-out" id="res-out">— / 40 marks</div>
+        <div class="score-grade"><span class="grade-pill" id="res-grade">—</span></div>
+      </div>
+      <div class="score-stats">
+        <div class="score-stat"><div class="score-stat-val" id="res-correct">—</div><div class="score-stat-lbl">Correct</div></div>
+        <div class="score-stat"><div class="score-stat-val" id="res-wrong">—</div><div class="score-stat-lbl">Wrong</div></div>
+        <div class="score-stat"><div class="score-stat-val" id="res-skipped">—</div><div class="score-stat-lbl">Skipped</div></div>
+        <div class="score-stat"><div class="score-stat-val" id="res-accuracy">—</div><div class="score-stat-lbl">Accuracy</div></div>
+        <div class="score-stat"><div class="score-stat-val" id="res-time">—</div><div class="score-stat-lbl">Time Used</div></div>
+      </div>
+    </div>
+
+    <div class="result-grid">
+      <!-- Score breakdown -->
+      <div class="res-card">
+        <h3>Score Breakdown</h3>
+        <div class="stat-row"><span class="label">Marks for correct (×4)</span><span class="value" id="rb-correct" style="color:var(--success)">+0</span></div>
+        <div class="stat-row"><span class="label">Negative marking (×1)</span><span class="value" id="rb-neg" style="color:var(--danger)">−0</span></div>
+        <div class="stat-row"><span class="label">Unattempted (×0)</span><span class="value" id="rb-skip">0</span></div>
+        <div class="stat-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:12px;">
+          <span class="label" style="font-weight:600;">Net Score</span>
+          <span class="value" id="rb-net" style="font-size:1.1rem;">0</span>
+        </div>
+        <div style="margin-top:16px;">
+          <div class="prog-label"><span style="color:var(--text-sec);">Performance vs Average</span><span id="rb-vs">—</span></div>
+          <div class="prog-bar"><div class="prog-fill" id="rb-bar" style="width:0%;background:var(--success)"></div></div>
+        </div>
+      </div>
+
+      <!-- Analysis -->
+      <div class="res-card">
+        <h3>Quick Analysis</h3>
+        <div id="analysis-list"></div>
+      </div>
+    </div>
+
+    <!-- Review -->
+    <div class="res-card" style="margin-bottom:24px;">
+      <h3>Question Review</h3>
+      <ul class="review-list" id="review-list"></ul>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn-action ghost" onclick="location.reload()">← Back to Home</button>
+      <button class="btn-action primary" onclick="retakeTest()">Retake Test →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Submit Modal -->
+<div class="modal-bg" id="submit-modal">
+  <div class="modal">
+    <h2>Submit Test?</h2>
+    <p>Once submitted, you cannot change your answers. Review your progress below before confirming.</p>
+    <div class="modal-stats">
+      <div class="mstat"><div class="mstat-val" id="m-answered" style="color:var(--success)">0</div><div class="mstat-lbl">Answered</div></div>
+      <div class="mstat"><div class="mstat-val" id="m-marked"   style="color:var(--gold)">0</div><div class="mstat-lbl">Marked</div></div>
+      <div class="mstat"><div class="mstat-val" id="m-skipped"  style="color:var(--text-mute)">0</div><div class="mstat-lbl">Skipped</div></div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeSubmitModal()">Cancel</button>
+      <button class="modal-confirm" onclick="submitTest()">Yes, Submit →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════
+   QUESTION BANK — CA Intermediate Taxation
+════════════════════════════════════════════ */
+const QUESTION_BANK = [
+  {
+    q: "Under Section 80C of the Income Tax Act, the maximum deduction allowed for an individual on eligible investments (including LIC premium, PPF, ELSS, etc.) is:",
+    opts: ["₹1,00,000", "₹1,50,000", "₹2,00,000", "₹2,50,000"],
+    ans: 1,
+    exp: "Section 80C allows a maximum deduction of ₹1,50,000 for an individual or HUF on specified investments and expenditures. This limit includes LIC premiums, PPF contributions, ELSS investments, home loan repayment (principal), NSC, tuition fees, etc."
+  },
+  {
+    q: "Which of the following is NOT a supply under Section 7 of the CGST Act, 2017?",
+    opts: ["Sale of goods for consideration", "Barter/exchange of services", "Import of services for business use without consideration", "Supply of goods by an employee to the employer in the course of employment"],
+    ans: 3,
+    exp: "Schedule III of the CGST Act specifies activities that are neither supply of goods nor services. Services by an employee to the employer in the course of or in relation to employment are excluded from the definition of supply."
+  },
+  {
+    q: "The 'Arm's Length Price' in transfer pricing is determined using methods prescribed under Section 92C. Which of the following is NOT one of the prescribed methods?",
+    opts: ["Comparable Uncontrolled Price (CUP)", "Profit Split Method (PSM)", "Transactional Net Margin Method (TNMM)", "Average Cost Plus Method (ACPM)"],
+    ans: 3,
+    exp: "The six prescribed transfer pricing methods under Section 92C are: CUP, RPM, CPM, PSM, TNMM, and 'Other Method' as notified. 'Average Cost Plus Method' is not a prescribed method under the Act."
+  },
+  {
+    q: "Under GST, the time of supply of services (where invoice is issued within 30 days of provision of service) is:",
+    opts: ["Date of provision of service", "Date of payment", "Date of invoice, whichever is earlier", "Date of invoice or receipt of payment, whichever is earlier"],
+    ans: 3,
+    exp: "Under Section 13(2) of the CGST Act, for services, time of supply is the earlier of: (a) date of invoice (if issued within 30 days of provision), or (b) date of receipt of payment."
+  },
+  {
+    q: "A resident individual, aged 61 years, has a total income of ₹4,80,000 for AY 2024-25. Tax payable before rebate under Section 87A would be (under old regime):",
+    opts: ["₹0", "₹1,500", "₹2,000", "₹2,500"],
+    ans: 0,
+    exp: "For a senior citizen (60–80 years), basic exemption is ₹3,00,000. Income above ₹3,00,000 = ₹1,80,000. Tax = 5% × ₹1,80,000 = ₹9,000. Rebate under 87A applies (income ≤ ₹5 lakh, rebate = actual tax or ₹12,500, whichever less). Hence tax = ₹0 after rebate. But tax before rebate = ₹9,000. However, correct interpretation of question is tax before cess and with rebate: rebate eliminates tax. Select ₹0 since rebate under 87A reduces it to nil."
+  },
+  {
+    q: "Input Tax Credit (ITC) is NOT available on which of the following under the CGST Act, 2017?",
+    opts: ["Goods or services used in the course of business", "Capital goods used for manufacturing taxable output", "Motor vehicles for transportation of persons (seating capacity ≤ 12)", "Goods imported for re-export"],
+    ans: 2,
+    exp: "Section 17(5) of CGST Act blocks ITC on motor vehicles for transportation of persons having approved seating capacity of not more than 13 persons (including driver), with certain exceptions. This is a blocked credit under Section 17(5)(a)."
+  },
+  {
+    q: "House property income: Priya owns a house. Municipal value: ₹90,000. Fair rent: ₹1,00,000. Standard rent: ₹85,000. Actual rent received: ₹80,000. The Gross Annual Value (GAV) is:",
+    opts: ["₹80,000", "₹85,000", "₹90,000", "₹1,00,000"],
+    ans: 1,
+    exp: "GAV is higher of Expected Rent (ER) and Actual Rent received. ER = Higher of Municipal Value (₹90,000) and Fair Rent (₹1,00,000) but restricted to Standard Rent (₹85,000). So ER = ₹85,000. Actual rent = ₹80,000. GAV = Higher of ₹85,000 and ₹80,000 = ₹85,000."
+  },
+  {
+    q: "Under Section 44AD (Presumptive Taxation for business), if a person opts for presumptive scheme, 8% of turnover is deemed profit. However, if receipts are by account payee cheque/bank transfer, the deemed profit rate is:",
+    opts: ["6%", "7%", "8%", "10%"],
+    ans: 0,
+    exp: "By the Finance Act 2017, Section 44AD was amended to provide a reduced deemed profit rate of 6% (instead of 8%) on turnover received or receivable through digital means, account payee cheque, DD, etc."
+  },
+  {
+    q: "The threshold limit for GST registration for a supplier of goods in a normal category state (not special category) is:",
+    opts: ["₹10 lakhs", "₹20 lakhs", "₹40 lakhs", "₹75 lakhs"],
+    ans: 2,
+    exp: "The aggregate turnover threshold for compulsory GST registration for goods suppliers in normal category states is ₹40 lakhs (amended by the CGST (Amendment) Act). Service providers continue at ₹20 lakhs."
+  },
+  {
+    q: "Which of the following capital assets qualifies as a short-term capital asset when held for NOT more than 12 months?",
+    opts: ["Listed equity shares (STT paid)", "Units of equity-oriented mutual funds", "Debentures listed on a recognised stock exchange", "Unlisted shares of a private limited company"],
+    ans: 2,
+    exp: "For listed debentures, the holding period for short-term classification is 12 months or less (not 24 months). Listed equity shares and equity mutual fund units are short-term if held ≤ 12 months. Unlisted shares are short-term if held ≤ 24 months."
+  },
+  {
+    q: "The rate of TDS under Section 194C (Contracts) on payments to a resident Individual/HUF (where PAN is available) is:",
+    opts: ["0.75%", "1%", "2%", "10%"],
+    ans: 1,
+    exp: "Under Section 194C, TDS rate for payments to contractors who are individuals/HUF is 1% and for others (firms, companies) it is 2%. These rates are on the amount payable (threshold: ₹30,000 per payment or ₹1,00,000 aggregate in a financial year)."
+  },
+  {
+    q: "The maximum penalty that can be levied under Section 270A for misreporting of income (as opposed to under-reporting) is:",
+    opts: ["50% of tax payable on misreported income", "100% of tax payable on misreported income", "150% of tax payable on misreported income", "200% of tax payable on misreported income"],
+    ans: 3,
+    exp: "Section 270A distinguishes between under-reporting (penalty = 50% of tax) and misreporting (penalty = 200% of tax). Misreporting includes suppression of facts, false entries, failure to record investments, claiming false deductions, etc."
+  },
+  {
+    q: "Under GST, a composition dealer's rate for a manufacturer is:",
+    opts: ["0.5% of turnover", "1% of turnover", "2.5% of turnover", "5% of turnover"],
+    ans: 0,
+    exp: "Under Section 10 of the CGST Act, the composition levy for manufacturers (other than manufacturers of notified goods) is 0.5% of turnover (0.5% CGST + 0.5% SGST = 1% total effective rate). This was revised and confirmed by CBIC notifications."
+  },
+  {
+    q: "Income from 'winnings from lottery, crossword puzzles' etc. under Section 115BB is taxable at a flat rate of:",
+    opts: ["20%", "25%", "30%", "35%"],
+    ans: 2,
+    exp: "Section 115BB provides that income by way of winnings from lotteries, crossword puzzles, races including horse races, card games and other games, gambling or betting shall be taxable at a flat rate of 30% without allowing any deduction or expenditure."
+  },
+  {
+    q: "Place of supply for services related to immovable property (e.g., interior designing, architects' services) under IGST Act is:",
+    opts: ["Location of the supplier", "Location of the recipient", "Location of the immovable property", "Location of the service provider's registered office"],
+    ans: 2,
+    exp: "Section 12(3) of the IGST Act specifies that the place of supply of services directly related to immovable property — including architects, interior decorators, surveyors — shall be the location at which the immovable property is located."
+  },
+  {
+    q: "The due date for filing Income Tax Return (ITR) for a company subject to tax audit for AY 2024-25 (non-transfer pricing case) is:",
+    opts: ["31st July", "30th September", "31st October", "30th November"],
+    ans: 2,
+    exp: "For taxpayers whose accounts are required to be audited under the Income Tax Act or any other law, the due date for filing ITR is 31st October of the assessment year. (For transfer pricing cases, it is 30th November.)"
+  },
+  {
+    q: "Under the new tax regime (Section 115BAC), which of the following deductions/exemptions is still ALLOWED?",
+    opts: ["HRA exemption under Section 10(13A)", "Standard deduction of ₹50,000 from salary (post Finance Act 2023)", "Deduction under Section 80C", "Leave Travel Allowance exemption"],
+    ans: 1,
+    exp: "Post Finance Act 2023, the standard deduction of ₹50,000 from salary is allowed under the new tax regime as well. However, most exemptions (HRA, LTA) and deductions (80C, 80D etc.) remain disallowed under the new regime."
+  },
+  {
+    q: "An assessee files his return of income one month after the due date. The applicable fee under Section 234F (for total income > ₹5 lakhs) is:",
+    opts: ["₹1,000", "₹2,500", "₹5,000", "₹10,000"],
+    ans: 2,
+    exp: "Section 234F imposes a fee of ₹5,000 for late filing if the return is furnished after the due date but on or before 31st December. If total income does not exceed ₹5 lakhs, the fee is restricted to ₹1,000. Since income > ₹5 lakhs, fee = ₹5,000."
+  },
+  {
+    q: "The concept of 'Aggregate Turnover' under GST includes which of the following?",
+    opts: ["Value of exempt supplies only", "Value of taxable + exempt + zero-rated + inter-state supplies, but excluding GST", "Value of taxable supplies only", "Only CGST-liable supplies"],
+    ans: 1,
+    exp: "Section 2(6) of CGST Act defines Aggregate Turnover as the aggregate value of all taxable supplies (excluding the value of inward supplies on which tax is payable on reverse charge basis), exempt supplies, exports of goods/services, and inter-State supplies — all computed on an all-India basis, excluding GST."
+  },
+  {
+    q: "When is tax deducted at source under Section 194IA on purchase of immovable property?",
+    opts: ["When consideration exceeds ₹30 lakhs", "When consideration exceeds ₹50 lakhs", "When stamp duty value exceeds ₹30 lakhs", "When consideration exceeds ₹1 crore"],
+    ans: 1,
+    exp: "Section 194IA requires the buyer to deduct TDS @ 1% at the time of making payment to the seller of any immovable property (other than agricultural land) where the consideration exceeds ₹50 lakhs. Note: After the Finance Act 2022 amendment, the higher of consideration or stamp duty value is to be considered."
+  }
+];
+
+/* ════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════ */
+let state = {
+  questions:   [],
+  answers:     [],   /* null = unanswered, -1 = skipped, 0–3 = answered */
+  marked:      [],
+  visited:     [],
+  current:     0,
+  timer:       0,
+  timerID:     null,
+  totalTime:   0,
+  startedAt:   null,
+  submitted:   false,
+  subject:     'Taxation',
+  level:       'CA Intermediate',
+};
+
+/* ════════════════════════════════════════════
+   START TEST
+════════════════════════════════════════════ */
+function startTest() {
+  const count   = parseInt(document.getElementById('cfg-count').value);
+  const timeVal = parseInt(document.getElementById('cfg-time').value);
+  state.subject = document.getElementById('cfg-subject').value;
+  state.level   = document.getElementById('cfg-level').value;
+
+  /* Pick random questions */
+  const shuffled = [...QUESTION_BANK].sort(() => Math.random() - 0.5);
+  state.questions = shuffled.slice(0, Math.min(count, shuffled.length));
+  const n = state.questions.length;
+
+  state.answers  = Array(n).fill(null);
+  state.marked   = Array(n).fill(false);
+  state.visited  = Array(n).fill(false);
+  state.current  = 0;
+  state.timer    = timeVal;
+  state.totalTime= timeVal;
+  state.submitted= false;
+  state.startedAt= Date.now();
+
+  /* Update header */
+  document.getElementById('hdr-meta').textContent = `${state.subject} · ${n} Questions`;
+
+  /* Build question grid */
+  buildQGrid();
+
+  /* Show test screen */
+  showScreen('test');
+  renderQuestion(0);
+  startTimer();
+}
+
+/* ════════════════════════════════════════════
+   TIMER
+════════════════════════════════════════════ */
+function startTimer() {
+  clearInterval(state.timerID);
+  state.timerID = setInterval(() => {
+    state.timer--;
+    updateTimerDisplay();
+    if(state.timer <= 0) { clearInterval(state.timerID); autoSubmit(); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(state.timer / 60);
+  const s = state.timer % 60;
+  const el = document.getElementById('timer-display');
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.toggle('warn', state.timer <= 120);
+}
+
+function autoSubmit() {
+  closeSubmitModal();
+  submitTest();
+}
+
+/* ════════════════════════════════════════════
+   RENDER QUESTION
+════════════════════════════════════════════ */
+function renderQuestion(idx) {
+  if(idx < 0 || idx >= state.questions.length) return;
+  state.current = idx;
+  state.visited[idx] = true;
+
+  const q = state.questions[idx];
+  const n = state.questions.length;
+
+  document.getElementById('q-num-badge').textContent     = `Q${idx+1}`;
+  document.getElementById('q-subject-badge').textContent = state.subject;
+  document.getElementById('q-text').textContent          = q.q;
+
+  /* Progress */
+  const answered = state.answers.filter(a => a !== null && a !== -1).length;
+  document.getElementById('prog-label-left').textContent  = `Question ${idx+1} of ${n}`;
+  document.getElementById('prog-label-right').textContent = `${answered} answered`;
+  document.getElementById('prog-fill').style.width        = `${Math.round((idx+1)/n*100)}%`;
+  document.getElementById('mob-prog').textContent         = `${idx+1} / ${n}`;
+
+  /* Mark button */
+  const markBtn = document.getElementById('btn-mark');
+  const markBtnMob = document.getElementById('btn-mark-mob');
+  if(state.marked[idx]) {
+    markBtn.textContent = '★ Marked for Review';
+    markBtn.classList.add('marked');
+    markBtnMob.textContent = '★';
+    markBtnMob.classList.add('marked');
+  } else {
+    markBtn.textContent = '☆ Mark for Review';
+    markBtn.classList.remove('marked');
+    markBtnMob.textContent = '☆';
+    markBtnMob.classList.remove('marked');
+  }
+
+  /* Options */
+  const optsList = document.getElementById('options-list');
+  optsList.innerHTML = '';
+  const selected = state.answers[idx];
+
+  q.opts.forEach((opt, i) => {
+    const li = document.createElement('li');
+    li.className = 'option-item';
+    if(selected === i) li.classList.add('selected');
+
+    li.innerHTML = `<div class="opt-letter">${String.fromCharCode(65+i)}</div><span class="opt-text">${opt}</span>`;
+
+    if(selected === null || selected === -1) {
+      li.onclick = () => selectAnswer(idx, i);
+    }
+    optsList.appendChild(li);
+  });
+
+  /* Explanation (only if answered) */
+  document.getElementById('explanation-box').innerHTML = '';
+  if(selected !== null && selected !== -1) {
+    showExplanation(selected, q.ans, q.exp);
+  }
+
+  /* Animate card */
+  const card = document.getElementById('q-card');
+  card.style.animation = 'none';
+  requestAnimationFrame(() => { card.style.animation = ''; });
+
+  updateQGrid();
+  updatePanelCounts();
+}
+
+/* ════════════════════════════════════════════
+   SELECT ANSWER
+════════════════════════════════════════════ */
+function selectAnswer(qIdx, optIdx) {
+  if(state.answers[qIdx] !== null && state.answers[qIdx] !== -1) return; /* locked */
+  state.answers[qIdx] = optIdx;
+  renderQuestion(qIdx);
+}
+
+function showExplanation(selected, correct, expText) {
+  const isCorrect = selected === correct;
+  const box = document.getElementById('explanation-box');
+  box.innerHTML = `
+    <div class="explanation-box ${isCorrect?'':'wrong-exp'}">
+      <div class="exp-label ${isCorrect?'':'wrong'}">${isCorrect?'✓ Correct!':'✗ Incorrect'}</div>
+      <div class="exp-text">${expText}</div>
+    </div>`;
+
+  /* Color options */
+  const items = document.querySelectorAll('.option-item');
+  items.forEach((li, i) => {
+    li.onclick = null;
+    if(i === correct) li.classList.add(i === selected ? 'correct' : 'show-correct');
+    if(i === selected && i !== correct) li.classList.add('wrong');
+    if(i === selected && i === correct) li.classList.add('correct');
+    const letter = li.querySelector('.opt-letter');
+    if(i === correct || (i === selected && i === correct)) {
+      letter.style.background = 'var(--success)';
+      letter.style.borderColor = 'var(--success)';
+      letter.style.color = '#fff';
+    }
+    if(i === selected && i !== correct) {
+      letter.style.background = 'var(--danger)';
+      letter.style.borderColor = 'var(--danger)';
+      letter.style.color = '#fff';
+    }
+  });
+}
+
+/* ════════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════════ */
+function goTo(idx) {
+  if(idx < 0 || idx >= state.questions.length) return;
+  renderQuestion(idx);
+}
+
+function skipQ() {
+  if(state.answers[state.current] === null) state.answers[state.current] = -1;
+  goTo(state.current + 1);
+}
+
+function toggleMark() {
+  state.marked[state.current] = !state.marked[state.current];
+  renderQuestion(state.current);
+}
+
+/* ════════════════════════════════════════════
+   QUESTION GRID
+════════════════════════════════════════════ */
+function buildQGrid() {
+  const grid = document.getElementById('q-grid');
+  grid.innerHTML = '';
+  state.questions.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'q-dot';
+    dot.textContent = i + 1;
+    dot.id = `qdot-${i}`;
+    dot.onclick = () => goTo(i);
+    grid.appendChild(dot);
+  });
+}
+
+function updateQGrid() {
+  state.questions.forEach((_, i) => {
+    const dot = document.getElementById(`qdot-${i}`);
+    if(!dot) return;
+    dot.className = 'q-dot';
+    const ans = state.answers[i];
+    if(i === state.current) dot.classList.add('current');
+    else if(state.marked[i]) dot.classList.add('marked');
+    else if(ans !== null && ans !== -1) dot.classList.add('answered');
+    else if(ans === -1 || (state.visited[i] && ans === null)) dot.classList.add('skipped');
+  });
+}
+
+function updatePanelCounts() {
+  const answered   = state.answers.filter(a => a !== null && a !== -1).length;
+  const markedCnt  = state.marked.filter(Boolean).length;
+  const visited    = state.visited.filter(Boolean).length;
+  const notVisited = state.questions.length - visited;
+  const pct        = Math.round(answered / state.questions.length * 100);
+
+  document.getElementById('cnt-answered').textContent  = answered;
+  document.getElementById('cnt-marked').textContent    = markedCnt;
+  document.getElementById('cnt-notvisited').textContent= notVisited;
+  document.getElementById('panel-prog-lbl').textContent= `${answered} / ${state.questions.length} answered`;
+  document.getElementById('panel-pct').textContent     = `${pct}%`;
+  document.getElementById('panel-prog-fill').style.width = `${pct}%`;
+  /* Modal */
+  document.getElementById('m-answered').textContent = answered;
+  document.getElementById('m-marked').textContent   = markedCnt;
+  document.getElementById('m-skipped').textContent  = state.questions.length - answered;
+}
+
+/* ════════════════════════════════════════════
+   SUBMIT MODAL
+════════════════════════════════════════════ */
+function openSubmitModal()  { updatePanelCounts(); document.getElementById('submit-modal').classList.add('open'); }
+function closeSubmitModal() { document.getElementById('submit-modal').classList.remove('open'); }
+
+/* ════════════════════════════════════════════
+   SUBMIT & RESULTS
+════════════════════════════════════════════ */
+function submitTest() {
+  clearInterval(state.timerID);
+  closeSubmitModal();
+  state.submitted = true;
+
+  const n        = state.questions.length;
+  const timeUsed = state.totalTime - state.timer;
+  let correct    = 0, wrong = 0, skipped = 0;
+
+  state.answers.forEach((ans, i) => {
+    if(ans === null || ans === -1) skipped++;
+    else if(ans === state.questions[i].ans) correct++;
+    else wrong++;
+  });
+
+  const totalMarks = n * 4;
+  const netMarks   = (correct * 4) - (wrong * 1);
+  const pct        = Math.round(netMarks / totalMarks * 100);
+  const accuracy   = correct + wrong > 0 ? Math.round(correct / (correct + wrong) * 100) : 0;
+
+  /* Grade */
+  let grade, gradeStyle;
+  if(pct >= 70)     { grade='Excellent'; gradeStyle='background:rgba(45,122,79,0.15);color:#2d7a4f;'; }
+  else if(pct >= 50){ grade='Good';      gradeStyle='background:rgba(200,151,42,0.12);color:#c8972a;'; }
+  else if(pct >= 40){ grade='Pass';      gradeStyle='background:rgba(14,20,32,0.07);color:#1a2436;'; }
+  else              { grade='Below Pass';gradeStyle='background:rgba(184,50,50,0.1);color:#b83232;'; }
+
+  /* Populate results */
+  document.getElementById('result-title').textContent    = 'Test Complete';
+  document.getElementById('result-subtitle').textContent = `${state.level} · ${state.subject} · ${n} Questions`;
+  document.getElementById('res-pct').textContent    = `${Math.max(0,pct)}%`;
+  document.getElementById('res-out').textContent    = `${Math.max(0,netMarks)} / ${totalMarks} marks`;
+  document.getElementById('res-grade').textContent  = grade;
+  document.getElementById('res-grade').style        = gradeStyle + 'font-size:0.85rem;font-weight:600;padding:6px 20px;border-radius:100px;';
+  document.getElementById('res-correct').textContent  = correct;
+  document.getElementById('res-wrong').textContent    = wrong;
+  document.getElementById('res-skipped').textContent  = skipped;
+  document.getElementById('res-accuracy').textContent = `${accuracy}%`;
+
+  const mins = Math.floor(timeUsed/60), secs = timeUsed%60;
+  document.getElementById('res-time').textContent = `${mins}m ${String(secs).padStart(2,'0')}s`;
+
+  document.getElementById('rb-correct').textContent = `+${correct*4}`;
+  document.getElementById('rb-neg').textContent     = `−${wrong}`;
+  document.getElementById('rb-skip').textContent    = skipped;
+  document.getElementById('rb-net').textContent     = `${Math.max(0,netMarks)} / ${totalMarks}`;
+  document.getElementById('rb-vs').textContent      = `${pct}%`;
+  document.getElementById('rb-bar').style.width     = `${Math.max(0,pct)}%`;
+  document.getElementById('rb-bar').style.background= pct>=50?'var(--success)':pct>=40?'var(--gold)':'var(--danger)';
+
+  /* Analysis */
+  const analyses = [
+    { label:'Correct answers', val:correct, color:'var(--success)' },
+    { label:'Wrong answers',   val:wrong,   color:'var(--danger)'  },
+    { label:'Skipped',         val:skipped, color:'var(--text-mute)' },
+    { label:'Accuracy rate',   val:`${accuracy}%`, color:accuracy>=60?'var(--success)':'var(--gold)' },
+    { label:'Time per question',val:`${Math.round(timeUsed/n)}s`, color:'var(--text-pri)' },
+    { label:'Net marks scored', val:`${Math.max(0,netMarks)}`, color:pct>=40?'var(--success)':'var(--danger)' },
+  ];
+  document.getElementById('analysis-list').innerHTML = analyses.map(a =>
+    `<div class="stat-row"><span class="label">${a.label}</span><span class="value" style="color:${a.color}">${a.val}</span></div>`
+  ).join('');
+
+  /* Review */
+  document.getElementById('review-list').innerHTML = state.questions.map((q, i) => {
+    const userAns = state.answers[i];
+    const isCorrect = userAns === q.ans;
+    const isSkipped = userAns === null || userAns === -1;
+    const statusColor = isSkipped ? 'var(--text-mute)' : isCorrect ? 'var(--success)' : 'var(--danger)';
+    const statusLabel = isSkipped ? 'Skipped' : isCorrect ? '✓ Correct' : '✗ Wrong';
+    return `<li class="review-item">
+      <div class="review-q">
+        <span class="q-num-badge" style="font-size:0.72rem;padding:2px 9px;">Q${i+1}</span>
+        <span style="color:${statusColor};font-weight:600;">${statusLabel}</span>
+      </div>
+      <div class="review-text">${q.q}</div>
+      <div class="review-answers">
+        ${!isSkipped ? `<span class="review-ans" style="color:${isCorrect?'var(--success)':'var(--danger)'};">Your answer: ${String.fromCharCode(65+userAns)}. ${q.opts[userAns]}</span>` : ''}
+        ${!isCorrect ? `<span class="review-ans" style="color:var(--success);">Correct: ${String.fromCharCode(65+q.ans)}. ${q.opts[q.ans]}</span>` : ''}
+      </div>
+    </li>`;
+  }).join('');
+
+  showScreen('result');
+}
+
+function retakeTest() { startTest(); }
+
+/* ════════════════════════════════════════════
+   SCREEN SWITCH
+════════════════════════════════════════════ */
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`screen-${name}`).classList.add('active');
+}
+</script>
+</body>
+</html>
